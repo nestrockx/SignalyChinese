@@ -1,6 +1,5 @@
 package com.wegielek.signalychinese.adapters;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,7 +29,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
             super(itemView);
             textView = itemView.findViewById(R.id.textViewItem);
 
-            itemView.setOnTouchListener((View.OnTouchListener) (view, motionEvent) -> {
+            itemView.setOnTouchListener((view, motionEvent) -> {
                 if (recyclerViewListener != null) {
                     if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                         recyclerViewListener.onItemPressed(itemView);
@@ -50,7 +49,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_layout, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_character, parent, false);
         return new ViewHolder(itemView);
     }
 

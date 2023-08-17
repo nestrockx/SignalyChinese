@@ -48,7 +48,7 @@
         android:background="@drawable/backspace_btn_selector"
         android:contentDescription="Backspace"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button9" />
+        app:layout_constraintEnd_toStartOf="@+id/search_btn" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button5"
@@ -87,7 +87,7 @@
         app:layout_constraintStart_toEndOf="@+id/button7" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button9"
+        android:id="@+id/search_btn"
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:layout_marginEnd="16dp"
@@ -167,7 +167,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -177,5 +177,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/CanvasView" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/results_rv"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/CanvasView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button11"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

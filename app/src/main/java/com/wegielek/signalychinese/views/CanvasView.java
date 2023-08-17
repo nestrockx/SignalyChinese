@@ -92,6 +92,7 @@ public class CanvasView extends View {
         inkBuilder = Ink.builder();
         drawCanvas.drawColor(Color.BLACK);
         invalidate();
+        clearHistory();
     }
 
     public void undo() {
@@ -117,7 +118,7 @@ public class CanvasView extends View {
         }
     }
 
-    public void clearHistory() {
+    private void clearHistory() {
         strokesHistory.clear();
         visibleStrokesHistory.clear();
     }

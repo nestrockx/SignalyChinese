@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.mlkit.vision.digitalink.RecognitionCandidate;
@@ -20,6 +21,7 @@ import com.wegielek.signalychinese.Interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.Interfaces.RecyclerViewListener;
 import com.wegielek.signalychinese.R;
 import com.wegielek.signalychinese.adapters.CharacterListAdapter;
+import com.wegielek.signalychinese.adapters.ResultsListAdapter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,32 +30,42 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity implements CanvasViewListener, RecyclerViewListener {
 
-    private TextInputEditText textInputEditText;
-    private CanvasView canvasView;
-    private RecyclerView charactersRecyclerView;
-    private CharacterListAdapter characterListAdapter;
-    private List<String> charactersList;
-    private Button doneButton;
-    private List<String> fileDictionaryContents;
-
-    private int cursorPosition = 0;
-
+    private List<String> traditional;
+    private List<String> simplified;
+    private List<String> transcription;
+    private List<String> translation;
+    private TextInputEditText mTextInputEditText;
+    private CanvasView mCanvasView;
+    private RecyclerView mCharactersRecyclerView;
+    private CharacterListAdapter mCharacterListAdapter;
+    private ResultsListAdapter mResultsListAdapter;
+    private List<String> mCharactersList;
+    private Button mDoneButton;
+    private Button mSearchButton;
+    private List<String> mFileDictionaryContents;
+    private int mCursorPosition = 0;
+    private TextView mLabel;
+    private RecyclerView mResultsRecyclerView;
+    private Button mUndoButton;
+    private List<String> dictionaryResultsList;
     private Handler mHandler;
 
     private void backspace(int n, boolean force) {
-        int length = Objects.requireNonNull(textInputEditText.getText()).length();
-        if (n - (length - cursorPosition) == 1 && length > 0 && !force) {
-            textInputEditText.getText().delete(length - n + 1, length);
+        int length = Objects.requireNonNull(mTextInputEditText.getText()).length();
+        if (n - (length - mCursorPosition) == 1 && length > 0 && !force) {
+            mTextInputEditText.getText().delete(length - n + 1, length);
         }
-        else if (length - cursorPosition >= n && !force) {
-            textInputEditText.getText().delete(length - n, length);
+        else if (length - mCursorPosition >= n && !force) {
+            mTextInputEditText.getText().delete(length - n, length);
         }
         else if (force && length >= 1) {
-            textInputEditText.getText().delete(length - 1, length);
+            mTextInputEditText.getText().delete(length - 1, length);
         }
     }
 
@@ -63,16 +75,23 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textInputEditText = findViewById(R.id.textInputEditText);
-        textInputEditText.requestFocus();
-        textInputEditText.postDelayed(() -> {
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(textInputEditText.getWindowToken(), 0);
-        }, 1000);
+        mTextInputEditText = findViewById(R.id.textInputEditText);
+        mTextInputEditText.requestFocus();
+        mTextInputEditText.postDelayed(new Runnable() {
+              @Override
+              public void run() {
+                  InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                  if (imm.isActive()) {
+                      imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
+                  } else {
+                      mTextInputEditText.postDelayed(this, 10);
+                  }
+              }
+        }, 10);
 
-        textInputEditText.setOnEditorActionListener((textView, actionId, keyEvent) -> {
+        mTextInputEditText.setOnEditorActionListener((textView, actionId, keyEvent) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                //performSearch();
+                performSearch();
                 return true;
             }
             return false;
@@ -81,106 +100,148 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         Button backspaceButton = findViewById(R.id.backspaceButton);
         backspaceButton.setOnClickListener(view -> {
             backspace(1, true);
-            canvasView.clear();
-            doneButton.setVisibility(View.INVISIBLE);
-            cursorPosition = textInputEditText.length();
-            canvasView.clearHistory();
+            mDoneButton.setVisibility(View.INVISIBLE);
+            mCursorPosition = mTextInputEditText.length();
+            mCanvasView.clear();
         });
 
-        canvasView = findViewById(R.id.CanvasView);
-        canvasView.setOnRecognizeListener(this);
-        canvasView.post(() -> {
-            canvasView.init(canvasView.getWidth(), canvasView.getHeight());
+        mCanvasView = findViewById(R.id.CanvasView);
+        mCanvasView.setOnRecognizeListener(this);
+        mCanvasView.post(() -> {
+            mCanvasView.init(mCanvasView.getWidth(), mCanvasView.getHeight());
         });
 
-        charactersRecyclerView = findViewById(R.id.recyclerView);
-        charactersRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mCharactersRecyclerView = findViewById(R.id.recyclerView);
+        mCharactersRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        charactersList = new ArrayList<>();
-        characterListAdapter = new CharacterListAdapter(charactersList, this);
-        charactersRecyclerView.setAdapter(characterListAdapter);
+        mCharactersList = new ArrayList<>();
+        mCharacterListAdapter = new CharacterListAdapter(mCharactersList, this);
+        mCharactersRecyclerView.setAdapter(mCharacterListAdapter);
 
-        doneButton = findViewById(R.id.done_btn);
-        doneButton.setOnClickListener(view -> {
-            canvasView.clear();
-            charactersList.clear();
-            characterListAdapter.notifyDataSetChanged();
-            doneButton.setVisibility(View.INVISIBLE);
-            cursorPosition += Objects.requireNonNull(textInputEditText.getText()).length() - cursorPosition;
-            canvasView.clearHistory();
+        mDoneButton = findViewById(R.id.done_btn);
+        mDoneButton.setOnClickListener(view -> {
+            mCharactersList.clear();
+            mCharacterListAdapter.notifyDataSetChanged();
+            mDoneButton.setVisibility(View.INVISIBLE);
+            mCursorPosition += Objects.requireNonNull(mTextInputEditText.getText()).length() - mCursorPosition;
+            mCanvasView.clear();
         });
 
-        fileDictionaryContents = new ArrayList<>();
+        mFileDictionaryContents = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(getAssets().open("resultTest.txt"), StandardCharsets.UTF_8))) {
 
             String mLine;
             while ((mLine = reader.readLine()) != null) {
-                fileDictionaryContents.add(mLine);
+                mFileDictionaryContents.add(mLine);
             }
             //Toast.makeText(this, fileDictionaryContents.get(0), Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Button undoButton = findViewById(R.id.undo_btn);
-        undoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                canvasView.undo();
+        traditional = new ArrayList<>();
+        simplified = new ArrayList<>();
+        transcription = new ArrayList<>();
+        translation = new ArrayList<>();
+        for (String line : mFileDictionaryContents) {
+            Pattern pattern = Pattern.compile("(.+) (.+) \\[(.+)\\] /(.+)/");
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.find()) {
+                String x = matcher.group(1);
+                String y = matcher.group(2);
+                String z = matcher.group(3).replaceAll("\\d", "");
+                String a = matcher.group(4);
+
+                traditional.add(x);
+                simplified.add(y);
+                transcription.add(z);
+                translation.add(a);
             }
-        });
+        }
 
+        mUndoButton = findViewById(R.id.undo_btn);
+        mUndoButton.setOnClickListener(view -> mCanvasView.undo());
 
-        //  HanziWritingView hanziWritingView = findViewById(R.id.HanjaWritingView);
-      //  hanziWritingView.setHanziCharacter('读');
-      //  hanziWritingView.setDimensions(1000);
+        mSearchButton = findViewById(R.id.search_btn);
+        mSearchButton.setOnClickListener(v -> performSearch());
 
-      //  Button clearButton = findViewById(R.id.clear_button);
-      //  clearButton.setOnClickListener(view -> hanziWritingView.clear());
+        mLabel = findViewById(R.id.label);
 
+        mResultsRecyclerView = findViewById(R.id.results_rv);
+        mResultsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        /*
-        mHandler = new Handler();
-        Runnable wakelock = new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), "Hooy", Toast.LENGTH_SHORT).show();
-                mHandler.postDelayed(this, 5000);
+        dictionaryResultsList = new ArrayList<>();
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
+
+        mResultsListAdapter = new ResultsListAdapter(dictionaryResultsList);
+
+        mResultsRecyclerView.setAdapter(mResultsListAdapter);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void performSearch() {
+        mCursorPosition = mTextInputEditText.length();
+        mCanvasView.clear();
+        mCanvasView.setVisibility(View.INVISIBLE);
+        mCharactersRecyclerView.setVisibility(View.VISIBLE);
+        mUndoButton.setVisibility(View.INVISIBLE);
+        mResultsRecyclerView.setVisibility(View.VISIBLE);
+        mLabel.setText("Wyszukiwanie");
+
+        ArrayList<String> searchResults = new ArrayList<>();
+        String inputTextString = mTextInputEditText.getText().toString();
+        for (int i = 0; i < mFileDictionaryContents.size(); i++) {
+            Pattern pattern = Pattern.compile(inputTextString, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(simplified.get(i));
+            Matcher matcher1 = pattern.matcher(transcription.get(i));
+            Matcher matcher2 = pattern.matcher(traditional.get(i));
+
+            if (matcher.matches() || matcher1.matches() || matcher2.matches()) {
+                searchResults.add(mFileDictionaryContents.get(i));
             }
-        };
-        mHandler.post(wakelock);
-         */
 
+        }
+        dictionaryResultsList.clear();
+        dictionaryResultsList.addAll(searchResults);
+        mResultsListAdapter.notifyDataSetChanged();
     }
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onResults(List<RecognitionCandidate> recognitionCandidatesList) {
-        charactersList.clear();
+        mCharactersList.clear();
         for (RecognitionCandidate rc: recognitionCandidatesList) {
-            charactersList.add(rc.getText());
+            mCharactersList.add(rc.getText());
         }
-        characterListAdapter.notifyDataSetChanged();
+        mCharacterListAdapter.notifyDataSetChanged();
 
         backspace(recognitionCandidatesList.get(0).getText().length(), false);
-        textInputEditText.append(recognitionCandidatesList.get(0).getText());
+        mTextInputEditText.append(recognitionCandidatesList.get(0).getText());
 
-        doneButton.setVisibility(View.VISIBLE);
+        mDoneButton.setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onItemReleased(int position) {
         //Toast.makeText(this, charactersList.get(position), Toast.LENGTH_SHORT).show();
-        backspace(charactersList.get(position).length(), false);
-        textInputEditText.append(charactersList.get(position));
-        cursorPosition += charactersList.get(position).length();
-        canvasView.clear();
-        charactersList.clear();
-        characterListAdapter.notifyDataSetChanged();
-        doneButton.setVisibility(View.INVISIBLE);
-        canvasView.clearHistory();
+        backspace(mCharactersList.get(position).length(), false);
+        mTextInputEditText.append(mCharactersList.get(position));
+        mCursorPosition += mCharactersList.get(position).length();
+        mCharactersList.clear();
+        mCharacterListAdapter.notifyDataSetChanged();
+        mDoneButton.setVisibility(View.INVISIBLE);
+        mCanvasView.clear();
     }
 
     @Override
