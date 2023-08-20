@@ -7,19 +7,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wegielek.signalychinese.Interfaces.RecyclerViewListener;
+import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
 import com.wegielek.signalychinese.R;
 
 import java.util.List;
 
 public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdapter.ViewHolder> {
 
-    private final RecyclerViewListener recyclerViewListener;
+    private final CharactersRecyclerViewListener charactersRecyclerViewListener;
     private final List<String> dataList;
 
-    public CharacterListAdapter(List<String> dataList, RecyclerViewListener recyclerViewListener) {
+    public CharacterListAdapter(List<String> dataList, CharactersRecyclerViewListener charactersRecyclerViewListener) {
         this.dataList = dataList;
-        this.recyclerViewListener = recyclerViewListener;
+        this.charactersRecyclerViewListener = charactersRecyclerViewListener;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -30,16 +30,16 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
             textView = itemView.findViewById(R.id.textViewItem);
 
             itemView.setOnTouchListener((view, motionEvent) -> {
-                if (recyclerViewListener != null) {
+                if (charactersRecyclerViewListener != null) {
                     if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                        recyclerViewListener.onItemPressed(itemView);
+                        charactersRecyclerViewListener.onItemPressed(itemView);
                     } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                         int pos = getAdapterPosition();
                         if (pos != RecyclerView.NO_POSITION) {
-                            recyclerViewListener.onItemReleased(pos);
+                            charactersRecyclerViewListener.onItemReleased(pos);
                         }
                     } else if (motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
-                        recyclerViewListener.onItemCanceled(itemView);
+                        charactersRecyclerViewListener.onItemCanceled(itemView);
                     }
                 }
                 return true;

@@ -1,6 +1,7 @@
 package com.wegielek.signalychinese.views;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,8 +19,10 @@ import android.widget.TextView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.mlkit.vision.digitalink.RecognitionCandidate;
 import com.wegielek.signalychinese.Interfaces.CanvasViewListener;
-import com.wegielek.signalychinese.Interfaces.RecyclerViewListener;
+import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
+import com.wegielek.signalychinese.Interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
+import com.wegielek.signalychinese.State;
 import com.wegielek.signalychinese.adapters.CharacterListAdapter;
 import com.wegielek.signalychinese.adapters.ResultsListAdapter;
 
@@ -34,7 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class MainActivity extends AppCompatActivity implements CanvasViewListener, RecyclerViewListener {
+public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener {
 
     private List<String> traditional;
     private List<String> simplified;
@@ -55,6 +58,11 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private Button mUndoButton;
     private List<String> dictionaryResultsList;
     private Handler mHandler;
+    private Button mLearnButton;
+    private Button mPuzzleButton;
+    private Button mDrawButton;
+    private Button mBackspaceButton;
+    private State mState = State.DRAW;
 
     private void backspace(int n, boolean force) {
         int length = Objects.requireNonNull(mTextInputEditText.getText()).length();
@@ -67,6 +75,16 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         else if (force && length >= 1) {
             mTextInputEditText.getText().delete(length - 1, length);
         }
+
+        if (mState == State.RESULTS && length > 1) {
+            performSearch();
+        } else if (mState == State.RESULTS) {
+            mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
+            mResultsRecyclerView.setVisibility(View.INVISIBLE);
+            mCanvasView.setVisibility(View.VISIBLE);
+            mLabel.setText("Narysuj znak");
+            mState = State.DRAW;
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -75,7 +93,40 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mLearnButton = findViewById(R.id.learn_btn);
+        mPuzzleButton = findViewById(R.id.puzzle_btn);
+        mDrawButton = findViewById(R.id.draw_btn);
+        mDoneButton = findViewById(R.id.done_btn);
+        mUndoButton = findViewById(R.id.undo_btn);
+        mSearchButton = findViewById(R.id.search_btn);
+        mBackspaceButton = findViewById(R.id.backspaceButton);
+
         mTextInputEditText = findViewById(R.id.textInputEditText);
+
+        mCanvasView = findViewById(R.id.CharacterDrawCanvasView);
+
+        mResultsRecyclerView = findViewById(R.id.results_rv);
+
+        mCharactersRecyclerView = findViewById(R.id.recyclerView);
+
+        mLabel = findViewById(R.id.label);
+
+        mPuzzleButton.setOnClickListener(view -> {
+            mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
+            mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+        });
+
+
+        mDrawButton.setOnClickListener(view -> {
+            mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
+            mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+            mResultsRecyclerView.setVisibility(View.INVISIBLE);
+            mCanvasView.setVisibility(View.VISIBLE);
+            mLabel.setText("Narysuj znak");
+            mState = State.DRAW;
+        });
+
+
         mTextInputEditText.requestFocus();
         mTextInputEditText.postDelayed(new Runnable() {
               @Override
@@ -97,28 +148,27 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             return false;
         });
 
-        Button backspaceButton = findViewById(R.id.backspaceButton);
-        backspaceButton.setOnClickListener(view -> {
+        mBackspaceButton.setOnClickListener(view -> {
             backspace(1, true);
             mDoneButton.setVisibility(View.INVISIBLE);
             mCursorPosition = mTextInputEditText.length();
             mCanvasView.clear();
         });
 
-        mCanvasView = findViewById(R.id.CanvasView);
+
         mCanvasView.setOnRecognizeListener(this);
         mCanvasView.post(() -> {
             mCanvasView.init(mCanvasView.getWidth(), mCanvasView.getHeight());
         });
 
-        mCharactersRecyclerView = findViewById(R.id.recyclerView);
+
         mCharactersRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         mCharactersList = new ArrayList<>();
         mCharacterListAdapter = new CharacterListAdapter(mCharactersList, this);
         mCharactersRecyclerView.setAdapter(mCharacterListAdapter);
 
-        mDoneButton = findViewById(R.id.done_btn);
+
         mDoneButton.setOnClickListener(view -> {
             mCharactersList.clear();
             mCharacterListAdapter.notifyDataSetChanged();
@@ -157,18 +207,14 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 simplified.add(y);
                 transcription.add(z);
                 translation.add(a);
+            } else {
+
             }
         }
 
-        mUndoButton = findViewById(R.id.undo_btn);
         mUndoButton.setOnClickListener(view -> mCanvasView.undo());
-
-        mSearchButton = findViewById(R.id.search_btn);
         mSearchButton.setOnClickListener(v -> performSearch());
 
-        mLabel = findViewById(R.id.label);
-
-        mResultsRecyclerView = findViewById(R.id.results_rv);
         mResultsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         dictionaryResultsList = new ArrayList<>();
@@ -183,20 +229,32 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
         dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
 
-        mResultsListAdapter = new ResultsListAdapter(dictionaryResultsList);
+        mResultsListAdapter = new ResultsListAdapter(dictionaryResultsList, this);
 
         mResultsRecyclerView.setAdapter(mResultsListAdapter);
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
+
+        mState = State.RESULTS;
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive()) {
+            imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
+        }
+        mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+        mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+
+
         mCursorPosition = mTextInputEditText.length();
         mCanvasView.clear();
         mCanvasView.setVisibility(View.INVISIBLE);
-        mCharactersRecyclerView.setVisibility(View.VISIBLE);
+        mCharactersRecyclerView.setVisibility(View.INVISIBLE);
         mUndoButton.setVisibility(View.INVISIBLE);
         mResultsRecyclerView.setVisibility(View.VISIBLE);
         mLabel.setText("Wyszukiwanie");
+        mDoneButton.setVisibility(View.INVISIBLE);
 
         ArrayList<String> searchResults = new ArrayList<>();
         String inputTextString = mTextInputEditText.getText().toString();
@@ -229,6 +287,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mTextInputEditText.append(recognitionCandidatesList.get(0).getText());
 
         mDoneButton.setVisibility(View.VISIBLE);
+        mCharactersRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -253,5 +312,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     @Override
     public void onItemCanceled(View itemView) {
         itemView.setBackgroundColor(Color.TRANSPARENT);
+    }
+
+    @Override
+    public void onResultClicked(int position) {
+
     }
 }

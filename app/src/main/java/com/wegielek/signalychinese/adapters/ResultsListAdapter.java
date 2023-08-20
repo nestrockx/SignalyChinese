@@ -7,6 +7,8 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
+import com.wegielek.signalychinese.Interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
 
 import java.util.List;
@@ -16,9 +18,11 @@ import java.util.regex.Pattern;
 public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.ViewHolder> {
 
     private List<String> dataList;
+    private final ResultsRecyclerViewListener resultsRecyclerViewListener;
 
-    public ResultsListAdapter(List<String> dataList) {
+    public ResultsListAdapter(List<String> dataList, ResultsRecyclerViewListener resultsRecyclerViewListener) {
         this.dataList = dataList;
+        this.resultsRecyclerViewListener = resultsRecyclerViewListener;
     }
 
     @Override
@@ -52,7 +56,7 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
         return dataList.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
         TextView textView2;
         TextView textView3;
@@ -62,6 +66,8 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
             textView = itemView.findViewById(R.id.label);
             textView2 = itemView.findViewById(R.id.textView2);
             textView3 = itemView.findViewById(R.id.textView3);
+
+            itemView.setOnClickListener(view -> resultsRecyclerViewListener.onResultClicked(getAdapterPosition()));
         }
     }
 }

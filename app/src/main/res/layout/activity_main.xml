@@ -51,31 +51,31 @@
         app:layout_constraintEnd_toStartOf="@+id/search_btn" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button5"
+        android:id="@+id/draw_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/ic_draw_default"
+        android:background="@drawable/ic_draw_active"
         android:contentDescription="Draw"
         app:layout_constraintBottom_toTopOf="@+id/backspaceButton"
-        app:layout_constraintEnd_toStartOf="@+id/button7"
+        app:layout_constraintEnd_toStartOf="@+id/puzzle_btn"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button7"
+        android:id="@+id/puzzle_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/ic_bricks_default"
+        android:background="@drawable/ic_puzzle_default"
         android:contentDescription="Bricks"
         app:layout_constraintBottom_toTopOf="@+id/backspaceButton"
-        app:layout_constraintEnd_toStartOf="@+id/button8"
+        app:layout_constraintEnd_toStartOf="@+id/learn_btn"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/button5" />
+        app:layout_constraintStart_toEndOf="@+id/draw_btn" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button8"
+        android:id="@+id/learn_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginBottom="16dp"
@@ -84,7 +84,7 @@
         app:layout_constraintBottom_toTopOf="@+id/backspaceButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/button7" />
+        app:layout_constraintStart_toEndOf="@+id/puzzle_btn" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/search_btn"
@@ -98,7 +98,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button10"
+        android:id="@+id/camera_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="16dp"
@@ -109,7 +109,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button11"
+        android:id="@+id/settings_btn"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="16dp"
@@ -125,7 +125,7 @@
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/ic_undo_default"
+        android:background="@drawable/undo_btn_selector"
         android:contentDescription="Camera"
         app:layout_constraintBottom_toTopOf="@+id/done_btn"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -136,22 +136,25 @@
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/ic_done_default"
+        android:background="@drawable/done_btn_selector"
         android:contentDescription="Camera"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/CanvasView"
+        app:layout_constraintBottom_toBottomOf="@+id/CharacterDrawCanvasView"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <com.wegielek.signalychinese.views.CanvasView
-        android:id="@+id/CanvasView"
+        android:id="@+id/CharacterDrawCanvasView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/button7"
+        app:layout_constraintBottom_toTopOf="@+id/puzzle_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/settings_btn"
         app:layout_constraintVertical_bias="0.0" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -162,7 +165,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:layout_weight="1"
-        app:layout_constraintBottom_toBottomOf="@+id/CanvasView"
+        app:layout_constraintBottom_toBottomOf="@+id/CharacterDrawCanvasView"
         app:layout_constraintEnd_toStartOf="@+id/done_btn"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -170,13 +173,13 @@
         android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:text="Narysuj znak"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/CanvasView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/results_rv"
@@ -187,10 +190,11 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/CanvasView"
+        app:layout_constraintBottom_toBottomOf="@+id/CharacterDrawCanvasView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button11"
+        app:layout_constraintTop_toBottomOf="@+id/settings_btn"
         app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
