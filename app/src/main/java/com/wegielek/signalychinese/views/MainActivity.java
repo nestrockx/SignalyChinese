@@ -1,5 +1,6 @@
 package com.wegielek.signalychinese.views;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,6 +16,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.mlkit.vision.digitalink.RecognitionCandidate;
@@ -39,10 +41,10 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener {
 
-    private List<String> traditional;
-    private List<String> simplified;
-    private List<String> transcription;
-    private List<String> translation;
+    private List<String> mTraditional;
+    private List<String> mSimplified;
+    private List<String> mTranscription;
+    private List<String> mTranslation;
     private TextInputEditText mTextInputEditText;
     private CanvasView mCanvasView;
     private RecyclerView mCharactersRecyclerView;
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private Button mDrawButton;
     private Button mBackspaceButton;
     private State mState = State.DRAW;
+    private List<String> mSearchResults;
 
     private void backspace(int n, boolean force) {
         int length = Objects.requireNonNull(mTextInputEditText.getText()).length();
@@ -93,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState != null) {
+            mState = (State) savedInstanceState.getSerializable("state");
+        }
+
         mLearnButton = findViewById(R.id.learn_btn);
         mPuzzleButton = findViewById(R.id.puzzle_btn);
         mDrawButton = findViewById(R.id.draw_btn);
@@ -100,52 +107,66 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mUndoButton = findViewById(R.id.undo_btn);
         mSearchButton = findViewById(R.id.search_btn);
         mBackspaceButton = findViewById(R.id.backspaceButton);
-
         mTextInputEditText = findViewById(R.id.textInputEditText);
-
         mCanvasView = findViewById(R.id.CharacterDrawCanvasView);
-
         mResultsRecyclerView = findViewById(R.id.results_rv);
-
         mCharactersRecyclerView = findViewById(R.id.recyclerView);
-
         mLabel = findViewById(R.id.label);
 
-        mPuzzleButton.setOnClickListener(view -> {
+        mCharactersList = new ArrayList<>();
+        dictionaryResultsList = new ArrayList<>();
+        mSearchResults = new ArrayList<>();
+
+
+        if (mState == State.DRAW) {
+            mLabel.setText("Narysuj znak");
+            mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
+            mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+        } else if (mState == State.RESULTS) {
+            mLabel.setText("Wyszukiwanie");
+            mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+            mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+        } else {
             mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
             mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+            mLabel.setText("Wybierz znak");
+        }
+
+
+        mTextInputEditText.requestFocus();
+
+        mResultsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mResultsListAdapter = new ResultsListAdapter(dictionaryResultsList, this);
+        mResultsRecyclerView.setAdapter(mResultsListAdapter);
+
+        mCharactersRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mCharacterListAdapter = new CharacterListAdapter(mCharactersList, this);
+        mCharactersRecyclerView.setAdapter(mCharacterListAdapter);
+
+        mCanvasView.setOnRecognizeListener(this);
+        mCanvasView.post(() -> {
+            mCanvasView.init(mCanvasView.getWidth(), mCanvasView.getHeight());
         });
 
+        mUndoButton.setOnClickListener(view -> mCanvasView.undo());
+        mSearchButton.setOnClickListener(v -> performSearch());
+
+        mPuzzleButton.setOnClickListener(view -> {
+            mState = State.PUZZLE;
+            mLabel.setText("Wybierz znak");
+            mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
+            mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+            mCanvasView.setVisibility(View.INVISIBLE);
+            mResultsRecyclerView.setVisibility(View.INVISIBLE);
+        });
 
         mDrawButton.setOnClickListener(view -> {
+            mState = State.DRAW;
+            mLabel.setText("Narysuj znak");
             mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
             mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
             mResultsRecyclerView.setVisibility(View.INVISIBLE);
             mCanvasView.setVisibility(View.VISIBLE);
-            mLabel.setText("Narysuj znak");
-            mState = State.DRAW;
-        });
-
-
-        mTextInputEditText.requestFocus();
-        mTextInputEditText.postDelayed(new Runnable() {
-              @Override
-              public void run() {
-                  InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                  if (imm.isActive()) {
-                      imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
-                  } else {
-                      mTextInputEditText.postDelayed(this, 10);
-                  }
-              }
-        }, 10);
-
-        mTextInputEditText.setOnEditorActionListener((textView, actionId, keyEvent) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch();
-                return true;
-            }
-            return false;
         });
 
         mBackspaceButton.setOnClickListener(view -> {
@@ -155,20 +176,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mCanvasView.clear();
         });
 
-
-        mCanvasView.setOnRecognizeListener(this);
-        mCanvasView.post(() -> {
-            mCanvasView.init(mCanvasView.getWidth(), mCanvasView.getHeight());
-        });
-
-
-        mCharactersRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-
-        mCharactersList = new ArrayList<>();
-        mCharacterListAdapter = new CharacterListAdapter(mCharactersList, this);
-        mCharactersRecyclerView.setAdapter(mCharacterListAdapter);
-
-
         mDoneButton.setOnClickListener(view -> {
             mCharactersList.clear();
             mCharacterListAdapter.notifyDataSetChanged();
@@ -177,101 +184,95 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mCanvasView.clear();
         });
 
-        mFileDictionaryContents = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(getAssets().open("resultTest.txt"), StandardCharsets.UTF_8))) {
-
-            String mLine;
-            while ((mLine = reader.readLine()) != null) {
-                mFileDictionaryContents.add(mLine);
+        mTextInputEditText.setOnEditorActionListener((textView, actionId, keyEvent) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch();
+                return true;
             }
-            //Toast.makeText(this, fileDictionaryContents.get(0), Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            return false;
+        });
 
-        traditional = new ArrayList<>();
-        simplified = new ArrayList<>();
-        transcription = new ArrayList<>();
-        translation = new ArrayList<>();
-        for (String line : mFileDictionaryContents) {
-            Pattern pattern = Pattern.compile("(.+) (.+) \\[(.+)\\] /(.+)/");
-            Matcher matcher = pattern.matcher(line);
-            if (matcher.find()) {
-                String x = matcher.group(1);
-                String y = matcher.group(2);
-                String z = matcher.group(3).replaceAll("\\d", "");
-                String a = matcher.group(4);
+        //------------------------------------------------------------------------------------------
+        if (mFileDictionaryContents == null) {
+            mFileDictionaryContents = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("resultTest.txt"), StandardCharsets.UTF_8))) {
 
-                traditional.add(x);
-                simplified.add(y);
-                transcription.add(z);
-                translation.add(a);
-            } else {
+                String mLine;
+                while ((mLine = reader.readLine()) != null) {
+                    mFileDictionaryContents.add(mLine);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
+            mTraditional = new ArrayList<>();
+            mSimplified = new ArrayList<>();
+            mTranscription = new ArrayList<>();
+            mTranslation = new ArrayList<>();
+            for (String line : mFileDictionaryContents) {
+                Pattern pattern = Pattern.compile("(.+) (.+) \\[(.+)\\] /(.+)/");
+                Matcher matcher = pattern.matcher(line);
+                if (matcher.find()) {
+                    String x = matcher.group(1);
+                    String y = matcher.group(2);
+                    String z = matcher.group(3).replaceAll("\\d", "");
+                    String a = matcher.group(4);
+
+                    mTraditional.add(x);
+                    mSimplified.add(y);
+                    mTranscription.add(z);
+                    mTranslation.add(a);
+                }
             }
         }
-
-        mUndoButton.setOnClickListener(view -> mCanvasView.undo());
-        mSearchButton.setOnClickListener(v -> performSearch());
-
-        mResultsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        dictionaryResultsList = new ArrayList<>();
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-        dictionaryResultsList.add("凈身 净身 [jing4 shen1] /oczyścić swoje ciało (tj. poddać się kastracji)/");
-
-        mResultsListAdapter = new ResultsListAdapter(dictionaryResultsList, this);
-
-        mResultsRecyclerView.setAdapter(mResultsListAdapter);
+        //-----------------------------------------------------------------------------------------
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
 
-        mState = State.RESULTS;
-
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm.isActive()) {
-            imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
-        }
-        mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-        mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-
-
-        mCursorPosition = mTextInputEditText.length();
-        mCanvasView.clear();
-        mCanvasView.setVisibility(View.INVISIBLE);
-        mCharactersRecyclerView.setVisibility(View.INVISIBLE);
-        mUndoButton.setVisibility(View.INVISIBLE);
-        mResultsRecyclerView.setVisibility(View.VISIBLE);
-        mLabel.setText("Wyszukiwanie");
-        mDoneButton.setVisibility(View.INVISIBLE);
-
-        ArrayList<String> searchResults = new ArrayList<>();
+        mSearchResults.clear();
         String inputTextString = mTextInputEditText.getText().toString();
         for (int i = 0; i < mFileDictionaryContents.size(); i++) {
             Pattern pattern = Pattern.compile(inputTextString, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(simplified.get(i));
-            Matcher matcher1 = pattern.matcher(transcription.get(i));
-            Matcher matcher2 = pattern.matcher(traditional.get(i));
+            Matcher matcher = pattern.matcher(mSimplified.get(i));
+            Matcher matcher1 = pattern.matcher(mTranscription.get(i));
+            Matcher matcher2 = pattern.matcher(mTraditional.get(i));
 
             if (matcher.matches() || matcher1.matches() || matcher2.matches()) {
-                searchResults.add(mFileDictionaryContents.get(i));
+                mSearchResults.add(mFileDictionaryContents.get(i));
             }
 
         }
-        dictionaryResultsList.clear();
-        dictionaryResultsList.addAll(searchResults);
-        mResultsListAdapter.notifyDataSetChanged();
+
+        if (mSearchResults.size() == 0) {
+            Toast.makeText(this, "Brak wyników", Toast.LENGTH_LONG).show();
+        } else {
+            dictionaryResultsList.clear();
+            dictionaryResultsList.addAll(mSearchResults);
+            mResultsListAdapter.notifyDataSetChanged();
+
+            mState = State.RESULTS;
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm.isActive()) {
+                imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
+            }
+            mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+            mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+
+
+            mCursorPosition = mTextInputEditText.length();
+            mCanvasView.clear();
+            mCanvasView.setVisibility(View.INVISIBLE);
+            mCharactersRecyclerView.setVisibility(View.INVISIBLE);
+            mUndoButton.setVisibility(View.INVISIBLE);
+            mResultsRecyclerView.setVisibility(View.VISIBLE);
+            mLabel.setText("Wyszukiwanie");
+            mDoneButton.setVisibility(View.INVISIBLE);
+
+        }
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -317,5 +318,27 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     @Override
     public void onResultClicked(int position) {
 
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        mTextInputEditText.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm.isActive()) {
+                    imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
+                } else {
+                    mTextInputEditText.postDelayed(this, 10);
+                }
+            }
+        }, 10);
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("state", mState);
     }
 }
