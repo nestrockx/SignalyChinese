@@ -35,23 +35,6 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String inputString = dataList.get(position);
-        /*
-        Pattern pattern = Pattern.compile("(.+) (.+) \\[(.+)\\] /(.+)/");
-        Matcher matcher = pattern.matcher(inputString);
-        if(matcher.find()) {
-            String x = matcher.group(1);
-            String y = matcher.group(2);
-            String z = matcher.group(3);
-            String a = matcher.group(4);
-
-            holder.textView.setText(x.concat(" (").concat(y).concat(")"));
-            holder.textView3.setText(z);
-            holder.textView2.setText(a);
-        }
-        else {
-            holder.textView.setText("Data in wrong format");
-        }
-         */
 
         List<String> list = Arrays.asList(inputString.split("/"));
         holder.textView.setText(list.get(0) + " (" + list.get(1) + ")");

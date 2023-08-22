@@ -212,44 +212,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         );
 
         mSearchResults = Arrays.asList("ds /X/ afsad".split(" /X/ "));
-        Toast.makeText(this, Integer.toString(mSearchResults.size()), Toast.LENGTH_SHORT).show();
-
-
-        /*------------------------------------------------------------------------------------------
-        if (mFileDictionaryContents == null) {
-            mFileDictionaryContents = new ArrayList<>();
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("result.txt"), StandardCharsets.UTF_8))) {
-
-                String mLine;
-                while ((mLine = reader.readLine()) != null) {
-                    mFileDictionaryContents.add(mLine);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            mTraditional = new ArrayList<>();
-            mSimplified = new ArrayList<>();
-            mTranscription = new ArrayList<>();
-            mTranslation = new ArrayList<>();
-            for (String line : mFileDictionaryContents) {
-                Pattern pattern = Pattern.compile("(.+) (.+) \\[(.+)\\] /(.+)/");
-                Matcher matcher = pattern.matcher(line);
-                if (matcher.find()) {
-                    String x = matcher.group(1);
-                    String y = matcher.group(2);
-                    String z = matcher.group(3).replaceAll("\\d", "");
-                    String a = matcher.group(4);
-
-                    mTraditional.add(x);
-                    mSimplified.add(y);
-                    mTranscription.add(z);
-                    mTranslation.add(a);
-                }
-            }
-        }
-        *///-----------------------------------------------------------------------------------------
     }
 
     @SuppressLint("NotifyDataSetChanged")
