@@ -11,6 +11,7 @@ import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
 import com.wegielek.signalychinese.Interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +35,7 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String inputString = dataList.get(position);
+        /*
         Pattern pattern = Pattern.compile("(.+) (.+) \\[(.+)\\] /(.+)/");
         Matcher matcher = pattern.matcher(inputString);
         if(matcher.find()) {
@@ -49,6 +51,12 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
         else {
             holder.textView.setText("Data in wrong format");
         }
+         */
+
+        List<String> list = Arrays.asList(inputString.split("/"));
+        holder.textView.setText(list.get(0) + " (" + list.get(1) + ")");
+        holder.textView3.setText(list.get(2));
+        holder.textView2.setText(list.get(3));
     }
 
     @Override

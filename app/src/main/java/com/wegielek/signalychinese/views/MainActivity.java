@@ -19,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.mlkit.vision.digitalink.RecognitionCandidate;
 import com.wegielek.signalychinese.Interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
@@ -33,7 +35,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private Button mBackspaceButton;
     private State mState = State.DRAW;
     private List<String> mSearchResults;
+    private Map<String, String> jsonMap;
 
     private void backspace(int n, boolean force) {
         int length = Objects.requireNonNull(mTextInputEditText.getText()).length();
@@ -192,11 +198,28 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             return false;
         });
 
-        //------------------------------------------------------------------------------------------
+
+        String jsonString;
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(getAssets().open("resultsJSON1.json"), StandardCharsets.UTF_8))) {
+            jsonString = reader.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        jsonMap = new Gson().fromJson(
+                jsonString, new TypeToken<HashMap<String, String>>() {}.getType()
+        );
+
+        mSearchResults = Arrays.asList("ds /X/ afsad".split(" /X/ "));
+        Toast.makeText(this, Integer.toString(mSearchResults.size()), Toast.LENGTH_SHORT).show();
+
+
+        /*------------------------------------------------------------------------------------------
         if (mFileDictionaryContents == null) {
             mFileDictionaryContents = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("resultTest.txt"), StandardCharsets.UTF_8))) {
+                    new InputStreamReader(getAssets().open("result.txt"), StandardCharsets.UTF_8))) {
 
                 String mLine;
                 while ((mLine = reader.readLine()) != null) {
@@ -226,29 +249,24 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 }
             }
         }
-        //-----------------------------------------------------------------------------------------
+        *///-----------------------------------------------------------------------------------------
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
-
-        mSearchResults.clear();
         String inputTextString = mTextInputEditText.getText().toString();
-        for (int i = 0; i < mFileDictionaryContents.size(); i++) {
-            Pattern pattern = Pattern.compile(inputTextString, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(mSimplified.get(i));
-            Matcher matcher1 = pattern.matcher(mTranscription.get(i));
-            Matcher matcher2 = pattern.matcher(mTraditional.get(i));
 
-            if (matcher.matches() || matcher1.matches() || matcher2.matches()) {
-                mSearchResults.add(mFileDictionaryContents.get(i));
-            }
 
-        }
-
-        if (mSearchResults.size() == 0) {
+        if (!jsonMap.containsKey(inputTextString)) {
             Toast.makeText(this, "Brak wyników", Toast.LENGTH_LONG).show();
         } else {
+            String x = jsonMap.get(inputTextString);
+            Toast.makeText(this, x, Toast.LENGTH_LONG).show();
+            mSearchResults = Arrays.asList(x.split(" /X/ "));
+            for (int i = 0; i < mSearchResults.size(); i++) {
+                mSearchResults.set(i, inputTextString + "/" + mSearchResults.get(i));
+            }
+
             dictionaryResultsList.clear();
             dictionaryResultsList.addAll(mSearchResults);
             mResultsListAdapter.notifyDataSetChanged();
