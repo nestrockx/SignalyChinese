@@ -1,31 +1,33 @@
 package com.wegielek.signalychinese.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
 import com.wegielek.signalychinese.Interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.ViewHolder> {
 
-    private List<String> dataList;
+    private final Context context;
+    private final List<String> dataList;
     private final ResultsRecyclerViewListener resultsRecyclerViewListener;
 
-    public ResultsListAdapter(List<String> dataList, ResultsRecyclerViewListener resultsRecyclerViewListener) {
+    public ResultsListAdapter(List<String> dataList, ResultsRecyclerViewListener resultsRecyclerViewListener, Context context) {
+        this.context = context;
         this.dataList = dataList;
         this.resultsRecyclerViewListener = resultsRecyclerViewListener;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_result, parent, false);
@@ -36,10 +38,22 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
     public void onBindViewHolder(ViewHolder holder, int position) {
         String inputString = dataList.get(position);
 
+
         List<String> list = Arrays.asList(inputString.split("/"));
-        holder.textView.setText(list.get(0) + " (" + list.get(1) + ")");
+
+        StringBuilder translation = new StringBuilder();
+        //translation.append(" ");
+        for (int i = 3; i < list.size(); i++) {
+            if (i != list.size() - 1) {
+                translation.append(list.get(i)).append("; ");
+            } else {
+                translation.append(list.get(i)).append(";");
+            }
+        }
+
+        holder.textView.setText(context.getString(R.string.result_text_placeholder_1, list.get(0), list.get(1)));
         holder.textView3.setText(list.get(2));
-        holder.textView2.setText(list.get(3));
+        holder.textView2.setText(translation.toString());
     }
 
     @Override

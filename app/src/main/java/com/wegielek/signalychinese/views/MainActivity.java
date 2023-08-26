@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -40,38 +40,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener {
-
-    private List<String> mTraditional;
-    private List<String> mSimplified;
-    private List<String> mTranscription;
-    private List<String> mTranslation;
-    private TextInputEditText mTextInputEditText;
     private CanvasView mCanvasView;
     private RecyclerView mCharactersRecyclerView;
     private CharacterListAdapter mCharacterListAdapter;
-    private ResultsListAdapter mResultsListAdapter;
     private List<String> mCharactersList;
+    private RecyclerView mResultsRecyclerView;
+    private ResultsListAdapter mResultsListAdapter;
+    private List<String> dictionaryResultsList;
+    private List<String> mSearchResults;
+    private Map<String, String> jsonTraditionalMap;
+    private Map<String, String> jsonSimplifiedMap;
+
+    private TextInputEditText mTextInputEditText;
+    private TextView mLabel;
     private Button mDoneButton;
     private Button mSearchButton;
-    private List<String> mFileDictionaryContents;
-    private int mCursorPosition = 0;
-    private TextView mLabel;
-    private RecyclerView mResultsRecyclerView;
-    private Button mUndoButton;
-    private List<String> dictionaryResultsList;
-    private Handler mHandler;
     private Button mLearnButton;
     private Button mPuzzleButton;
     private Button mDrawButton;
     private Button mBackspaceButton;
+    private Button mUndoButton;
     private State mState = State.DRAW;
-    private List<String> mSearchResults;
-    private Map<String, String> jsonMap;
+    private int mCursorPosition = 0;
+
 
     private void backspace(int n, boolean force) {
         int length = Objects.requireNonNull(mTextInputEditText.getText()).length();
@@ -91,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
             mResultsRecyclerView.setVisibility(View.INVISIBLE);
             mCanvasView.setVisibility(View.VISIBLE);
-            mLabel.setText("Narysuj znak");
+            mLabel.setText(getString(R.string.drawing_mode));
             mState = State.DRAW;
         }
     }
@@ -125,24 +119,24 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
 
         if (mState == State.DRAW) {
-            mLabel.setText("Narysuj znak");
+            mLabel.setText(getString(R.string.drawing_mode));
             mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
             mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
         } else if (mState == State.RESULTS) {
-            mLabel.setText("Wyszukiwanie");
+            mLabel.setText(getString(R.string.searching_mode));
             mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
             mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
         } else {
             mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
             mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-            mLabel.setText("Wybierz znak");
+            mLabel.setText(getString(R.string.puzzle_mode));
         }
 
 
         mTextInputEditText.requestFocus();
 
         mResultsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mResultsListAdapter = new ResultsListAdapter(dictionaryResultsList, this);
+        mResultsListAdapter = new ResultsListAdapter(dictionaryResultsList, this, this);
         mResultsRecyclerView.setAdapter(mResultsListAdapter);
 
         mCharactersRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -159,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
         mPuzzleButton.setOnClickListener(view -> {
             mState = State.PUZZLE;
-            mLabel.setText("Wybierz znak");
+            mLabel.setText(getString(R.string.puzzle_mode));
             mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
             mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
             mCanvasView.setVisibility(View.INVISIBLE);
@@ -168,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
         mDrawButton.setOnClickListener(view -> {
             mState = State.DRAW;
-            mLabel.setText("Narysuj znak");
+            mLabel.setText(getString(R.string.drawing_mode));
             mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
             mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
             mResultsRecyclerView.setVisibility(View.INVISIBLE);
@@ -180,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mDoneButton.setVisibility(View.INVISIBLE);
             mCursorPosition = mTextInputEditText.length();
             mCanvasView.clear();
+            mUndoButton.setVisibility(View.INVISIBLE);
         });
 
         mDoneButton.setOnClickListener(view -> {
@@ -188,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mDoneButton.setVisibility(View.INVISIBLE);
             mCursorPosition += Objects.requireNonNull(mTextInputEditText.getText()).length() - mCursorPosition;
             mCanvasView.clear();
+            mUndoButton.setVisibility(View.INVISIBLE);
         });
 
         mTextInputEditText.setOnEditorActionListener((textView, actionId, keyEvent) -> {
@@ -199,60 +195,90 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         });
 
 
-        String jsonString;
+        String jsonTraditionalString;
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(getAssets().open("resultsJSON1.json"), StandardCharsets.UTF_8))) {
-            jsonString = reader.readLine();
+            jsonTraditionalString = reader.readLine();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        jsonMap = new Gson().fromJson(
-                jsonString, new TypeToken<HashMap<String, String>>() {}.getType()
+        jsonTraditionalMap = new Gson().fromJson(
+                jsonTraditionalString, new TypeToken<HashMap<String, String>>() {}.getType()
         );
 
-        mSearchResults = Arrays.asList("ds /X/ afsad".split(" /X/ "));
+        String jsonSimplifiedString;
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(getAssets().open("resultsJSON2.json"), StandardCharsets.UTF_8))) {
+            jsonSimplifiedString = reader.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        jsonSimplifiedMap = new Gson().fromJson(
+                jsonSimplifiedString, new TypeToken<HashMap<String, String>>() {}.getType()
+        );
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
-        String inputTextString = mTextInputEditText.getText().toString();
+        String inputTextString = Objects.requireNonNull(mTextInputEditText.getText()).toString();
 
+        if (jsonTraditionalMap.containsKey(inputTextString)) {
+            String x = jsonTraditionalMap.get(inputTextString);
+            mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
+            mSearchResults.replaceAll(s -> inputTextString + "/" + s);
 
-        if (!jsonMap.containsKey(inputTextString)) {
-            Toast.makeText(this, "Brak wyników", Toast.LENGTH_LONG).show();
-        } else {
-            String x = jsonMap.get(inputTextString);
-            Toast.makeText(this, x, Toast.LENGTH_LONG).show();
-            mSearchResults = Arrays.asList(x.split(" /X/ "));
+        } else if (jsonSimplifiedMap.containsKey(inputTextString)) {
+            String x = jsonSimplifiedMap.get(inputTextString);
+            mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
             for (int i = 0; i < mSearchResults.size(); i++) {
-                mSearchResults.set(i, inputTextString + "/" + mSearchResults.get(i));
+                String tmp = mSearchResults.get(i).split("/")[0];
+                mSearchResults.set(i, tmp + "/" + mSearchResults.get(i).replace(tmp, inputTextString));
             }
-
-            dictionaryResultsList.clear();
-            dictionaryResultsList.addAll(mSearchResults);
-            mResultsListAdapter.notifyDataSetChanged();
-
-            mState = State.RESULTS;
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm.isActive()) {
-                imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
-            }
-            mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-            mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-
-
-            mCursorPosition = mTextInputEditText.length();
-            mCanvasView.clear();
-            mCanvasView.setVisibility(View.INVISIBLE);
-            mCharactersRecyclerView.setVisibility(View.INVISIBLE);
-            mUndoButton.setVisibility(View.INVISIBLE);
-            mResultsRecyclerView.setVisibility(View.VISIBLE);
-            mLabel.setText("Wyszukiwanie");
-            mDoneButton.setVisibility(View.INVISIBLE);
-
         }
 
+        if(inputTextString.length() > 1) {
+            for (int i = 0; i < inputTextString.length(); i++) {
+                if (jsonTraditionalMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
+                    int searchresultscount1 = mSearchResults.size();
+                    String x = jsonTraditionalMap.get(String.valueOf(inputTextString.charAt(i)));
+                    mSearchResults.addAll(new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ "))));
+                    for (int j = searchresultscount1; j < mSearchResults.size(); j++) {
+                        mSearchResults.set(j, inputTextString.charAt(i) + "/" + mSearchResults.get(j));
+                    }
+                } else if (jsonSimplifiedMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
+                    int searchresultscount2 = mSearchResults.size();
+                    String x = jsonSimplifiedMap.get(String.valueOf(inputTextString.charAt(i)));
+                    mSearchResults.addAll(new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ "))));
+                    for (int j = searchresultscount2; j < mSearchResults.size(); j++) {
+                        String tmp = mSearchResults.get(j).split("/")[0];
+                        mSearchResults.set(j, tmp + "/" + mSearchResults.get(j).replace(tmp, String.valueOf(inputTextString.charAt(i))));
+                    }
+                }
+            }
+        }
+
+        dictionaryResultsList.clear();
+        dictionaryResultsList.addAll(mSearchResults);
+        mResultsListAdapter.notifyDataSetChanged();
+
+        mState = State.RESULTS;
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive()) {
+            imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
+        }
+        mDrawButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+        mPuzzleButton.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+
+        mCursorPosition = mTextInputEditText.length();
+        mCanvasView.clear();
+        mUndoButton.setVisibility(View.INVISIBLE);
+        mCanvasView.setVisibility(View.INVISIBLE);
+        mCharactersRecyclerView.setVisibility(View.INVISIBLE);
+        mResultsRecyclerView.setVisibility(View.VISIBLE);
+        mLabel.setText(getString(R.string.searching_mode));
+        mDoneButton.setVisibility(View.INVISIBLE);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -269,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
         mDoneButton.setVisibility(View.VISIBLE);
         mCharactersRecyclerView.setVisibility(View.VISIBLE);
+        mUndoButton.setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -282,6 +309,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mCharacterListAdapter.notifyDataSetChanged();
         mDoneButton.setVisibility(View.INVISIBLE);
         mCanvasView.clear();
+        mUndoButton.setVisibility(View.INVISIBLE);
+
     }
 
     @Override
@@ -297,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onResultClicked(int position) {
-
+        Intent intent = new Intent();
     }
 
     @Override
@@ -310,10 +339,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 if (imm.isActive()) {
                     imm.hideSoftInputFromWindow(mTextInputEditText.getWindowToken(), 0);
                 } else {
-                    mTextInputEditText.postDelayed(this, 10);
+                    mTextInputEditText.postDelayed(this, 100);
                 }
             }
-        }, 10);
+        }, 100);
     }
 
     @Override

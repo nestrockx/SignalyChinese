@@ -5,6 +5,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
@@ -34,6 +36,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
                     if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
                         charactersRecyclerViewListener.onItemPressed(itemView);
                     } else if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        view.performClick();
                         int pos = getAdapterPosition();
                         if (pos != RecyclerView.NO_POSITION) {
                             charactersRecyclerViewListener.onItemReleased(pos);
@@ -47,6 +50,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
         }
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_character, parent, false);
@@ -56,9 +60,6 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.textView.setText(dataList.get(position));
-        if (position == 0) {
-            //holder.itemView.setBackgroundColor(Color.parseColor("#0055CC"));
-        }
     }
 
     @Override
