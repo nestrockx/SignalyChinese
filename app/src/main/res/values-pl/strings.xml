@@ -6,5 +6,4 @@
     <string name="drawing_mode">Narysuj znak</string>
     <string name="puzzle_mode">Wybierz znak</string>
     <string name="word_search_hint">Wyszukaj słowo</string>
-    <string name="result_text_placeholder_1" translatable="false">%1$s (%2$s)</string>
 </resources>
