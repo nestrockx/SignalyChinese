@@ -129,12 +129,12 @@ public class CanvasView extends View {
                 Toast.makeText(getContext(), "Model not downloaded yet", Toast.LENGTH_SHORT).show();
                 return Tasks.forResult(null);
             }
-            recognizeee();
+            recognizee();
             return Tasks.forResult(null);
         });
     }
 
-    private void recognizeee() {
+    private void recognizee() {
         recognizer.recognize(inkBuilder.build()).addOnSuccessListener(
                 result -> {
                     //Toast.makeText(getContext(), result.getCandidates().get(0).getText(), Toast.LENGTH_SHORT).show();
@@ -142,7 +142,7 @@ public class CanvasView extends View {
                 }
         ).addOnFailureListener(
                 e -> {
-                    //Toast.makeText(getContext(), "Error during recognition: " + e, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error during recognition: " + e, Toast.LENGTH_SHORT).show();
                 }
         );
     }
