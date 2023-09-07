@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.wegielek.signalychinese.Interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,10 +22,16 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
     private final List<String> dataList;
     private final ResultsRecyclerViewListener resultsRecyclerViewListener;
 
-    public ResultsListAdapter(List<String> dataList, ResultsRecyclerViewListener resultsRecyclerViewListener, Context context) {
+    public ResultsListAdapter(ResultsRecyclerViewListener resultsRecyclerViewListener, Context context) {
         this.context = context;
-        this.dataList = dataList;
         this.resultsRecyclerViewListener = resultsRecyclerViewListener;
+        this.dataList = new ArrayList<>();
+    }
+
+    public void setData(List<String> dataList) {
+        this.dataList.clear();
+        this.dataList.addAll(dataList);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -42,7 +49,6 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
         List<String> list = Arrays.asList(inputString.split("/"));
 
         StringBuilder translation = new StringBuilder();
-        //translation.append(" ");
         for (int i = 3; i < list.size(); i++) {
             if (i != list.size() - 1) {
                 translation.append(list.get(i)).append("; ");
@@ -52,8 +58,8 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
         }
 
         holder.textView.setText(context.getString(R.string.result_text_placeholder_1, list.get(0), list.get(1)));
-        holder.textView3.setText(list.get(2));
-        holder.textView2.setText(translation.toString());
+        holder.textView2.setText(list.get(2));
+        holder.textView3.setText(translation.toString());
     }
 
     @Override
@@ -68,9 +74,9 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
 
         public ViewHolder(View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.label);
-            textView2 = itemView.findViewById(R.id.textView2);
-            textView3 = itemView.findViewById(R.id.textView3);
+            textView = itemView.findViewById(R.id.label_tv);
+            textView3 = itemView.findViewById(R.id.textView2);
+            textView2 = itemView.findViewById(R.id.textView3);
 
             itemView.setOnClickListener(view -> resultsRecyclerViewListener.onResultClicked(getAdapterPosition()));
         }

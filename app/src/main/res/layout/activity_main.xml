@@ -1,200 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context=".views.MainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:boxCornerRadiusBottomEnd="16dp"
-        app:boxCornerRadiusBottomStart="16dp"
-        app:boxCornerRadiusTopEnd="32dp"
-        app:boxCornerRadiusTopStart="32dp"
-        app:boxStrokeWidth="0dp"
-        app:boxStrokeWidthFocused="0dp"
-        app:hintEnabled="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/backspaceButton"
-        app:layout_constraintStart_toStartOf="parent">
+    <data>
+        <variable
+            name="vm"
+            type="com.wegielek.signalychinese.viewmodels.MainViewModel" />
+    </data>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/textInputEditText"
-            android:layout_width="match_parent"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black"
+        tools:context=".views.MainActivity">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/word_search_hint"
-            android:imeOptions="actionSearch"
-            android:inputType="text"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            app:boxCornerRadiusBottomEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusTopEnd="32dp"
+            app:boxCornerRadiusTopStart="32dp"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:hintEnabled="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/backspace_btn"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/search_text_box"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/word_search_hint"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/backspace_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/backspace_btn_selector"
+            android:contentDescription="Backspace"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/search_btn" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/draw_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/ic_draw_active"
+            android:contentDescription="Draw"
+            app:layout_constraintBottom_toTopOf="@+id/backspace_btn"
+            app:layout_constraintEnd_toStartOf="@+id/puzzle_btn"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/puzzle_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/ic_puzzle_default"
+            android:contentDescription="Puzzle"
+            app:layout_constraintBottom_toTopOf="@+id/backspace_btn"
+            app:layout_constraintEnd_toStartOf="@+id/learn_btn"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/draw_btn" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/learn_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/ic_school_default"
+            android:contentDescription="Learn"
+            app:layout_constraintBottom_toTopOf="@+id/backspace_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/puzzle_btn" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/search_btn"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/search_btn_selector"
+            android:contentDescription="search"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/camera_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_camera_default"
+            android:contentDescription="Camera"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/settings_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/ic_settings_default"
+            android:contentDescription="Camera"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/undo_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/undo_btn_selector"
+            android:contentDescription="Camera"
+            app:layout_constraintBottom_toTopOf="@+id/done_btn"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/done_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/done_btn_selector"
+            android:contentDescription="Camera"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/character_draw_canvas"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.wegielek.signalychinese.views.CanvasView
+            android:id="@+id/character_draw_canvas"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/puzzle_btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/settings_btn"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/characters_rv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="@+id/character_draw_canvas"
+            app:layout_constraintEnd_toStartOf="@+id/done_btn"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/label_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Narysuj znak"
             android:textColor="#FFFFFF"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/results_rv"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/character_draw_canvas"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/settings_btn"
+            app:layout_constraintVertical_bias="0.0" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/backspaceButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/backspace_btn_selector"
-        android:contentDescription="Backspace"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/search_btn" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/draw_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/ic_draw_active"
-        android:contentDescription="Draw"
-        app:layout_constraintBottom_toTopOf="@+id/backspaceButton"
-        app:layout_constraintEnd_toStartOf="@+id/puzzle_btn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/puzzle_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/ic_puzzle_default"
-        android:contentDescription="Puzzle"
-        app:layout_constraintBottom_toTopOf="@+id/backspaceButton"
-        app:layout_constraintEnd_toStartOf="@+id/learn_btn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/draw_btn" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/learn_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/ic_school_default"
-        android:contentDescription="Learn"
-        app:layout_constraintBottom_toTopOf="@+id/backspaceButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/puzzle_btn" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/search_btn"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/search_btn_selector"
-        android:contentDescription="search"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/camera_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/ic_camera_default"
-        android:contentDescription="Camera"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/settings_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/ic_settings_default"
-        android:contentDescription="Camera"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/undo_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/undo_btn_selector"
-        android:contentDescription="Camera"
-        app:layout_constraintBottom_toTopOf="@+id/done_btn"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/done_btn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/done_btn_selector"
-        android:contentDescription="Camera"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/CharacterDrawCanvasView"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <com.wegielek.signalychinese.views.CanvasView
-        android:id="@+id/CharacterDrawCanvasView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/puzzle_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_btn"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_weight="1"
-        app:layout_constraintBottom_toBottomOf="@+id/CharacterDrawCanvasView"
-        app:layout_constraintEnd_toStartOf="@+id/done_btn"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Narysuj znak"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/results_rv"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/CharacterDrawCanvasView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_btn"
-        app:layout_constraintVertical_bias="0.0" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
