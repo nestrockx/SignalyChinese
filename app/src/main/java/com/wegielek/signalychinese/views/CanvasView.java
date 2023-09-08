@@ -27,11 +27,13 @@ import com.google.mlkit.vision.digitalink.DigitalInkRecognizer;
 import com.google.mlkit.vision.digitalink.DigitalInkRecognizerOptions;
 import com.google.mlkit.vision.digitalink.Ink;
 import com.wegielek.signalychinese.Interfaces.CanvasViewListener;
+import com.wegielek.signalychinese.viewmodels.MainViewModel;
 
 import java.util.ArrayList;
 
 public class CanvasView extends View {
 
+    private MainViewModel mainViewModel;
     private CanvasViewListener canvasViewListener;
     private static final int STROKE_WIDTH_DP = 3;
     private Path currentVisibleStroke;
@@ -78,7 +80,12 @@ public class CanvasView extends View {
         this.canvasViewListener = onRecognizeListener;
     }
 
-    public void init(int width, int height) {
+    public void init(int width, int height, MainViewModel mainViewModel) {
+        this.mainViewModel = mainViewModel;
+        init(width, height);
+    }
+
+    private void init(int width, int height) {
         canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
         drawCanvas.drawColor(Color.BLACK);
@@ -137,7 +144,6 @@ public class CanvasView extends View {
     private void recognizee() {
         recognizer.recognize(inkBuilder.build()).addOnSuccessListener(
                 result -> {
-                    //Toast.makeText(getContext(), result.getCandidates().get(0).getText(), Toast.LENGTH_SHORT).show();
                     canvasViewListener.onResults(result.getCandidates());
                 }
         ).addOnFailureListener(

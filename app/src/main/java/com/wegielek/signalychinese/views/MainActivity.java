@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -20,6 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.mlkit.vision.digitalink.RecognitionCandidate;
+import com.wegielek.signalychinese.BR;
 import com.wegielek.signalychinese.Interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
 import com.wegielek.signalychinese.Interfaces.ResultsRecyclerViewListener;
@@ -49,12 +49,9 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private List<String> mSearchResults;
     private Map<String, String> jsonTraditionalMap;
     private Map<String, String> jsonSimplifiedMap;
-    
     private State mState = State.DRAW;
     private int mCursorPosition = 0;
-
     private ActivityMainBinding binding;
-
     private MainViewModel mainViewModel;
 
 
@@ -65,13 +62,12 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        binding.setVariable(BR.vm, mainViewModel);
+        binding.executePendingBindings();
 
-        mainViewModel.dictionaryResultsList.observe(this, new Observer<List<String>>() {
-            @Override
-            public void onChanged(List<String> stringList) {
-                mResultsListAdapter.setData(stringList);
-            }
-        });
+        mainViewModel.dictionaryResultsList.observe(this, stringList ->
+                mResultsListAdapter.setData(stringList)
+        );
 
         mCharactersList = new ArrayList<>();
         mSearchResults = new ArrayList<>();
@@ -83,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             binding.labelTv.setText(getString(R.string.drawing_mode));
             binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
             binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+            binding.charactersRv.setVisibility(View.VISIBLE);
             binding.characterDrawCanvas.setVisibility(View.VISIBLE);
             binding.resultsRv.setVisibility(View.INVISIBLE);
         } else if (mState == State.RESULTS) {
@@ -110,9 +107,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         binding.charactersRv.setAdapter(mCharacterListAdapter);
 
         binding.characterDrawCanvas.setOnRecognizeListener(this);
-        binding.characterDrawCanvas.post(() -> {
-            binding.characterDrawCanvas.init(binding.characterDrawCanvas.getWidth(), binding.characterDrawCanvas.getHeight());
-        });
+        binding.characterDrawCanvas.post(() -> binding.characterDrawCanvas.init(binding.characterDrawCanvas.getWidth(), binding.characterDrawCanvas.getHeight(), mainViewModel));
 
         binding.undoBtn.setOnClickListener(view -> binding.characterDrawCanvas.undo());
         binding.searchBtn.setOnClickListener(v -> performSearch());
@@ -288,7 +283,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onItemReleased(int position) {
-        //Toast.makeText(this, charactersList.get(position), Toast.LENGTH_SHORT).show();
         backspace(mCharactersList.get(position).length(), false);
         binding.searchTextBox.append(mCharactersList.get(position));
         mCursorPosition += mCharactersList.get(position).length();
