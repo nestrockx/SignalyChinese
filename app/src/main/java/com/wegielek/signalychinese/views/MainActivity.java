@@ -270,10 +270,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mainViewModel.addToCharacterList(rc.getText());
         }
         mCharacterListAdapter.notifyDataSetChanged();
-
         backspace(recognitionCandidatesList.get(0).getText().length(), false);
         binding.searchTextBox.append(recognitionCandidatesList.get(0).getText());
-
         binding.doneBtn.setVisibility(View.VISIBLE);
         binding.charactersRv.setVisibility(View.VISIBLE);
         binding.undoBtn.setVisibility(View.VISIBLE);
@@ -305,7 +303,9 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onResultClicked(int position) {
-        Intent intent = new Intent();
+        Intent intent = new Intent(this, HanziWritingActivity.class);
+        intent.putExtra("word", mainViewModel.getResult(position));
+        startActivity(intent);
     }
 
     @Override

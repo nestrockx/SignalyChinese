@@ -33,6 +33,10 @@ public class MainViewModel extends ViewModel {
         cursorPosition.setValue(0);
     }
 
+    public String getResult(int index) {
+        return dictionaryResultsList.getValue().get(index);
+    }
+
     public void updateResults(List<String> searchResults) {
         dictionaryResultsList.setValue(searchResults);
     }
