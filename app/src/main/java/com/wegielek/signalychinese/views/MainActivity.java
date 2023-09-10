@@ -41,19 +41,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-
 public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener {
     private CharacterListAdapter mCharacterListAdapter;
-    private List<String> mCharactersList;
     private ResultsListAdapter mResultsListAdapter;
     private List<String> mSearchResults;
     private Map<String, String> jsonTraditionalMap;
     private Map<String, String> jsonSimplifiedMap;
     private State mState = State.DRAW;
-    private int mCursorPosition = 0;
     private ActivityMainBinding binding;
     private MainViewModel mainViewModel;
-
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -69,7 +65,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 mResultsListAdapter.setData(stringList)
         );
 
-        mCharactersList = new ArrayList<>();
+        mainViewModel.charactersList.observe(this, stringList ->
+                mCharacterListAdapter.setData(stringList)
+        );
+
         mSearchResults = new ArrayList<>();
 
         if (savedInstanceState != null) {
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         binding.resultsRv.setAdapter(mResultsListAdapter);
 
         binding.charactersRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mCharacterListAdapter = new CharacterListAdapter(mCharactersList, this);
+        mCharacterListAdapter = new CharacterListAdapter(this);
         binding.charactersRv.setAdapter(mCharacterListAdapter);
 
         binding.characterDrawCanvas.setOnRecognizeListener(this);
@@ -133,16 +132,16 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         binding.backspaceBtn.setOnClickListener(view -> {
             backspace(1, true);
             binding.doneBtn.setVisibility(View.INVISIBLE);
-            mCursorPosition = binding.searchTextBox.length();
+            mainViewModel.setCursorPosition(binding.searchTextBox.length());
             binding.characterDrawCanvas.clear();
             binding.undoBtn.setVisibility(View.INVISIBLE);
         });
 
         binding.doneBtn.setOnClickListener(view -> {
-            mCharactersList.clear();
+            mainViewModel.clearCharacterList();
             mCharacterListAdapter.notifyDataSetChanged();
             binding.doneBtn.setVisibility(View.INVISIBLE);
-            mCursorPosition += Objects.requireNonNull(binding.searchTextBox.getText()).length() - mCursorPosition;
+            mainViewModel.setCursorPosition(binding.searchTextBox.getText().length());
             binding.characterDrawCanvas.clear();
             binding.undoBtn.setVisibility(View.INVISIBLE);
         });
@@ -220,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             }
         }
 
-        mainViewModel.addResults(mSearchResults);
+        mainViewModel.updateResults(mSearchResults);
 
         mState = State.RESULTS;
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -230,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
         binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
 
-        mCursorPosition = binding.searchTextBox.length();
+        mainViewModel.setCursorPosition(binding.searchTextBox.length());
         binding.characterDrawCanvas.clear();
         binding.undoBtn.setVisibility(View.INVISIBLE);
         binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
@@ -242,10 +241,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     private void backspace(int n, boolean force) {
         int length = Objects.requireNonNull(binding.searchTextBox.getText()).length();
-        if (n - (length - mCursorPosition) == 1 && length > 0 && !force) {
+        if (n - (length - mainViewModel.getCursorPosition()) == 1 && length > 0 && !force) {
             binding.searchTextBox.getText().delete(length - n + 1, length);
         }
-        else if (length - mCursorPosition >= n && !force) {
+        else if (length - mainViewModel.getCursorPosition() >= n && !force) {
             binding.searchTextBox.getText().delete(length - n, length);
         }
         else if (force && length >= 1) {
@@ -266,9 +265,9 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onResults(List<RecognitionCandidate> recognitionCandidatesList) {
-        mCharactersList.clear();
+        mainViewModel.clearCharacterList();
         for (RecognitionCandidate rc: recognitionCandidatesList) {
-            mCharactersList.add(rc.getText());
+            mainViewModel.addToCharacterList(rc.getText());
         }
         mCharacterListAdapter.notifyDataSetChanged();
 
@@ -283,10 +282,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onItemReleased(int position) {
-        backspace(mCharactersList.get(position).length(), false);
-        binding.searchTextBox.append(mCharactersList.get(position));
-        mCursorPosition += mCharactersList.get(position).length();
-        mCharactersList.clear();
+        backspace(mainViewModel.charactersList.getValue().get(position).length(), false);
+        binding.searchTextBox.append(mainViewModel.charactersList.getValue().get(position));
+        mainViewModel.setCursorPosition(mainViewModel.getCursorPosition() + mainViewModel.charactersList.getValue().get(position).length());
+        mainViewModel.clearCharacterList();
         mCharacterListAdapter.notifyDataSetChanged();
         binding.doneBtn.setVisibility(View.INVISIBLE);
         binding.characterDrawCanvas.clear();

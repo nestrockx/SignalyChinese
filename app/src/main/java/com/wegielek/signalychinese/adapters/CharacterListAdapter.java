@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
 import com.wegielek.signalychinese.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdapter.ViewHolder> {
@@ -19,9 +20,15 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
     private final CharactersRecyclerViewListener charactersRecyclerViewListener;
     private final List<String> dataList;
 
-    public CharacterListAdapter(List<String> dataList, CharactersRecyclerViewListener charactersRecyclerViewListener) {
-        this.dataList = dataList;
+    public CharacterListAdapter(CharactersRecyclerViewListener charactersRecyclerViewListener) {
         this.charactersRecyclerViewListener = charactersRecyclerViewListener;
+        this.dataList = new ArrayList<>();
+    }
+
+    public void setData(List<String> dataList) {
+        this.dataList.clear();
+        this.dataList.addAll(dataList);
+        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

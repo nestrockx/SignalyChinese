@@ -36,13 +36,11 @@ public class CanvasView extends View {
     private MainViewModel mainViewModel;
     private CanvasViewListener canvasViewListener;
     private static final int STROKE_WIDTH_DP = 3;
-    private Path currentVisibleStroke;
     private final Paint currentStrokePaint;
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
     private final Paint canvasPaint;
     private ArrayList<Ink.Stroke.Builder> strokesHistory;
-    private ArrayList<Path> visibleStrokesHistory;
     private Ink.Builder inkBuilder = Ink.builder();
     private Ink.Stroke.Builder strokeBuilder;
 
@@ -70,8 +68,6 @@ public class CanvasView extends View {
         canvasPaint = new Paint(Paint.DITHER_FLAG);
 
         strokesHistory = new ArrayList<>();
-        visibleStrokesHistory = new ArrayList<>();
-        currentVisibleStroke = new Path();
 
         init(100, 100);
     }
@@ -95,7 +91,7 @@ public class CanvasView extends View {
     }
 
     public void clear() {
-        currentVisibleStroke.reset();
+        mainViewModel.resetCurrentVisibleStroke();
         inkBuilder = Ink.builder();
         drawCanvas.drawColor(Color.BLACK);
         invalidate();
@@ -113,13 +109,13 @@ public class CanvasView extends View {
             recognize();
         }
 
-        if (visibleStrokesHistory.size() > 0) {
+        if (mainViewModel.getVisibleStrokeSize() > 0) {
             Path newCurrentVisibleStroke = new Path();
-            visibleStrokesHistory.remove(visibleStrokesHistory.size() - 1);
-            for (int i = 0; i < visibleStrokesHistory.size(); i++) {
-                newCurrentVisibleStroke.addPath(visibleStrokesHistory.get(i));
+            mainViewModel.removeVisibleStroke(mainViewModel.getVisibleStrokeSize() - 1);
+            for (int i = 0; i < mainViewModel.getVisibleStrokeSize(); i++) {
+                newCurrentVisibleStroke.addPath(mainViewModel.getVisibleStroke(i));
             }
-            currentVisibleStroke = newCurrentVisibleStroke;
+            mainViewModel.setCurrentVisibleStroke(newCurrentVisibleStroke);
             drawCanvas.drawColor(Color.BLACK);
             invalidate();
         }
@@ -127,7 +123,7 @@ public class CanvasView extends View {
 
     private void clearHistory() {
         strokesHistory.clear();
-        visibleStrokesHistory.clear();
+        mainViewModel.clearVisibleStrokes();
     }
 
     public void recognize() {
@@ -187,7 +183,9 @@ public class CanvasView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
-        drawCanvas.drawPath(currentVisibleStroke, currentStrokePaint);
+        if (mainViewModel != null) {
+            drawCanvas.drawPath(mainViewModel.getCurrentVisibleStroke(), currentStrokePaint);
+        }
     }
 
     @Override
@@ -199,20 +197,20 @@ public class CanvasView extends View {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                currentVisibleStroke.moveTo(x, y);
+                mainViewModel.moveToCurrentVisibleStroke(x, y);
 
                 strokeBuilder = Ink.Stroke.builder();
                 strokeBuilder.addPoint(Ink.Point.create(x, y, t));
                 break;
             case MotionEvent.ACTION_MOVE:
-                currentVisibleStroke.lineTo(x, y);
+                mainViewModel.lineToCurrentVisibleStroke(x, y);
 
                 strokeBuilder.addPoint(Ink.Point.create(x, y, t));
                 break;
             case MotionEvent.ACTION_UP:
-                currentVisibleStroke.lineTo(x, y);
-                visibleStrokesHistory.add(new Path(currentVisibleStroke));
-                currentVisibleStroke.reset();
+                mainViewModel.lineToCurrentVisibleStroke(x, y);
+                mainViewModel.addVisibleStroke(new Path(mainViewModel.getCurrentVisibleStroke()));
+                mainViewModel.resetCurrentVisibleStroke();
                 strokeBuilder.addPoint(Ink.Point.create(x, y, t));
                 strokesHistory.add(strokeBuilder);
                 inkBuilder.addStroke(strokeBuilder.build());
