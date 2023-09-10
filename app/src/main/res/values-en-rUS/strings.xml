@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Signaly Chiński</string>
-    <string name="clear">Wyczyść</string>
-    <string name="searching_mode">Wyszukiwanie</string>
-    <string name="drawing_mode">Narysuj znak</string>
-    <string name="puzzle_mode">Wybierz znak</string>
-    <string name="word_search_hint">Wyszukaj słowo</string>
+    <string name="app_name">Signaly Chinese</string>
+    <string name="clear">Clear</string>
+    <string name="searching_mode">Searching</string>
+    <string name="drawing_mode">Draw chinese sign</string>
+    <string name="puzzle_mode">Choose sign</string>
+    <string name="word_search_hint">Search word</string>
 </resources>
