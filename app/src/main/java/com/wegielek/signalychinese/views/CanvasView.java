@@ -29,10 +29,9 @@ import com.google.mlkit.vision.digitalink.Ink;
 import com.wegielek.signalychinese.Interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.viewmodels.MainViewModel;
 
-import java.util.ArrayList;
-
 public class CanvasView extends View {
 
+    private final static String TAG = "CanvasView";
     private MainViewModel mainViewModel;
     private CanvasViewListener canvasViewListener;
     private static final int STROKE_WIDTH_DP = 3;
@@ -40,9 +39,7 @@ public class CanvasView extends View {
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
     private final Paint canvasPaint;
-    private ArrayList<Ink.Stroke.Builder> strokesHistory;
     private Ink.Stroke.Builder strokeBuilder;
-
     private DigitalInkRecognitionModel model;
     private final RemoteModelManager remoteModelManager = RemoteModelManager.getInstance();
     private DigitalInkRecognizer recognizer;
@@ -64,7 +61,6 @@ public class CanvasView extends View {
         currentStrokePaint.setStrokeJoin(Paint.Join.ROUND);
         currentStrokePaint.setStrokeCap(Paint.Cap.ROUND);
         canvasPaint = new Paint(Paint.DITHER_FLAG);
-        strokesHistory = new ArrayList<>();
         init(100, 100);
     }
 
@@ -94,15 +90,15 @@ public class CanvasView extends View {
     }
 
     public void undo() {
-        if (strokesHistory.size() > 0) {
+        if (mainViewModel.getStrokesHistorySize() > 0) {
             Ink.Builder newInkBuilder = new Ink.Builder();
-            strokesHistory.remove(strokesHistory.size() - 1);
-            for (int i = 0; i < strokesHistory.size(); i++) {
-                newInkBuilder.addStroke(strokesHistory.get(i).build());
+            mainViewModel.removeFromStrokesHistory(mainViewModel.getStrokesHistorySize() - 1);
+            for (int i = 0; i < mainViewModel.getStrokesHistorySize(); i++) {
+                newInkBuilder.addStroke(mainViewModel.strokeHistoryBuild(i));
             }
             mainViewModel.setInkBuilder(newInkBuilder);
-            if (strokesHistory.size() != 1) {
-                recognizeWord();
+            if (mainViewModel.getStrokesHistorySize() > 1) {
+                recognizeCharacter();
             }
         }
 
@@ -119,11 +115,11 @@ public class CanvasView extends View {
     }
 
     private void clearHistory() {
-        strokesHistory.clear();
+        mainViewModel.clearStrokesHistory();
         mainViewModel.clearVisibleStrokes();
     }
 
-    public void recognizeWord() {
+    public void recognizeCharacter() {
         isModelDownloaded().onSuccessTask(result -> {
             if(!result) {
                 Toast.makeText(getContext(), "Model not downloaded yet", Toast.LENGTH_SHORT).show();
@@ -182,6 +178,8 @@ public class CanvasView extends View {
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         if (mainViewModel != null) {
             drawCanvas.drawPath(mainViewModel.getCurrentVisibleStroke(), currentStrokePaint);
+        } else {
+            Log.w(TAG, "MainViewModel is null");
         }
     }
 
@@ -205,12 +203,11 @@ public class CanvasView extends View {
             case MotionEvent.ACTION_UP:
                 mainViewModel.lineToCurrentVisibleStroke(x, y);
                 mainViewModel.addVisibleStroke(new Path(mainViewModel.getCurrentVisibleStroke()));
-                //mainViewModel.resetCurrentVisibleStroke();
                 strokeBuilder.addPoint(Ink.Point.create(x, y, t));
-                strokesHistory.add(strokeBuilder);
+                mainViewModel.addToStrokesHistory(strokeBuilder);
                 mainViewModel.addInkBuilderStroke(strokeBuilder.build());
                 strokeBuilder = null;
-                recognizeWord();
+                recognizeCharacter();
                 break;
             default:
                 break;

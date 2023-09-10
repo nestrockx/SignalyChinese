@@ -290,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         binding.doneBtn.setVisibility(View.INVISIBLE);
         binding.characterDrawCanvas.clear();
         binding.undoBtn.setVisibility(View.INVISIBLE);
-
     }
 
     @Override
