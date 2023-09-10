@@ -106,7 +106,9 @@ public class CanvasView extends View {
                 newInkBuilder.addStroke(strokesHistory.get(i).build());
             }
             inkBuilder = newInkBuilder;
-            recognize();
+            if (strokesHistory.size() != 1) {
+                recognize();
+            }
         }
 
         if (mainViewModel.getVisibleStrokeSize() > 0) {
