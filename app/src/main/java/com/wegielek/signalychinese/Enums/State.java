@@ -1,4 +1,4 @@
-package com.wegielek.signalychinese;
+package com.wegielek.signalychinese.Enums;
 
 public enum State {
     RESULTS,

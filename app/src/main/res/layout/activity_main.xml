@@ -31,11 +31,11 @@
             app:boxStrokeWidthFocused="0dp"
             app:hintEnabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/backspace_btn"
+            app:layout_constraintEnd_toStartOf="@+id/backspaceBtn"
             app:layout_constraintStart_toStartOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search_text_box"
+                android:id="@+id/searchTextBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/word_search_hint"
@@ -49,7 +49,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/backspace_btn"
+            android:id="@+id/backspaceBtn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginEnd="16dp"
@@ -57,46 +57,46 @@
             android:background="@drawable/backspace_btn_selector"
             android:contentDescription="Backspace"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/search_btn" />
+            app:layout_constraintEnd_toStartOf="@+id/searchBtn" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/draw_btn"
+            android:id="@+id/drawBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/ic_draw_active"
             android:contentDescription="Draw"
-            app:layout_constraintBottom_toTopOf="@+id/backspace_btn"
-            app:layout_constraintEnd_toStartOf="@+id/puzzle_btn"
+            app:layout_constraintBottom_toTopOf="@+id/backspaceBtn"
+            app:layout_constraintEnd_toStartOf="@+id/puzzleBtn"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/puzzle_btn"
+            android:id="@+id/puzzleBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/ic_puzzle_default"
             android:contentDescription="Puzzle"
-            app:layout_constraintBottom_toTopOf="@+id/backspace_btn"
-            app:layout_constraintEnd_toStartOf="@+id/learn_btn"
+            app:layout_constraintBottom_toTopOf="@+id/backspaceBtn"
+            app:layout_constraintEnd_toStartOf="@+id/learnBtn"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/draw_btn" />
+            app:layout_constraintStart_toEndOf="@+id/drawBtn" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/learn_btn"
+            android:id="@+id/learnBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/ic_school_default"
             android:contentDescription="Learn"
-            app:layout_constraintBottom_toTopOf="@+id/backspace_btn"
+            app:layout_constraintBottom_toTopOf="@+id/backspaceBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/puzzle_btn" />
+            app:layout_constraintStart_toEndOf="@+id/puzzleBtn" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/search_btn"
+            android:id="@+id/searchBtn"
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:layout_marginEnd="16dp"
@@ -107,7 +107,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/camera_btn"
+            android:id="@+id/cameraBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginTop="16dp"
@@ -118,7 +118,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/settings_btn"
+            android:id="@+id/settingsBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="16dp"
@@ -130,55 +130,55 @@
 
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/undo_btn"
+            android:id="@+id/undoBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/undo_btn_selector"
             android:contentDescription="Camera"
-            app:layout_constraintBottom_toTopOf="@+id/done_btn"
+            app:layout_constraintBottom_toTopOf="@+id/doneBtn"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/done_btn"
+            android:id="@+id/doneBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/done_btn_selector"
             android:contentDescription="Camera"
             android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/characters_rv"
+            app:layout_constraintBottom_toBottomOf="@+id/charactersRv"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <com.wegielek.signalychinese.views.CanvasView
-            android:id="@+id/character_draw_canvas"
+            android:id="@+id/characterDrawCanvas"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/characters_rv"
+            app:layout_constraintBottom_toTopOf="@+id/charactersRv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settings_btn" />
+            app:layout_constraintTop_toBottomOf="@+id/settingsBtn" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/characters_rv"
+            android:id="@+id/charactersRv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
             android:layout_weight="1"
-            app:layout_constraintBottom_toTopOf="@+id/draw_btn"
-            app:layout_constraintEnd_toStartOf="@+id/done_btn"
+            app:layout_constraintBottom_toTopOf="@+id/drawBtn"
+            app:layout_constraintEnd_toStartOf="@+id/doneBtn"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/label_tv"
+            android:id="@+id/labelTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -190,7 +190,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/results_rv"
+            android:id="@+id/resultsRv"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
@@ -198,11 +198,11 @@
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
             android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/character_draw_canvas"
+            app:layout_constraintBottom_toBottomOf="@+id/characterDrawCanvas"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settings_btn"
+            app:layout_constraintTop_toBottomOf="@+id/settingsBtn"
             app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

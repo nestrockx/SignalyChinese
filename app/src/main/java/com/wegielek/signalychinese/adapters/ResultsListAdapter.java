@@ -74,9 +74,9 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
 
         public ViewHolder(View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.label_tv);
-            textView3 = itemView.findViewById(R.id.textView2);
-            textView2 = itemView.findViewById(R.id.textView3);
+            textView = itemView.findViewById(R.id.labelTv);
+            textView3 = itemView.findViewById(R.id.translationTv);
+            textView2 = itemView.findViewById(R.id.pronunciationTv);
 
             itemView.setOnClickListener(view -> resultsRecyclerViewListener.onResultClicked(getAdapterPosition()));
         }

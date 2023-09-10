@@ -24,7 +24,7 @@ import com.wegielek.signalychinese.Interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.Interfaces.CharactersRecyclerViewListener;
 import com.wegielek.signalychinese.Interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
-import com.wegielek.signalychinese.State;
+import com.wegielek.signalychinese.Enums.State;
 import com.wegielek.signalychinese.adapters.CharacterListAdapter;
 import com.wegielek.signalychinese.adapters.ResultsListAdapter;
 import com.wegielek.signalychinese.databinding.ActivityMainBinding;
