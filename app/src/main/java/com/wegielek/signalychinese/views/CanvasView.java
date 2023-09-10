@@ -87,10 +87,10 @@ public class CanvasView extends View {
         mainViewModel.setInkBuilder(Ink.builder());
         drawCanvas.drawColor(Color.BLACK);
         invalidate();
-        clearHistory();
+        clearStrokesHistory();
     }
 
-    public void undo() {
+    public void undoStroke() {
         if (mainViewModel.getStrokesHistorySize() > 0) {
             Ink.Builder newInkBuilder = new Ink.Builder();
             mainViewModel.removeFromStrokesHistory(mainViewModel.getStrokesHistorySize() - 1);
@@ -115,7 +115,7 @@ public class CanvasView extends View {
         }
     }
 
-    private void clearHistory() {
+    private void clearStrokesHistory() {
         mainViewModel.clearStrokesHistory();
         mainViewModel.clearVisibleStrokes();
     }
@@ -218,11 +218,8 @@ public class CanvasView extends View {
 
     @Override
     public boolean performClick() {
-        // Calls the super implementation, which generates an AccessibilityEvent
-        // and calls the onClick() listener on the view, if any
         super.performClick();
 
-        // Handle the action for the custom click here
 
         return true;
     }

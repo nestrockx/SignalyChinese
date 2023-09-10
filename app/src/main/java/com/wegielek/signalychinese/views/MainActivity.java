@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         binding.characterDrawCanvas.setOnRecognizeListener(this);
         binding.characterDrawCanvas.post(() -> binding.characterDrawCanvas.initialize(binding.characterDrawCanvas.getWidth(), binding.characterDrawCanvas.getHeight(), mainViewModel));
 
-        binding.undoBtn.setOnClickListener(view -> binding.characterDrawCanvas.undo());
+        binding.undoBtn.setOnClickListener(view -> binding.characterDrawCanvas.undoStroke());
         binding.searchBtn.setOnClickListener(v -> performSearch());
 
         binding.puzzleBtn.setOnClickListener(view -> {
