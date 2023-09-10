@@ -5,6 +5,8 @@ import android.graphics.Path;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.mlkit.vision.digitalink.Ink;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
 public class MainViewModel extends ViewModel {
 
 
+    public MutableLiveData<Ink.Builder> inkBuilder = new MutableLiveData<>();
     public MutableLiveData<Path> currentVisibleStroke = new MutableLiveData<>();
     public MutableLiveData<ArrayList<Path>> visibleStrokesHistory = new MutableLiveData<>();
     public MutableLiveData<Integer> cursorPosition = new MutableLiveData<>();
@@ -19,6 +22,7 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<List<String>> dictionaryResultsList = new MutableLiveData<>();
 
     public MainViewModel() {
+        inkBuilder.setValue(Ink.builder());
         dictionaryResultsList.setValue(new ArrayList<>());
         charactersList.setValue(new ArrayList<>());
         visibleStrokesHistory.setValue(new ArrayList<>());
@@ -94,6 +98,24 @@ public class MainViewModel extends ViewModel {
         Path currentVisibleStrokeCopy = new Path(currentVisibleStroke.getValue());
         currentVisibleStrokeCopy.moveTo(x, y);
         currentVisibleStroke.setValue(currentVisibleStrokeCopy);
+    }
+
+    public void setInkBuilder(Ink.Builder inkBuilder) {
+        this.inkBuilder.setValue(inkBuilder);
+    }
+
+    public Ink inkBuilderBuild() {
+        return inkBuilder.getValue().build();
+    }
+
+    public void addInkBuilderStroke(Ink.Stroke stroke) {
+        Ink.Builder builder = new Ink.Builder();
+        Ink inkBuilderCopy = inkBuilderBuild();
+        for (Ink.Stroke iStroke : inkBuilderCopy.getStrokes()) {
+            builder.addStroke(iStroke);
+        }
+        builder.addStroke(stroke);
+        inkBuilder.setValue(builder);
     }
 
 }

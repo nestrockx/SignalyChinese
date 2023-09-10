@@ -41,7 +41,6 @@ public class CanvasView extends View {
     private Bitmap canvasBitmap;
     private final Paint canvasPaint;
     private ArrayList<Ink.Stroke.Builder> strokesHistory;
-    private Ink.Builder inkBuilder = Ink.builder();
     private Ink.Stroke.Builder strokeBuilder;
 
     private DigitalInkRecognitionModel model;
@@ -64,11 +63,8 @@ public class CanvasView extends View {
         currentStrokePaint.setStyle(Paint.Style.STROKE);
         currentStrokePaint.setStrokeJoin(Paint.Join.ROUND);
         currentStrokePaint.setStrokeCap(Paint.Cap.ROUND);
-
         canvasPaint = new Paint(Paint.DITHER_FLAG);
-
         strokesHistory = new ArrayList<>();
-
         init(100, 100);
     }
 
@@ -86,13 +82,12 @@ public class CanvasView extends View {
         drawCanvas = new Canvas(canvasBitmap);
         drawCanvas.drawColor(Color.BLACK);
         invalidate();
-
         downloadModel();
     }
 
     public void clear() {
         mainViewModel.resetCurrentVisibleStroke();
-        inkBuilder = Ink.builder();
+        mainViewModel.setInkBuilder(Ink.builder());
         drawCanvas.drawColor(Color.BLACK);
         invalidate();
         clearHistory();
@@ -105,9 +100,9 @@ public class CanvasView extends View {
             for (int i = 0; i < strokesHistory.size(); i++) {
                 newInkBuilder.addStroke(strokesHistory.get(i).build());
             }
-            inkBuilder = newInkBuilder;
+            mainViewModel.setInkBuilder(newInkBuilder);
             if (strokesHistory.size() != 1) {
-                recognize();
+                recognizeWord();
             }
         }
 
@@ -128,19 +123,19 @@ public class CanvasView extends View {
         mainViewModel.clearVisibleStrokes();
     }
 
-    public void recognize() {
+    public void recognizeWord() {
         isModelDownloaded().onSuccessTask(result -> {
             if(!result) {
                 Toast.makeText(getContext(), "Model not downloaded yet", Toast.LENGTH_SHORT).show();
                 return Tasks.forResult(null);
             }
-            recognizee();
+            recognize();
             return Tasks.forResult(null);
         });
     }
 
-    private void recognizee() {
-        recognizer.recognize(inkBuilder.build()).addOnSuccessListener(
+    private void recognize() {
+        recognizer.recognize(mainViewModel.inkBuilderBuild()).addOnSuccessListener(
                 result -> {
                     canvasViewListener.onResults(result.getCandidates());
                 }
@@ -200,24 +195,22 @@ public class CanvasView extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mainViewModel.moveToCurrentVisibleStroke(x, y);
-
                 strokeBuilder = Ink.Stroke.builder();
                 strokeBuilder.addPoint(Ink.Point.create(x, y, t));
                 break;
             case MotionEvent.ACTION_MOVE:
                 mainViewModel.lineToCurrentVisibleStroke(x, y);
-
                 strokeBuilder.addPoint(Ink.Point.create(x, y, t));
                 break;
             case MotionEvent.ACTION_UP:
                 mainViewModel.lineToCurrentVisibleStroke(x, y);
                 mainViewModel.addVisibleStroke(new Path(mainViewModel.getCurrentVisibleStroke()));
-                mainViewModel.resetCurrentVisibleStroke();
+                //mainViewModel.resetCurrentVisibleStroke();
                 strokeBuilder.addPoint(Ink.Point.create(x, y, t));
                 strokesHistory.add(strokeBuilder);
-                inkBuilder.addStroke(strokeBuilder.build());
+                mainViewModel.addInkBuilderStroke(strokeBuilder.build());
                 strokeBuilder = null;
-                recognize();
+                recognizeWord();
                 break;
             default:
                 break;
