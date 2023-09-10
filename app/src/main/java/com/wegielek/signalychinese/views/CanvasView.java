@@ -1,7 +1,5 @@
 package com.wegielek.signalychinese.views;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -32,17 +30,20 @@ import com.wegielek.signalychinese.viewmodels.MainViewModel;
 public class CanvasView extends View {
 
     private final static String TAG = "CanvasView";
-    private MainViewModel mainViewModel;
-    private CanvasViewListener canvasViewListener;
     private static final int STROKE_WIDTH_DP = 3;
+
+
+    private final RemoteModelManager remoteModelManager = RemoteModelManager.getInstance();
+    private DigitalInkRecognitionModel model;
+    private DigitalInkRecognizer recognizer;
+
+    private MainViewModel mainViewModel;
+
     private final Paint currentStrokePaint;
+    private final Paint canvasPaint;
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
-    private final Paint canvasPaint;
-    private Ink.Stroke.Builder strokeBuilder;
-    private DigitalInkRecognitionModel model;
-    private final RemoteModelManager remoteModelManager = RemoteModelManager.getInstance();
-    private DigitalInkRecognizer recognizer;
+    private CanvasViewListener canvasViewListener;
 
     public CanvasView(Context context) {
         this(context, null);
@@ -61,19 +62,19 @@ public class CanvasView extends View {
         currentStrokePaint.setStrokeJoin(Paint.Join.ROUND);
         currentStrokePaint.setStrokeCap(Paint.Cap.ROUND);
         canvasPaint = new Paint(Paint.DITHER_FLAG);
-        init(100, 100);
+        initialize(100, 100);
     }
 
     public void setOnRecognizeListener(CanvasViewListener onRecognizeListener) {
         this.canvasViewListener = onRecognizeListener;
     }
 
-    public void init(int width, int height, MainViewModel mainViewModel) {
+    public void initialize(int width, int height, MainViewModel mainViewModel) {
         this.mainViewModel = mainViewModel;
-        init(width, height);
+        initialize(width, height);
     }
 
-    private void init(int width, int height) {
+    private void initialize(int width, int height) {
         canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
         drawCanvas.drawColor(Color.BLACK);
@@ -193,20 +194,19 @@ public class CanvasView extends View {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mainViewModel.moveToCurrentVisibleStroke(x, y);
-                strokeBuilder = Ink.Stroke.builder();
-                strokeBuilder.addPoint(Ink.Point.create(x, y, t));
+                mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t));
                 break;
             case MotionEvent.ACTION_MOVE:
                 mainViewModel.lineToCurrentVisibleStroke(x, y);
-                strokeBuilder.addPoint(Ink.Point.create(x, y, t));
+                mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t));
                 break;
             case MotionEvent.ACTION_UP:
                 mainViewModel.lineToCurrentVisibleStroke(x, y);
                 mainViewModel.addVisibleStroke(new Path(mainViewModel.getCurrentVisibleStroke()));
-                strokeBuilder.addPoint(Ink.Point.create(x, y, t));
-                mainViewModel.addToStrokesHistory(strokeBuilder);
-                mainViewModel.addInkBuilderStroke(strokeBuilder.build());
-                strokeBuilder = null;
+                mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t));
+                mainViewModel.addToStrokesHistory(mainViewModel.getStrokeBuilder());
+                mainViewModel.addInkBuilderStroke(mainViewModel.strokeBuilderBuild());
+                mainViewModel.clearStrokeBuilder();
                 recognizeCharacter();
                 break;
             default:

@@ -13,7 +13,7 @@ import java.util.List;
 
 public class MainViewModel extends ViewModel {
 
-
+    public MutableLiveData<Ink.Stroke.Builder> strokeBuilder = new MutableLiveData<>();
     public MutableLiveData<ArrayList<Ink.Stroke.Builder>> strokesHistory = new MutableLiveData<>();
     public MutableLiveData<Ink.Builder> inkBuilder = new MutableLiveData<>();
     public MutableLiveData<Path> currentVisibleStroke = new MutableLiveData<>();
@@ -23,6 +23,7 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<List<String>> dictionaryResultsList = new MutableLiveData<>();
 
     public MainViewModel() {
+        strokeBuilder.setValue(Ink.Stroke.builder());
         inkBuilder.setValue(Ink.builder());
         strokesHistory.setValue(new ArrayList<>());
         dictionaryResultsList.setValue(new ArrayList<>());
@@ -144,6 +145,27 @@ public class MainViewModel extends ViewModel {
         return strokesHistory.getValue().get(index).build();
     }
 
+    public Ink.Stroke.Builder getStrokeBuilder() {
+        return strokeBuilder.getValue();
+    }
+
+    public Ink.Stroke strokeBuilderBuild() {
+        return strokeBuilder.getValue().build();
+    }
+
+    public void addStrokeBuilderPoint(Ink.Point point) {
+        Ink.Stroke.Builder builder = Ink.Stroke.builder();
+        Ink.Stroke strokeBuilderCopy = strokeBuilderBuild();
+        for (Ink.Point iPoint : strokeBuilderCopy.getPoints()) {
+            builder.addPoint(iPoint);
+        }
+        builder.addPoint(point);
+        strokeBuilder.setValue(builder);
+    }
+
+    public void clearStrokeBuilder() {
+        strokeBuilder.setValue(Ink.Stroke.builder());
+    }
 
 
 }
