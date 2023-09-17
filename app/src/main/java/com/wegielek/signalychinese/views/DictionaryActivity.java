@@ -2,14 +2,66 @@ package com.wegielek.signalychinese.views;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.wegielek.signalychinese.R;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 public class DictionaryActivity extends AppCompatActivity {
+
+    private Map<String, String> jsonTraditionalMap;
+    private Map<String, String> jsonSimplifiedMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dictionary);
+
+        String word = getIntent().getStringExtra("word");
+
+        Toast.makeText(this, word, Toast.LENGTH_SHORT).show();
+
+        loadDictionaryFiles();
     }
+
+    private void loadDictionaryFiles() {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            String jsonTraditionalString;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("resultsJSON1.json"), StandardCharsets.UTF_8))) {
+                jsonTraditionalString = reader.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            jsonTraditionalMap = new Gson().fromJson(
+                    jsonTraditionalString, new TypeToken<HashMap<String, String>>() {}.getType()
+            );
+
+            String jsonSimplifiedString;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("resultsJSON2.json"), StandardCharsets.UTF_8))) {
+                jsonSimplifiedString = reader.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            jsonSimplifiedMap = new Gson().fromJson(
+                    jsonSimplifiedString, new TypeToken<HashMap<String, String>>() {}.getType()
+            );
+        });
+    }
+
+
 }

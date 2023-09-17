@@ -40,6 +40,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener {
     private CharacterListAdapter mCharacterListAdapter;
@@ -153,31 +155,36 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             }
             return false;
         });
+        loadDictionaryFiles();
+    }
 
+    private void loadDictionaryFiles() {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            String jsonTraditionalString;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("resultsJSON1.json"), StandardCharsets.UTF_8))) {
+                jsonTraditionalString = reader.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-        String jsonTraditionalString;
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(getAssets().open("resultsJSON1.json"), StandardCharsets.UTF_8))) {
-            jsonTraditionalString = reader.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            jsonTraditionalMap = new Gson().fromJson(
+                    jsonTraditionalString, new TypeToken<HashMap<String, String>>() {}.getType()
+            );
 
-        jsonTraditionalMap = new Gson().fromJson(
-                jsonTraditionalString, new TypeToken<HashMap<String, String>>() {}.getType()
-        );
+            String jsonSimplifiedString;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("resultsJSON2.json"), StandardCharsets.UTF_8))) {
+                jsonSimplifiedString = reader.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
-        String jsonSimplifiedString;
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(getAssets().open("resultsJSON2.json"), StandardCharsets.UTF_8))) {
-            jsonSimplifiedString = reader.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        jsonSimplifiedMap = new Gson().fromJson(
-                jsonSimplifiedString, new TypeToken<HashMap<String, String>>() {}.getType()
-        );
+            jsonSimplifiedMap = new Gson().fromJson(
+                    jsonSimplifiedString, new TypeToken<HashMap<String, String>>() {}.getType()
+            );
+        });
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -303,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onResultClicked(int position) {
-        Intent intent = new Intent(this, HanziWritingActivity.class);
+        Intent intent = new Intent(this, DictionaryActivity.class);
         intent.putExtra("word", mainViewModel.getResult(position));
         startActivity(intent);
     }
