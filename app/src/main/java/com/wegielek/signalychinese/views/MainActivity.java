@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -189,61 +190,65 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
-        String inputTextString = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
+        if (jsonTraditionalMap != null && jsonSimplifiedMap != null) {
+            String inputTextString = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
 
-        if (jsonTraditionalMap.containsKey(inputTextString)) {
-            String x = jsonTraditionalMap.get(inputTextString);
-            mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
-            mSearchResults.replaceAll(s -> inputTextString + "/" + s);
+            if (jsonTraditionalMap.containsKey(inputTextString)) {
+                String x = jsonTraditionalMap.get(inputTextString);
+                mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
+                mSearchResults.replaceAll(s -> inputTextString + "/" + s);
 
-        } else if (jsonSimplifiedMap.containsKey(inputTextString)) {
-            String x = jsonSimplifiedMap.get(inputTextString);
-            mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
-            for (int i = 0; i < mSearchResults.size(); i++) {
-                String tmp = mSearchResults.get(i).split("/")[0];
-                mSearchResults.set(i, tmp + "/" + mSearchResults.get(i).replace(tmp, inputTextString));
+            } else if (jsonSimplifiedMap.containsKey(inputTextString)) {
+                String x = jsonSimplifiedMap.get(inputTextString);
+                mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
+                for (int i = 0; i < mSearchResults.size(); i++) {
+                    String tmp = mSearchResults.get(i).split("/")[0];
+                    mSearchResults.set(i, tmp + "/" + mSearchResults.get(i).replace(tmp, inputTextString));
+                }
             }
-        }
 
-        if(inputTextString.length() > 1) {
-            for (int i = 0; i < inputTextString.length(); i++) {
-                if (jsonTraditionalMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
-                    int searchresultscount1 = mSearchResults.size();
-                    String x = jsonTraditionalMap.get(String.valueOf(inputTextString.charAt(i)));
-                    mSearchResults.addAll(new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ "))));
-                    for (int j = searchresultscount1; j < mSearchResults.size(); j++) {
-                        mSearchResults.set(j, inputTextString.charAt(i) + "/" + mSearchResults.get(j));
-                    }
-                } else if (jsonSimplifiedMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
-                    int searchresultscount2 = mSearchResults.size();
-                    String x = jsonSimplifiedMap.get(String.valueOf(inputTextString.charAt(i)));
-                    mSearchResults.addAll(new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ "))));
-                    for (int j = searchresultscount2; j < mSearchResults.size(); j++) {
-                        String tmp = mSearchResults.get(j).split("/")[0];
-                        mSearchResults.set(j, tmp + "/" + mSearchResults.get(j).replace(tmp, String.valueOf(inputTextString.charAt(i))));
+            if (inputTextString.length() > 1) {
+                for (int i = 0; i < inputTextString.length(); i++) {
+                    if (jsonTraditionalMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
+                        int searchresultscount1 = mSearchResults.size();
+                        String x = jsonTraditionalMap.get(String.valueOf(inputTextString.charAt(i)));
+                        mSearchResults.addAll(new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ "))));
+                        for (int j = searchresultscount1; j < mSearchResults.size(); j++) {
+                            mSearchResults.set(j, inputTextString.charAt(i) + "/" + mSearchResults.get(j));
+                        }
+                    } else if (jsonSimplifiedMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
+                        int searchresultscount2 = mSearchResults.size();
+                        String x = jsonSimplifiedMap.get(String.valueOf(inputTextString.charAt(i)));
+                        mSearchResults.addAll(new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ "))));
+                        for (int j = searchresultscount2; j < mSearchResults.size(); j++) {
+                            String tmp = mSearchResults.get(j).split("/")[0];
+                            mSearchResults.set(j, tmp + "/" + mSearchResults.get(j).replace(tmp, String.valueOf(inputTextString.charAt(i))));
+                        }
                     }
                 }
             }
+
+            mainViewModel.updateResults(mSearchResults);
+
+            mState = State.RESULTS;
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm.isActive()) {
+                imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
+            }
+            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+
+            mainViewModel.setCursorPosition(binding.searchTextBox.length());
+            binding.characterDrawCanvas.clear();
+            binding.undoBtn.setVisibility(View.INVISIBLE);
+            binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
+            binding.charactersRv.setVisibility(View.INVISIBLE);
+            binding.resultsRv.setVisibility(View.VISIBLE);
+            binding.labelTv.setText(getString(R.string.searching_mode));
+            binding.doneBtn.setVisibility(View.INVISIBLE);
+        } else {
+            Toast.makeText(this, getString(R.string.dictionary_files_not_loaded), Toast.LENGTH_SHORT).show();
         }
-
-        mainViewModel.updateResults(mSearchResults);
-
-        mState = State.RESULTS;
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm.isActive()) {
-            imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
-        }
-        binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-        binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-
-        mainViewModel.setCursorPosition(binding.searchTextBox.length());
-        binding.characterDrawCanvas.clear();
-        binding.undoBtn.setVisibility(View.INVISIBLE);
-        binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-        binding.charactersRv.setVisibility(View.INVISIBLE);
-        binding.resultsRv.setVisibility(View.VISIBLE);
-        binding.labelTv.setText(getString(R.string.searching_mode));
-        binding.doneBtn.setVisibility(View.INVISIBLE);
     }
 
     private void backspace(int n, boolean force) {
