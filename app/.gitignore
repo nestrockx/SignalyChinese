@@ -177,3 +177,6 @@ resultTest.txt
 /src/main/assets/result.txt
 /src/main/assets/resultsJSON1.json
 /src/main/assets/resultsJSON2.json
+/src/main/assets/resultsJSON1_backup.json
+/src/main/assets/resultsJSON2_backup.json
+/src/main/assets/radicalsJSON.json
