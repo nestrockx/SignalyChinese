@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.wegielek.signalychinese.Interfaces.ResultsRecyclerViewListener;
+import com.wegielek.signalychinese.interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
 
 import java.util.ArrayList;

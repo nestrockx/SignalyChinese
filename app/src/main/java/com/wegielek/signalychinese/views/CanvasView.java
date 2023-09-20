@@ -24,7 +24,7 @@ import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModelIdentifier;
 import com.google.mlkit.vision.digitalink.DigitalInkRecognizer;
 import com.google.mlkit.vision.digitalink.DigitalInkRecognizerOptions;
 import com.google.mlkit.vision.digitalink.Ink;
-import com.wegielek.signalychinese.Interfaces.CanvasViewListener;
+import com.wegielek.signalychinese.interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.viewmodels.MainViewModel;
 
 public class CanvasView extends View {

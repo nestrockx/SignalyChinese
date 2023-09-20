@@ -1,4 +1,4 @@
-package com.wegielek.signalychinese.Interfaces;
+package com.wegielek.signalychinese.interfaces;
 
 import android.view.View;
 

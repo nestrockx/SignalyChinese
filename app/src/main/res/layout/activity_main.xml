@@ -147,7 +147,6 @@
             android:layout_marginEnd="8dp"
             android:background="@drawable/done_btn_selector"
             android:contentDescription="Camera"
-            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/charactersRv"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -197,8 +196,22 @@
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toBottomOf="@+id/characterDrawCanvas"
+            app:layout_constraintBottom_toTopOf="@+id/drawBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/settingsBtn"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/radicalsRv"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/drawBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
