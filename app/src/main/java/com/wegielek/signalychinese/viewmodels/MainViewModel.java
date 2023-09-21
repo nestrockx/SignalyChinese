@@ -9,7 +9,9 @@ import com.google.mlkit.vision.digitalink.Ink;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainViewModel extends ViewModel {
 
@@ -21,6 +23,8 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<Integer> cursorPosition = new MutableLiveData<>();
     public MutableLiveData<List<String>> charactersList = new MutableLiveData<>();
     public MutableLiveData<List<String>> dictionaryResultsList = new MutableLiveData<>();
+    public MutableLiveData<Map<String, String>> jsonTraditionalMap = new MutableLiveData<>();
+    public MutableLiveData<Map<String, String>> jsonSimplifiedMap = new MutableLiveData<>();
 
     public MainViewModel() {
         strokeBuilder.setValue(Ink.Stroke.builder());
@@ -31,6 +35,8 @@ public class MainViewModel extends ViewModel {
         visibleStrokesHistory.setValue(new ArrayList<>());
         currentVisibleStroke.setValue(new Path());
         cursorPosition.setValue(0);
+        jsonTraditionalMap.setValue(new HashMap<>());
+        jsonSimplifiedMap.setValue(new HashMap<>());
     }
 
     public String getResult(int index) {
@@ -169,6 +175,22 @@ public class MainViewModel extends ViewModel {
 
     public void clearStrokeBuilder() {
         strokeBuilder.setValue(Ink.Stroke.builder());
+    }
+
+    public void setJsonTraditionalMap(Map<String, String> jsonTraditionalMap) {
+        this.jsonTraditionalMap.postValue(jsonTraditionalMap);
+    }
+
+    public Map<String, String> getJsonTraditionalMap() {
+        return jsonTraditionalMap.getValue();
+    }
+
+    public void setJsonSimplifiedMap(Map<String, String> jsonTraditionalMap) {
+        this.jsonSimplifiedMap.postValue(jsonTraditionalMap);
+    }
+
+    public Map<String, String> getJsonSimplifiedMap() {
+        return jsonSimplifiedMap.getValue();
     }
 
 

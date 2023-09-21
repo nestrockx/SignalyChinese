@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private ResultsListAdapter mResultsListAdapter;
     private RadicalsParentAdapter mRadicalsParentAdapter;
     private List<String> mSearchResults;
-    private Map<String, String> jsonTraditionalMap;
-    private Map<String, String> jsonSimplifiedMap;
     private Map<Integer, String[]> jsonRadicalsMap;
     private State mState = State.DRAW;
     private ActivityMainBinding binding;
@@ -95,30 +93,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mResultsListAdapter = new ResultsListAdapter(this, this);
         binding.resultsRv.setAdapter(mResultsListAdapter);
 
-        //--------------------------------------------------------------------------------------------------------------------------
-        String jsonRadicalsString;
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(getAssets().open("radicalsJSON.json"), StandardCharsets.UTF_8))) {
-            jsonRadicalsString = reader.readLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        jsonRadicalsMap = new Gson().fromJson(
-                jsonRadicalsString, new TypeToken<HashMap<Integer, String[]>>() {}.getType()
-        );
-
-        mRadicalsParentModels = new ArrayList<>();
-
-        for(int i = 0; i < jsonRadicalsMap.get(0).length - 1; i++) {
-            mRadicalsParentModels.add(new RadicalsParentModel(jsonRadicalsMap.get(0)[i].split(" ")));
-        }
-
-        mRadicalsParentAdapter = new RadicalsParentAdapter(this);
-        binding.radicalsRv.setLayoutManager(new LinearLayoutManager(this));
-        binding.radicalsRv.setAdapter(mRadicalsParentAdapter);
-        mRadicalsParentAdapter.setData(mRadicalsParentModels);
-        //----------------------------------------------------------------------------------------------------------------------------
+        loadRadicals();
 
         binding.charactersRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mCharacterListAdapter = new CharacterListAdapter(this);
@@ -157,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         
         binding.backspaceBtn.setOnClickListener(view -> {
             binding.searchTextBox.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-            mMainViewModel.setCursorPosition(binding.searchTextBox.getText().length());
+            mMainViewModel.setCursorPosition(binding.searchTextBox.getSelectionEnd());
 
             if (mState == State.RESULTS && binding.searchTextBox.getText().length() > 0) {
                 performSearch();
@@ -220,6 +195,9 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             binding.resultsRv.setVisibility(View.VISIBLE);
             binding.undoBtn.setVisibility(View.INVISIBLE);
             binding.radicalsRv.setVisibility(View.INVISIBLE);
+            binding.searchTextBox.postDelayed(() -> {
+                   performSearch();
+            }, 1000);
         } else {
             binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
             binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
@@ -230,6 +208,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             binding.radicalsRv.setVisibility(View.VISIBLE);
             binding.doneBtn.setVisibility(View.INVISIBLE);
         }
+
+
     }
 
     private void loadDictionaryFiles() {
@@ -243,9 +223,9 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 throw new RuntimeException(e);
             }
 
-            jsonTraditionalMap = new Gson().fromJson(
+            mMainViewModel.setJsonTraditionalMap(new Gson().fromJson(
                     jsonTraditionalString, new TypeToken<HashMap<String, String>>() {}.getType()
-            );
+            ));
 
             String jsonSimplifiedString;
             try (BufferedReader reader = new BufferedReader(
@@ -255,25 +235,54 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 throw new RuntimeException(e);
             }
 
-            jsonSimplifiedMap = new Gson().fromJson(
+            mMainViewModel.setJsonSimplifiedMap(new Gson().fromJson(
                     jsonSimplifiedString, new TypeToken<HashMap<String, String>>() {}.getType()
+            ));
+        });
+    }
+
+    private void loadRadicals() {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            String jsonRadicalsString;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("radicalsJSON.json"), StandardCharsets.UTF_8))) {
+                jsonRadicalsString = reader.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            jsonRadicalsMap = new Gson().fromJson(
+                    jsonRadicalsString, new TypeToken<HashMap<Integer, String[]>>() {
+                    }.getType()
             );
+
+            mRadicalsParentModels = new ArrayList<>();
+
+            for (int i = 0; i < jsonRadicalsMap.get(0).length - 1; i++) {
+                mRadicalsParentModels.add(new RadicalsParentModel(jsonRadicalsMap.get(0)[i].split(" ")));
+            }
+
+            mRadicalsParentAdapter = new RadicalsParentAdapter(this);
+            binding.radicalsRv.setLayoutManager(new LinearLayoutManager(this));
+            binding.radicalsRv.setAdapter(mRadicalsParentAdapter);
+            mRadicalsParentAdapter.setData(mRadicalsParentModels);
         });
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
         mSearchResults.clear();
-        if (jsonTraditionalMap != null && jsonSimplifiedMap != null) {
+        if (mMainViewModel.getJsonTraditionalMap() != null && mMainViewModel.getJsonSimplifiedMap() != null) {
             String inputTextString = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
 
-            if (jsonTraditionalMap.containsKey(inputTextString)) {
-                String x = jsonTraditionalMap.get(inputTextString);
+            if (mMainViewModel.getJsonTraditionalMap().containsKey(inputTextString)) {
+                String x = mMainViewModel.getJsonTraditionalMap().get(inputTextString);
                 mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
                 mSearchResults.replaceAll(s -> inputTextString + "/" + s);
 
-            } else if (jsonSimplifiedMap.containsKey(inputTextString)) {
-                String x = jsonSimplifiedMap.get(inputTextString);
+            } else if (mMainViewModel.getJsonSimplifiedMap().containsKey(inputTextString)) {
+                String x = mMainViewModel.getJsonSimplifiedMap().get(inputTextString);
                 mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
                 for (int i = 0; i < mSearchResults.size(); i++) {
                     String tmp = mSearchResults.get(i).split("/")[0];
@@ -358,8 +367,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mMainViewModel.clearCharacterList();
         mCharacterListAdapter.notifyDataSetChanged();
         binding.doneBtn.setVisibility(View.INVISIBLE);
-        binding.characterDrawCanvas.clear();
         binding.undoBtn.setVisibility(View.INVISIBLE);
+        binding.characterDrawCanvas.clear();
     }
 
     @Override
@@ -375,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onResultClicked(int position) {
-        Intent intent = new Intent(this, DictionaryActivity.class);
+        Intent intent = new Intent(getBaseContext(), DictionaryActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("word", mMainViewModel.getResult(position));
         startActivity(intent);
@@ -396,20 +405,20 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 if (imm.isActive()) {
                     imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
                 } else {
-                    binding.searchTextBox.postDelayed(this, 100);
+                    binding.searchTextBox.postDelayed(this, 50);
                 }
             }
-        }, 100);
+        }, 50);
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putSerializable("state", mState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onSelectionChanged(int selStart, int selEnd) {
-        //mMainViewModel.setCursorPosition(selEnd - 1);
+
     }
 }
