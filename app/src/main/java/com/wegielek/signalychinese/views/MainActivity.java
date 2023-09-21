@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -24,6 +25,7 @@ import com.wegielek.signalychinese.BR;
 import com.wegielek.signalychinese.adapters.RadicalsParentAdapter;
 import com.wegielek.signalychinese.interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.interfaces.CharactersRecyclerViewListener;
+import com.wegielek.signalychinese.interfaces.SearchTextBoxListener;
 import com.wegielek.signalychinese.interfaces.RadicalsRecyclerViewListener;
 import com.wegielek.signalychinese.interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
@@ -47,7 +49,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener, RadicalsRecyclerViewListener {
+public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener, RadicalsRecyclerViewListener, SearchTextBoxListener {
     private CharacterListAdapter mCharacterListAdapter;
     private ResultsListAdapter mResultsListAdapter;
     private RadicalsParentAdapter mRadicalsParentAdapter;
@@ -83,9 +85,11 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         if (savedInstanceState != null) {
             mState = (State) savedInstanceState.getSerializable("state");
         }
+        setStateUI(mState);
 
 
         binding.searchTextBox.requestFocus();
+        binding.searchTextBox.setOnSelectionChangedListener(this);
 
         binding.resultsRv.setLayoutManager(new LinearLayoutManager(this));
         mResultsListAdapter = new ResultsListAdapter(this, this);
@@ -110,10 +114,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mRadicalsParentModels.add(new RadicalsParentModel(jsonRadicalsMap.get(0)[i].split(" ")));
         }
 
-        mRadicalsParentAdapter = new RadicalsParentAdapter(mRadicalsParentModels, this);
+        mRadicalsParentAdapter = new RadicalsParentAdapter(this);
         binding.radicalsRv.setLayoutManager(new LinearLayoutManager(this));
         binding.radicalsRv.setAdapter(mRadicalsParentAdapter);
-        mRadicalsParentAdapter.notifyDataSetChanged();
+        mRadicalsParentAdapter.setData(mRadicalsParentModels);
         //----------------------------------------------------------------------------------------------------------------------------
 
         binding.charactersRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -152,9 +156,20 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         });
         
         binding.backspaceBtn.setOnClickListener(view -> {
-            backspace(1, true);
+            binding.searchTextBox.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+            mMainViewModel.setCursorPosition(binding.searchTextBox.getText().length());
+
+            if (mState == State.RESULTS && binding.searchTextBox.getText().length() > 0) {
+                performSearch();
+            } else if (mState == State.RESULTS) {
+                binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
+                binding.resultsRv.setVisibility(View.INVISIBLE);
+                binding.characterDrawCanvas.setVisibility(View.VISIBLE);
+                binding.labelTv.setText(getString(R.string.drawing_mode));
+                mState = State.DRAW;
+            }
+
             binding.doneBtn.setVisibility(View.INVISIBLE);
-            mMainViewModel.setCursorPosition(binding.searchTextBox.length());
             binding.characterDrawCanvas.clear();
             binding.undoBtn.setVisibility(View.INVISIBLE);
         });
@@ -163,9 +178,14 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mMainViewModel.clearCharacterList();
             mCharacterListAdapter.notifyDataSetChanged();
             binding.doneBtn.setVisibility(View.INVISIBLE);
+            binding.searchTextBox.setSelection(binding.searchTextBox.getText().length());
             mMainViewModel.setCursorPosition(binding.searchTextBox.getText().length());
             binding.characterDrawCanvas.clear();
             binding.undoBtn.setVisibility(View.INVISIBLE);
+        });
+
+        binding.settingsBtn.setOnClickListener(view -> {
+            //TODO
         });
 
         binding.searchTextBox.setOnEditorActionListener((textView, actionId, keyEvent) -> {
@@ -200,7 +220,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             binding.resultsRv.setVisibility(View.VISIBLE);
             binding.undoBtn.setVisibility(View.INVISIBLE);
             binding.radicalsRv.setVisibility(View.INVISIBLE);
-            performSearch();
         } else {
             binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
             binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
@@ -244,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
-        mState = State.RESULTS;
         mSearchResults.clear();
         if (jsonTraditionalMap != null && jsonSimplifiedMap != null) {
             String inputTextString = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
@@ -263,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 }
             }
 
+            /*
             if (inputTextString.length() > 1) {
                 for (int i = 0; i < inputTextString.length(); i++) {
                     if (jsonTraditionalMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
@@ -283,51 +302,33 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                     }
                 }
             }
+             */
 
-            mMainViewModel.updateResults(mSearchResults);
+            if (mSearchResults.size() > 0) {
+                mMainViewModel.updateResults(mSearchResults);
 
-            mState = State.RESULTS;
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm.isActive()) {
-                imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
+                mState = State.RESULTS;
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm.isActive()) {
+                    imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
+                }
+                binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+                binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+
+                binding.searchTextBox.setSelection(binding.searchTextBox.length());
+                binding.characterDrawCanvas.clear();
+                binding.undoBtn.setVisibility(View.INVISIBLE);
+                binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
+                binding.charactersRv.setVisibility(View.INVISIBLE);
+                binding.resultsRv.setVisibility(View.VISIBLE);
+                binding.labelTv.setText(getString(R.string.searching_mode));
+                binding.doneBtn.setVisibility(View.INVISIBLE);
+                binding.radicalsRv.setVisibility(View.INVISIBLE);
+            } else {
+                Toast.makeText(this, getString(R.string.no_results), Toast.LENGTH_SHORT).show();
             }
-            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-
-            mMainViewModel.setCursorPosition(binding.searchTextBox.length());
-            binding.characterDrawCanvas.clear();
-            binding.undoBtn.setVisibility(View.INVISIBLE);
-            binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-            binding.charactersRv.setVisibility(View.INVISIBLE);
-            binding.resultsRv.setVisibility(View.VISIBLE);
-            binding.labelTv.setText(getString(R.string.searching_mode));
-            binding.doneBtn.setVisibility(View.INVISIBLE);
-            binding.radicalsRv.setVisibility(View.INVISIBLE);
         } else {
             Toast.makeText(this, getString(R.string.dictionary_files_not_loaded), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void backspace(int n, boolean force) {
-        int length = Objects.requireNonNull(binding.searchTextBox.getText()).length();
-        if (n - (length - mMainViewModel.getCursorPosition()) == 1 && length > 0 && !force) {
-            binding.searchTextBox.getText().delete(length - n + 1, length);
-        }
-        else if (length - mMainViewModel.getCursorPosition() >= n && !force) {
-            binding.searchTextBox.getText().delete(length - n, length);
-        }
-        else if (force && length >= 1) {
-            binding.searchTextBox.getText().delete(length - 1, length);
-        }
-
-        if (mState == State.RESULTS && length > 1) {
-            performSearch();
-        } else if (mState == State.RESULTS) {
-            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
-            binding.resultsRv.setVisibility(View.INVISIBLE);
-            binding.characterDrawCanvas.setVisibility(View.VISIBLE);
-            binding.labelTv.setText(getString(R.string.drawing_mode));
-            mState = State.DRAW;
         }
     }
 
@@ -339,8 +340,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mMainViewModel.addToCharacterList(rc.getText());
         }
         mCharacterListAdapter.notifyDataSetChanged();
-        backspace(recognitionCandidatesList.get(0).getText().length(), false);
-        binding.searchTextBox.append(recognitionCandidatesList.get(0).getText());
+
+        binding.searchTextBox.setText(binding.searchTextBox.getText().subSequence(0, mMainViewModel.getCursorPosition()) + recognitionCandidatesList.get(0).getText());
+        binding.searchTextBox.setSelection(binding.searchTextBox.getText().length());
+
         binding.doneBtn.setVisibility(View.VISIBLE);
         binding.charactersRv.setVisibility(View.VISIBLE);
         binding.undoBtn.setVisibility(View.VISIBLE);
@@ -349,9 +352,9 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onItemReleased(int position) {
-        backspace(mMainViewModel.charactersList.getValue().get(position).length(), false);
-        binding.searchTextBox.append(mMainViewModel.charactersList.getValue().get(position));
-        mMainViewModel.setCursorPosition(mMainViewModel.getCursorPosition() + mMainViewModel.charactersList.getValue().get(position).length());
+        binding.searchTextBox.setText(binding.searchTextBox.getText().subSequence(0, mMainViewModel.getCursorPosition()) + mMainViewModel.charactersList.getValue().get(position));
+        binding.searchTextBox.setSelection(binding.searchTextBox.getText().length());
+        mMainViewModel.setCursorPosition(binding.searchTextBox.getText().length());
         mMainViewModel.clearCharacterList();
         mCharacterListAdapter.notifyDataSetChanged();
         binding.doneBtn.setVisibility(View.INVISIBLE);
@@ -373,6 +376,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     @Override
     public void onResultClicked(int position) {
         Intent intent = new Intent(this, DictionaryActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("word", mMainViewModel.getResult(position));
         startActivity(intent);
     }
@@ -405,8 +409,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        setStateUI(mState);
+    public void onSelectionChanged(int selStart, int selEnd) {
+        //mMainViewModel.setCursorPosition(selEnd - 1);
     }
 }

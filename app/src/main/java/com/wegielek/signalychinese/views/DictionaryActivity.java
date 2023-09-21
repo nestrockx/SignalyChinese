@@ -5,7 +5,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -35,10 +34,9 @@ public class DictionaryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-
         String word = getIntent().getStringExtra("word");
 
-        Toast.makeText(this, word, Toast.LENGTH_SHORT).show();
+        getSupportActionBar().setTitle(word.split("/")[0] + " (" + word.split("/")[1]+ ")");
 
         loadDictionaryFiles();
     }

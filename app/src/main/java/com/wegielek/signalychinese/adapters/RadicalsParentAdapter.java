@@ -15,6 +15,7 @@ import com.wegielek.signalychinese.R;
 import com.wegielek.signalychinese.interfaces.RadicalsRecyclerViewListener;
 import com.wegielek.signalychinese.models.RadicalsParentModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RadicalsParentAdapter extends RecyclerView.Adapter<RadicalsParentAdapter.ViewHolder> {
@@ -23,9 +24,15 @@ public class RadicalsParentAdapter extends RecyclerView.Adapter<RadicalsParentAd
     private List<RadicalsParentModel> parentList;
     private RadicalsRecyclerViewListener radicalsRecyclerViewListener;
 
-    public RadicalsParentAdapter(List<RadicalsParentModel> parentList, RadicalsRecyclerViewListener radicalsRecyclerViewListener) {
-        this.parentList = parentList;
+    public RadicalsParentAdapter(RadicalsRecyclerViewListener radicalsRecyclerViewListener) {
+        this.parentList = new ArrayList<>();
         this.radicalsRecyclerViewListener = radicalsRecyclerViewListener;
+    }
+
+    public void setData(List<RadicalsParentModel> parentList) {
+        this.parentList.clear();
+        this.parentList.addAll(parentList);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -44,8 +51,8 @@ public class RadicalsParentAdapter extends RecyclerView.Adapter<RadicalsParentAd
 
         RadicalsChildAdapter radicalsChildAdapter;
         radicalsChildAdapter = new RadicalsChildAdapter(parentList.get(position).radicalsList, radicalsRecyclerViewListener);
-        holder.rv_child.setLayoutManager(layoutManager);
-        holder.rv_child.setAdapter(radicalsChildAdapter);
+        holder.radicalsChildRv.setLayoutManager(layoutManager);
+        holder.radicalsChildRv.setAdapter(radicalsChildAdapter);
         holder.radicalNumber.setText(Integer.toString(position + 1));
         radicalsChildAdapter.notifyDataSetChanged();
     }
@@ -58,13 +65,13 @@ public class RadicalsParentAdapter extends RecyclerView.Adapter<RadicalsParentAd
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView radicalNumber;
-        RecyclerView rv_child;
+        RecyclerView radicalsChildRv;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             radicalNumber = itemView.findViewById(R.id.radicalNumber);
-            rv_child = itemView.findViewById(R.id.radicalsChildRv);
+            radicalsChildRv = itemView.findViewById(R.id.radicalsChildRv);
         }
     }
 }
