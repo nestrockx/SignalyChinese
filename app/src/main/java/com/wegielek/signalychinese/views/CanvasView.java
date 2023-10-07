@@ -29,7 +29,7 @@ import com.wegielek.signalychinese.viewmodels.MainViewModel;
 
 public class CanvasView extends View {
 
-    private final static String TAG = "CanvasView";
+    private static final String TAG = "CanvasView";
     private static final int STROKE_WIDTH_DP = 3;
 
 

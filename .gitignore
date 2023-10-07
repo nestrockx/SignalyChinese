@@ -18,3 +18,5 @@ local.properties
 /Assetsus/puzzle_active.svg
 /Assetsus/draw_active.svg
 /.idea/deploymentTargetDropDown.xml
+/app/src/main/assets/polishJSON.json
+/app/src/main/assets/dictionary.db

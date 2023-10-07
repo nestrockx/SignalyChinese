@@ -1,19 +1,22 @@
 package com.wegielek.signalychinese.viewmodels;
 
+import android.app.Application;
 import android.graphics.Path;
 
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.google.mlkit.vision.digitalink.Ink;
+import com.wegielek.signalychinese.database.Dictionary;
+import com.wegielek.signalychinese.models.RadicalsParentModel;
+import com.wegielek.signalychinese.repository.DictionaryRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class MainViewModel extends ViewModel {
+public class MainViewModel extends AndroidViewModel {
 
     public MutableLiveData<Ink.Stroke.Builder> strokeBuilder = new MutableLiveData<>();
     public MutableLiveData<ArrayList<Ink.Stroke.Builder>> strokesHistory = new MutableLiveData<>();
@@ -23,10 +26,12 @@ public class MainViewModel extends ViewModel {
     public MutableLiveData<Integer> cursorPosition = new MutableLiveData<>();
     public MutableLiveData<List<String>> charactersList = new MutableLiveData<>();
     public MutableLiveData<List<String>> dictionaryResultsList = new MutableLiveData<>();
-    public MutableLiveData<Map<String, String>> jsonTraditionalMap = new MutableLiveData<>();
-    public MutableLiveData<Map<String, String>> jsonSimplifiedMap = new MutableLiveData<>();
+    public MutableLiveData<List<RadicalsParentModel>> radicalsList = new MutableLiveData<>();
+    private DictionaryRepository dictionaryRepository;
 
-    public MainViewModel() {
+    public MainViewModel(Application application) {
+        super(application);
+        dictionaryRepository = new DictionaryRepository(application);
         strokeBuilder.setValue(Ink.Stroke.builder());
         inkBuilder.setValue(Ink.builder());
         strokesHistory.setValue(new ArrayList<>());
@@ -35,8 +40,15 @@ public class MainViewModel extends ViewModel {
         visibleStrokesHistory.setValue(new ArrayList<>());
         currentVisibleStroke.setValue(new Path());
         cursorPosition.setValue(0);
-        jsonTraditionalMap.setValue(new HashMap<>());
-        jsonSimplifiedMap.setValue(new HashMap<>());
+        radicalsList.setValue(new ArrayList<>());
+    }
+
+    public LiveData<List<Dictionary>> searchByWord(String searchQuery) {
+        return dictionaryRepository.searchByWord(searchQuery);
+    }
+
+    public LiveData<List<Dictionary>> getAllWords() {
+        return dictionaryRepository.getAllWords();
     }
 
     public String getResult(int index) {
@@ -177,20 +189,12 @@ public class MainViewModel extends ViewModel {
         strokeBuilder.setValue(Ink.Stroke.builder());
     }
 
-    public void setJsonTraditionalMap(Map<String, String> jsonTraditionalMap) {
-        this.jsonTraditionalMap.postValue(jsonTraditionalMap);
+    public List<RadicalsParentModel> getRadicalsList() {
+        return radicalsList.getValue();
     }
 
-    public Map<String, String> getJsonTraditionalMap() {
-        return jsonTraditionalMap.getValue();
-    }
-
-    public void setJsonSimplifiedMap(Map<String, String> jsonTraditionalMap) {
-        this.jsonSimplifiedMap.postValue(jsonTraditionalMap);
-    }
-
-    public Map<String, String> getJsonSimplifiedMap() {
-        return jsonSimplifiedMap.getValue();
+    public void setRadicalsList(List<RadicalsParentModel> radicalsParentModels) {
+        radicalsList.postValue(radicalsParentModels);
     }
 
 

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -23,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.mlkit.vision.digitalink.RecognitionCandidate;
 import com.wegielek.signalychinese.BR;
 import com.wegielek.signalychinese.adapters.RadicalsParentAdapter;
+import com.wegielek.signalychinese.database.Dictionary;
 import com.wegielek.signalychinese.interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.interfaces.CharactersRecyclerViewListener;
 import com.wegielek.signalychinese.interfaces.SearchTextBoxListener;
@@ -34,6 +36,7 @@ import com.wegielek.signalychinese.adapters.CharacterListAdapter;
 import com.wegielek.signalychinese.adapters.ResultsListAdapter;
 import com.wegielek.signalychinese.databinding.ActivityMainBinding;
 import com.wegielek.signalychinese.models.RadicalsParentModel;
+import com.wegielek.signalychinese.repository.DictionaryRepository;
 import com.wegielek.signalychinese.viewmodels.MainViewModel;
 
 import java.io.BufferedReader;
@@ -53,12 +56,10 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private CharacterListAdapter mCharacterListAdapter;
     private ResultsListAdapter mResultsListAdapter;
     private RadicalsParentAdapter mRadicalsParentAdapter;
-    private List<String> mSearchResults;
     private Map<Integer, String[]> jsonRadicalsMap;
     private State mState = State.DRAW;
     private ActivityMainBinding binding;
     private MainViewModel mMainViewModel;
-    private List<RadicalsParentModel> mRadicalsParentModels;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -78,7 +79,9 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 mCharacterListAdapter.setData(stringList)
         );
 
-        mSearchResults = new ArrayList<>();
+        mMainViewModel.radicalsList.observe(this, radicalsParentModels ->
+                mRadicalsParentAdapter.setData(radicalsParentModels)
+        );
 
         if (savedInstanceState != null) {
             mState = (State) savedInstanceState.getSerializable("state");
@@ -93,7 +96,9 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mResultsListAdapter = new ResultsListAdapter(this, this);
         binding.resultsRv.setAdapter(mResultsListAdapter);
 
-        loadRadicals();
+        binding.radicalsRv.setLayoutManager(new LinearLayoutManager(this));
+        mRadicalsParentAdapter = new RadicalsParentAdapter(this);
+        binding.radicalsRv.setAdapter(mRadicalsParentAdapter);
 
         binding.charactersRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mCharacterListAdapter = new CharacterListAdapter(this);
@@ -171,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             return false;
         });
 
-        loadDictionaryFiles();
+        //loadRadicals();
     }
 
     private void setStateUI(State state) {
@@ -212,35 +217,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     }
 
-    private void loadDictionaryFiles() {
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            String jsonTraditionalString;
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("resultsJSON1.json"), StandardCharsets.UTF_8))) {
-                jsonTraditionalString = reader.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            mMainViewModel.setJsonTraditionalMap(new Gson().fromJson(
-                    jsonTraditionalString, new TypeToken<HashMap<String, String>>() {}.getType()
-            ));
-
-            String jsonSimplifiedString;
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("resultsJSON2.json"), StandardCharsets.UTF_8))) {
-                jsonSimplifiedString = reader.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            mMainViewModel.setJsonSimplifiedMap(new Gson().fromJson(
-                    jsonSimplifiedString, new TypeToken<HashMap<String, String>>() {}.getType()
-            ));
-        });
-    }
-
     private void loadRadicals() {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -257,87 +233,59 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                     }.getType()
             );
 
-            mRadicalsParentModels = new ArrayList<>();
-
+            List<RadicalsParentModel> radicalsParentModels = new ArrayList<>();
             for (int i = 0; i < jsonRadicalsMap.get(0).length - 1; i++) {
-                mRadicalsParentModels.add(new RadicalsParentModel(jsonRadicalsMap.get(0)[i].split(" ")));
+                radicalsParentModels.add(new RadicalsParentModel(jsonRadicalsMap.get(0)[i].split(" ")));
             }
 
-            mRadicalsParentAdapter = new RadicalsParentAdapter(this);
-            binding.radicalsRv.setLayoutManager(new LinearLayoutManager(this));
-            binding.radicalsRv.setAdapter(mRadicalsParentAdapter);
-            mRadicalsParentAdapter.setData(mRadicalsParentModels);
+            mMainViewModel.setRadicalsList(radicalsParentModels);
+
         });
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
-        mSearchResults.clear();
-        if (mMainViewModel.getJsonTraditionalMap() != null && mMainViewModel.getJsonSimplifiedMap() != null) {
-            String inputTextString = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
-
-            if (mMainViewModel.getJsonTraditionalMap().containsKey(inputTextString)) {
-                String x = mMainViewModel.getJsonTraditionalMap().get(inputTextString);
-                mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
-                mSearchResults.replaceAll(s -> inputTextString + "/" + s);
-
-            } else if (mMainViewModel.getJsonSimplifiedMap().containsKey(inputTextString)) {
-                String x = mMainViewModel.getJsonSimplifiedMap().get(inputTextString);
-                mSearchResults = new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ ")));
-                for (int i = 0; i < mSearchResults.size(); i++) {
-                    String tmp = mSearchResults.get(i).split("/")[0];
-                    mSearchResults.set(i, tmp + "/" + mSearchResults.get(i).replace(tmp, inputTextString));
+        String inputTextString0 = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
+        mMainViewModel.searchByWord(inputTextString0).observe(this, new Observer<List<Dictionary>>() {
+            @Override
+            public void onChanged(List<Dictionary> dictionaries) {
+                List<String> searchResults = new ArrayList<>();
+                for (Dictionary dictionary: dictionaries) {
+                    searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
                 }
+                searchSwitch(searchResults);
+                //Toast.makeText(getApplicationContext(), dictionaries.get(0).translation, Toast.LENGTH_LONG).show();
             }
+        });
 
-            /*
-            if (inputTextString.length() > 1) {
-                for (int i = 0; i < inputTextString.length(); i++) {
-                    if (jsonTraditionalMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
-                        int searchresultscount1 = mSearchResults.size();
-                        String x = jsonTraditionalMap.get(String.valueOf(inputTextString.charAt(i)));
-                        mSearchResults.addAll(new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ "))));
-                        for (int j = searchresultscount1; j < mSearchResults.size(); j++) {
-                            mSearchResults.set(j, inputTextString.charAt(i) + "/" + mSearchResults.get(j));
-                        }
-                    } else if (jsonSimplifiedMap.containsKey(String.valueOf(inputTextString.charAt(i)))) {
-                        int searchresultscount2 = mSearchResults.size();
-                        String x = jsonSimplifiedMap.get(String.valueOf(inputTextString.charAt(i)));
-                        mSearchResults.addAll(new ArrayList<>(Arrays.asList(Objects.requireNonNull(x).split(" /X/ "))));
-                        for (int j = searchresultscount2; j < mSearchResults.size(); j++) {
-                            String tmp = mSearchResults.get(j).split("/")[0];
-                            mSearchResults.set(j, tmp + "/" + mSearchResults.get(j).replace(tmp, String.valueOf(inputTextString.charAt(i))));
-                        }
-                    }
-                }
+
+
+
+    }
+
+    private void searchSwitch(List<String> searchResults) {
+        if (searchResults.size() > 0) {
+            mMainViewModel.updateResults(searchResults);
+
+            mState = State.RESULTS;
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm.isActive()) {
+                imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
             }
-             */
+            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
 
-            if (mSearchResults.size() > 0) {
-                mMainViewModel.updateResults(mSearchResults);
-
-                mState = State.RESULTS;
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm.isActive()) {
-                    imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
-                }
-                binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-                binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-
-                binding.searchTextBox.setSelection(binding.searchTextBox.length());
-                binding.characterDrawCanvas.clear();
-                binding.undoBtn.setVisibility(View.INVISIBLE);
-                binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-                binding.charactersRv.setVisibility(View.INVISIBLE);
-                binding.resultsRv.setVisibility(View.VISIBLE);
-                binding.labelTv.setText(getString(R.string.searching_mode));
-                binding.doneBtn.setVisibility(View.INVISIBLE);
-                binding.radicalsRv.setVisibility(View.INVISIBLE);
-            } else {
-                Toast.makeText(this, getString(R.string.no_results), Toast.LENGTH_SHORT).show();
-            }
+            binding.searchTextBox.setSelection(binding.searchTextBox.length());
+            binding.characterDrawCanvas.clear();
+            binding.undoBtn.setVisibility(View.INVISIBLE);
+            binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
+            binding.charactersRv.setVisibility(View.INVISIBLE);
+            binding.resultsRv.setVisibility(View.VISIBLE);
+            binding.labelTv.setText(getString(R.string.searching_mode));
+            binding.doneBtn.setVisibility(View.INVISIBLE);
+            binding.radicalsRv.setVisibility(View.INVISIBLE);
         } else {
-            Toast.makeText(this, getString(R.string.dictionary_files_not_loaded), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.no_results), Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -51,9 +51,9 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
         StringBuilder translation = new StringBuilder();
         for (int i = 3; i < list.size(); i++) {
             if (i != list.size() - 1) {
-                translation.append(list.get(i)).append("; ");
+                translation.append(Integer.toString(i - 2)).append(".").append(list.get(i)).append(" ");
             } else {
-                translation.append(list.get(i)).append(";");
+                translation.append(Integer.toString(i - 2)).append(".").append(list.get(i)).append("");
             }
         }
 
