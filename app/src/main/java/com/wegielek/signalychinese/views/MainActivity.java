@@ -36,7 +36,7 @@ import com.wegielek.signalychinese.adapters.CharacterListAdapter;
 import com.wegielek.signalychinese.adapters.ResultsListAdapter;
 import com.wegielek.signalychinese.databinding.ActivityMainBinding;
 import com.wegielek.signalychinese.models.RadicalsParentModel;
-import com.wegielek.signalychinese.repository.DictionaryRepository;
+import com.wegielek.signalychinese.utils.Utils;
 import com.wegielek.signalychinese.viewmodels.MainViewModel;
 
 import java.io.BufferedReader;
@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -245,22 +244,47 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
-        String inputTextString0 = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
-        mMainViewModel.searchByWord(inputTextString0).observe(this, new Observer<List<Dictionary>>() {
-            @Override
-            public void onChanged(List<Dictionary> dictionaries) {
-                List<String> searchResults = new ArrayList<>();
-                for (Dictionary dictionary: dictionaries) {
-                    searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
-                }
-                searchSwitch(searchResults);
-                //Toast.makeText(getApplicationContext(), dictionaries.get(0).translation, Toast.LENGTH_LONG).show();
+        String inputTextString = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
+
+        if (!Utils.containsChinese(inputTextString)) {
+            if (inputTextString.charAt(inputTextString.length() - 1) == ' ') {
+                inputTextString = inputTextString.substring(0, inputTextString.length() - 1);
             }
-        });
-
-
-
-
+            mMainViewModel.searchByWordPL(inputTextString).observe(this, new Observer<List<Dictionary>>() {
+                @Override
+                public void onChanged(List<Dictionary> dictionaries) {
+                    List<String> searchResults = new ArrayList<>();
+                    for (Dictionary dictionary: dictionaries) {
+                        searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
+                    }
+                    searchSwitch(searchResults);
+                }
+            });
+        } else {
+            if (inputTextString.length() == 1) {
+                mMainViewModel.searchSingleCH(inputTextString).observe(this, new Observer<List<Dictionary>>() {
+                    @Override
+                    public void onChanged(List<Dictionary> dictionaries) {
+                        List<String> searchResults = new ArrayList<>();
+                        for (Dictionary dictionary: dictionaries) {
+                            searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
+                        }
+                        searchSwitch(searchResults);
+                    }
+                });
+            } else {
+                mMainViewModel.searchByWordCH(inputTextString).observe(this, new Observer<List<Dictionary>>() {
+                    @Override
+                    public void onChanged(List<Dictionary> dictionaries) {
+                        List<String> searchResults = new ArrayList<>();
+                        for (Dictionary dictionary: dictionaries) {
+                            searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
+                        }
+                        searchSwitch(searchResults);
+                    }
+                });
+            }
+        }
     }
 
     private void searchSwitch(List<String> searchResults) {
@@ -284,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             binding.labelTv.setText(getString(R.string.searching_mode));
             binding.doneBtn.setVisibility(View.INVISIBLE);
             binding.radicalsRv.setVisibility(View.INVISIBLE);
-        } else {
+        } else if (mState != State.RESULTS) {
             Toast.makeText(this, getString(R.string.no_results), Toast.LENGTH_SHORT).show();
         }
     }

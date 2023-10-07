@@ -43,8 +43,16 @@ public class MainViewModel extends AndroidViewModel {
         radicalsList.setValue(new ArrayList<>());
     }
 
-    public LiveData<List<Dictionary>> searchByWord(String searchQuery) {
-        return dictionaryRepository.searchByWord(searchQuery);
+    public LiveData<List<Dictionary>> searchSingleCH(String searchQuery) {
+        return dictionaryRepository.searchSingleCH(searchQuery);
+    }
+
+    public LiveData<List<Dictionary>> searchByWordCH(String searchQuery) {
+        return dictionaryRepository.searchByWordCH(searchQuery);
+    }
+
+    public LiveData<List<Dictionary>> searchByWordPL(String searchQuery) {
+        return dictionaryRepository.searchByWordPL(searchQuery);
     }
 
     public LiveData<List<Dictionary>> getAllWords() {
