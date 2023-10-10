@@ -1,6 +1,6 @@
 package com.wegielek.signalychinese.enums;
 
-public enum State {
+public enum StateUI {
     RESULTS,
     DRAW,
     PUZZLE

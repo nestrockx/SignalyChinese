@@ -14,4 +14,8 @@
     <color name="mistake">#FFB60000</color>
     <color name="mistake_fade">#00B60000</color>
     <color name="success">#009B19</color>
+    <color name="blueish">#3F51B5</color>
+    <color name="blues">#2196F3</color>
+
+    <color name="pink">#C799F4</color>
 </resources>

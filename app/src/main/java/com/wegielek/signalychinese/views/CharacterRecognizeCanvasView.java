@@ -27,11 +27,10 @@ import com.google.mlkit.vision.digitalink.Ink;
 import com.wegielek.signalychinese.interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.viewmodels.MainViewModel;
 
-public class CanvasView extends View {
+public class CharacterRecognizeCanvasView extends View {
 
     private static final String TAG = "CanvasView";
     private static final int STROKE_WIDTH_DP = 3;
-
 
     private final RemoteModelManager remoteModelManager = RemoteModelManager.getInstance();
     private DigitalInkRecognitionModel model;
@@ -45,11 +44,11 @@ public class CanvasView extends View {
     private Bitmap canvasBitmap;
     private CanvasViewListener canvasViewListener;
 
-    public CanvasView(Context context) {
+    public CharacterRecognizeCanvasView(Context context) {
         this(context, null);
     }
 
-    public CanvasView(Context context, AttributeSet attributeSet) {
+    public CharacterRecognizeCanvasView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
         currentStrokePaint = new Paint();
@@ -204,7 +203,7 @@ public class CanvasView extends View {
                 mainViewModel.lineToCurrentVisibleStroke(x, y);
                 mainViewModel.addVisibleStroke(new Path(mainViewModel.getCurrentVisibleStroke()));
                 mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t));
-                mainViewModel.addToStrokesHistory(mainViewModel.getStrokeBuilder());
+                mainViewModel.addToStrokesHistory(mainViewModel.getmStrokeBuilder());
                 mainViewModel.addInkBuilderStroke(mainViewModel.strokeBuilderBuild());
                 mainViewModel.clearStrokeBuilder();
                 recognizeCharacter();

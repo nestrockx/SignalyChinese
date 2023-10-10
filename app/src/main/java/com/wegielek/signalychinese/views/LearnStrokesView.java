@@ -1,8 +1,8 @@
 package com.wegielek.signalychinese.views;
 
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,7 +23,7 @@ import androidx.core.content.ContextCompat;
 import com.sdsmdg.harjot.vectormaster.VectorMasterDrawable;
 import com.sdsmdg.harjot.vectormaster.models.GroupModel;
 import com.sdsmdg.harjot.vectormaster.models.PathModel;
-import com.wegielek.signalychinese.models.CharacterMode;
+import com.wegielek.signalychinese.enums.CharacterMode;
 import com.wegielek.signalychinese.models.FingerPath;
 import com.wegielek.signalychinese.R;
 import com.wegielek.signalychinese.models.HanziCharacter;
@@ -31,26 +31,26 @@ import com.wegielek.signalychinese.models.HanziCharacter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HanziLearnWritingView extends View {
+public class LearnStrokesView extends View {
 
-    HanziCharacter hanziCharacter;
+    private static final String LOG_TAG = "LearnStrokesView";
 
-    CharacterMode characterMode = CharacterMode.LEARN;
+    private HanziCharacter hanziCharacter;
+    private CharacterMode characterMode = CharacterMode.LEARN;
     boolean hintOn = false;
 
     private ValueAnimator valueStrokeAnimator;
     private ValueAnimator valueSuccessAnimator;
     private ValueAnimator valueMistakeAnimator;
 
-    //TODO markerprogress
-    private final float[] markerProgress = new float[30];
+    private final float[] markerProgress = new float[51];
     private final float[] pos = new float[2];
     private final float[] tan = new float[2];
     private final PathMeasure pathMeasure = new PathMeasure();
 
     private final PointF pointF = new PointF();
     private boolean setup = false;
-    public static final int BITMAP_DIMENSION = 400;
+    private static final int BITMAP_DIMENSION = 400;
 
     private final Matrix transformMat = new Matrix();
     private final Matrix inverseTransformMat = new Matrix();
@@ -59,9 +59,9 @@ public class HanziLearnWritingView extends View {
     private int width;
     private int height;
 
-    public int BRUSH_SIZE = 10;
-    public final int DEFAULT_COLOR = ContextCompat.getColor(this.getContext(), R.color.white);
-    public final int BACKGROUND_COLOR = ContextCompat.getColor(this.getContext(), R.color.writing_background);
+    private int BRUSH_SIZE = 10;
+    private final int DEFAULT_COLOR = ContextCompat.getColor(this.getContext(), R.color.white);
+    private final int BACKGROUND_COLOR = ContextCompat.getColor(this.getContext(), R.color.writing_background);
     private final float TOUCH_TOLERANCE = 4;
     private float mX, mY;
     private Path mPath;
@@ -82,23 +82,23 @@ public class HanziLearnWritingView extends View {
     private final Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
 
-    public HanziLearnWritingView(Context context) {
+    public LearnStrokesView(Context context) {
         super(context);
     }
 
-    public HanziLearnWritingView(Context context, @Nullable AttributeSet attrs) {
+    public LearnStrokesView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.initialize();
     }
 
-    public HanziLearnWritingView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public LearnStrokesView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
     public void setHanziCharacter(char hanziChar) {
         clear();
         valueStrokeAnimator.cancel();
-        this.hanziCharacter = initHanziList(hanziChar);
+        this.hanziCharacter = initHanziStrokes(hanziChar);
     }
 
     public void setDimensions(int dimensions) {
@@ -174,24 +174,34 @@ public class HanziLearnWritingView extends View {
         invalidate();
     }
 
-    private HanziCharacter initHanziList(char hanziChar) {
+    private HanziCharacter initHanziStrokes(char hanziChar) {
         String hanziCharacterUnicode;
         hanziCharacterUnicode = Integer.toHexString(hanziChar | 0x10000).substring(1);
 
-        //Log.i("UNICODE", Integer.toHexString('大' | 0x10000).substring(1));
-
         List<Path> hanziCharacterStrokeList = new ArrayList<>();
 
+        Log.d("UNICODE", "_" + hanziCharacterUnicode + " " + "drawable" + " " + getContext().getPackageName());
 
-        Log.i("UNICODE", "_" + hanziCharacterUnicode + " " +
-                "drawable" + " " + getContext().getPackageName());
-        @SuppressLint("DiscouragedApi") VectorMasterDrawable vectorMasterDrawable = new VectorMasterDrawable(getContext(),
-                getResources().getIdentifier("_" + hanziCharacterUnicode,
-                        "drawable", getContext().getPackageName()));
+        VectorMasterDrawable vectorMasterDrawable;
+        try {
+            vectorMasterDrawable = new VectorMasterDrawable(
+                    getContext(),
+                    getResources().getIdentifier(
+                            "_" + hanziCharacterUnicode,
+                            "drawable",
+                            getContext().getPackageName()
+                    )
+            );
+        } catch (Resources.NotFoundException e) {
+            Log.e(LOG_TAG, e.getMessage());
+            return null;
+        }
+
         GroupModel outline = vectorMasterDrawable.getGroupModelByName("Hanzi");
         for (PathModel model : outline.getPathModels()) {
             hanziCharacterStrokeList.add(model.getPath());
         }
+
         return new HanziCharacter(hanziCharacterStrokeList);
     }
 
@@ -205,25 +215,27 @@ public class HanziLearnWritingView extends View {
     }
 
     private void drawHanziCharacterPath() {
-        if (characterMode.equals(CharacterMode.LEARN) || hintOn) {
-            mCanvas.drawPath(hanziCharacter.getCurrPath(), sketchPaint);
+        if (hanziCharacter != null) {
+            if (characterMode.equals(CharacterMode.LEARN) || hintOn) {
+                mCanvas.drawPath(hanziCharacter.getCurrPath(), sketchPaint);
 
-            pathMeasure.setPath(hanziCharacter.getCurrPath(), false);
-            pathMeasure.getPosTan(markerProgress[hanziCharacter.getIndex()]
-                    * pathMeasure.getLength(), pos, tan);
-            mCanvas.drawPoint(pos[0], pos[1], mainPaint);
+                pathMeasure.setPath(hanziCharacter.getCurrPath(), false);
+                pathMeasure.getPosTan(markerProgress[hanziCharacter.getIndex()]
+                        * pathMeasure.getLength(), pos, tan);
+                mCanvas.drawPoint(pos[0], pos[1], mainPaint);
 
-            if (!valueStrokeAnimator.isRunning()) {
-                valueStrokeAnimator.start();
+                if (!valueStrokeAnimator.isRunning()) {
+                    valueStrokeAnimator.start();
+                }
             }
-        }
-        if (hanziCharacter.isMatched()) {
-            if (!hanziCharacter.nextIndex()) {
-                valueSuccessAnimator.start();
+            if (hanziCharacter.isMatched()) {
+                if (!hanziCharacter.nextIndex()) {
+                    valueSuccessAnimator.start();
+                }
+                hintOn = false;
+                valueStrokeAnimator.cancel();
+                invalidate();
             }
-            hintOn = false;
-            valueStrokeAnimator.cancel();
-            invalidate();
         }
     }
 
@@ -236,22 +248,24 @@ public class HanziLearnWritingView extends View {
             setupScaleMatrices();
         }
 
-        drawGrid();
-        if(!hanziCharacter.isFinished()) {
-            drawHanziCharacterPath();
-            for (FingerPath fp : paths) {
-                mCanvas.drawPath(fp.path, fingerPathPaint);
-            }
-        }
 
-        if(hanziCharacter.isFinished()) {
-            for (int i = 0; i < hanziCharacter.getIndex() + 1; i++) {
-                mCanvas.drawPath(hanziCharacter.getPaths().get(i), mainPaint);
+        drawGrid();
+        if (hanziCharacter != null) {
+            if (!hanziCharacter.isFinished()) {
+                drawHanziCharacterPath();
+                for (FingerPath fp : paths) {
+                    mCanvas.drawPath(fp.path, fingerPathPaint);
+                }
             }
-        }
-        else {
-            for (int i = 0; i < hanziCharacter.getIndex(); i++) {
-                mCanvas.drawPath(hanziCharacter.getPaths().get(i), mainPaint);
+
+            if (hanziCharacter.isFinished()) {
+                for (int i = 0; i < hanziCharacter.getIndex() + 1; i++) {
+                    mCanvas.drawPath(hanziCharacter.getPaths().get(i), mainPaint);
+                }
+            } else {
+                for (int i = 0; i < hanziCharacter.getIndex(); i++) {
+                    mCanvas.drawPath(hanziCharacter.getPaths().get(i), mainPaint);
+                }
             }
         }
 
@@ -276,8 +290,10 @@ public class HanziLearnWritingView extends View {
         mPath.moveTo(x, y);
         mX = x;
         mY = y;
-        if(hanziCharacter.matchStart(mX, mY, 60.0f)){
-            Log.i("IDONT_KNOW", "MATCHED_START");
+        if (hanziCharacter != null) {
+            if (hanziCharacter.matchStart(mX, mY, 60.0f)) {
+                Log.i(LOG_TAG, "MATCHED_START");
+            }
         }
     }
 
@@ -289,30 +305,31 @@ public class HanziLearnWritingView extends View {
             mX = x;
             mY = y;
         }
-        if(hanziCharacter.matchControlPoint(mX, mY, 50.0f)) {
-            Log.i("IDONT_KNOW", "MATCHED_CONTROL_POINT");
+        if (hanziCharacter != null) {
+            if (hanziCharacter.matchControlPoint(mX, mY, 50.0f)) {
+                Log.i(LOG_TAG, "MATCHED_CONTROL_POINT");
+            }
         }
     }
 
     private void touchUp() {
-        if(hanziCharacter.isMatchedStart() && hanziCharacter.isMatchedControlPoint()) {
-            if (hanziCharacter.matchEnd(mX, mY, 60.0f)) {
-                Log.i("IDONT_KNOW", "MATCHED_END");
+        if (hanziCharacter != null) {
+            if (hanziCharacter.isMatchedStart() && hanziCharacter.isMatchedControlPoint()) {
+                if (hanziCharacter.matchEnd(mX, mY, 60.0f)) {
+                    Log.i(LOG_TAG, "MATCHED_END");
+                } else {
+                    hanziCharacter.matchReset();
+                }
             }
-            else {
-                hanziCharacter.matchReset();
+            mPath.lineTo(mX, mY);
+            if (hanziCharacter.isMatched()) {
+                paths.clear();
+            } else {
+                valueMistakeAnimator.start();
             }
-        }
-        mPath.lineTo(mX, mY);
-        if (hanziCharacter.isMatched()) {
-            paths.clear();
-        }
-        else {
-            valueMistakeAnimator.start();
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
@@ -321,7 +338,7 @@ public class HanziLearnWritingView extends View {
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN :
                 getBitmapCoords(x, y, pointF);
-                Log.i("STARTING POINT", Float.toString(pointF.x) + " : " + Float.toString(pointF.y));
+                Log.i(LOG_TAG, "Starting point " + pointF.x + " : " + pointF.y);
                 touchStart(pointF.x, pointF.y);
                 invalidate();
                 break;

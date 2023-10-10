@@ -9,24 +9,28 @@
 
     <TextView
         android:id="@+id/labelTv"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="SS"
         android:textColor="#2196F3"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="22sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/pronunciationTv"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="2dp"
         android:paddingTop="5dp"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        android:text="SS"
+        android:textColor="@color/pink"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/labelTv" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/labelTv"
+        app:layout_constraintTop_toTopOf="@+id/labelTv" />
 
     <TextView
         android:id="@+id/translationTv"
@@ -34,8 +38,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:paddingTop="10dp"
+        android:text="SS"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/materialDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

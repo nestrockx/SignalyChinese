@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.ViewHolder> {
+public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultListAdapter.ViewHolder> {
 
     private final Context context;
     private final List<String> dataList;
     private final ResultsRecyclerViewListener resultsRecyclerViewListener;
 
-    public ResultsListAdapter(ResultsRecyclerViewListener resultsRecyclerViewListener, Context context) {
+    public SearchResultListAdapter(ResultsRecyclerViewListener resultsRecyclerViewListener, Context context) {
         this.context = context;
         this.resultsRecyclerViewListener = resultsRecyclerViewListener;
         this.dataList = new ArrayList<>();
@@ -37,7 +37,7 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_result, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_search_result_list, parent, false);
         return new ViewHolder(view);
     }
 
@@ -51,15 +51,19 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
         StringBuilder translation = new StringBuilder();
         for (int i = 3; i < list.size(); i++) {
             if (i != list.size() - 1) {
-                translation.append(Integer.toString(i - 2)).append(".").append(list.get(i)).append(" ");
+                translation.append((i - 2)).append("").append(list.get(i)).append(" ");
             } else {
-                translation.append(Integer.toString(i - 2)).append(".").append(list.get(i)).append("");
+                translation.append((i - 2)).append("").append(list.get(i)).append("");
             }
         }
 
-        holder.textView.setText(context.getString(R.string.result_text_placeholder_1, list.get(0), list.get(1)));
-        holder.textView2.setText(list.get(2));
-        holder.textView3.setText(translation.toString());
+        if (!list.get(0).equals(list.get(1))) {
+            holder.charactersTv.setText(context.getString(R.string.result_text_placeholder_1, list.get(0), list.get(1)));
+        } else {
+            holder.charactersTv.setText(list.get(0));
+        }
+        holder.pronunciationTv.setText(list.get(2));
+        holder.translationTv.setText(translation.toString());
     }
 
     @Override
@@ -68,15 +72,15 @@ public class ResultsListAdapter extends RecyclerView.Adapter<ResultsListAdapter.
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textView;
-        TextView textView2;
-        TextView textView3;
+        TextView charactersTv;
+        TextView pronunciationTv;
+        TextView translationTv;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.labelTv);
-            textView3 = itemView.findViewById(R.id.translationTv);
-            textView2 = itemView.findViewById(R.id.pronunciationTv);
+            charactersTv = itemView.findViewById(R.id.labelTv);
+            pronunciationTv = itemView.findViewById(R.id.pronunciationTv);
+            translationTv = itemView.findViewById(R.id.translationTv);
 
             itemView.setOnClickListener(view -> resultsRecyclerViewListener.onResultClicked(getAdapterPosition()));
         }

@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -12,7 +11,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -31,9 +32,9 @@ import com.wegielek.signalychinese.interfaces.SearchTextBoxListener;
 import com.wegielek.signalychinese.interfaces.RadicalsRecyclerViewListener;
 import com.wegielek.signalychinese.interfaces.ResultsRecyclerViewListener;
 import com.wegielek.signalychinese.R;
-import com.wegielek.signalychinese.enums.State;
-import com.wegielek.signalychinese.adapters.CharacterListAdapter;
-import com.wegielek.signalychinese.adapters.ResultsListAdapter;
+import com.wegielek.signalychinese.enums.StateUI;
+import com.wegielek.signalychinese.adapters.SuggestedCharacterListAdapter;
+import com.wegielek.signalychinese.adapters.SearchResultListAdapter;
 import com.wegielek.signalychinese.databinding.ActivityMainBinding;
 import com.wegielek.signalychinese.models.RadicalsParentModel;
 import com.wegielek.signalychinese.utils.Utils;
@@ -47,127 +48,127 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener, RadicalsRecyclerViewListener, SearchTextBoxListener {
-    private CharacterListAdapter mCharacterListAdapter;
-    private ResultsListAdapter mResultsListAdapter;
+    private static final String LOG_TAG = "MainActivity";
+
+    private SuggestedCharacterListAdapter mSuggestedCharacterListAdapter;
+    private SearchResultListAdapter mSearchResultsListAdapter;
     private RadicalsParentAdapter mRadicalsParentAdapter;
     private Map<Integer, String[]> jsonRadicalsMap;
-    private State mState = State.DRAW;
-    private ActivityMainBinding binding;
+    private StateUI mStateUI = StateUI.DRAW;
+    private ActivityMainBinding mBinding;
     private MainViewModel mMainViewModel;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
         mMainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        binding.setVariable(BR.vm, mMainViewModel);
-        binding.executePendingBindings();
+        mBinding.setVariable(BR.vm, mMainViewModel);
+        mBinding.executePendingBindings();
 
-        mMainViewModel.dictionaryResultsList.observe(this, stringList ->
-                mResultsListAdapter.setData(stringList)
+        mMainViewModel.mDictionaryResultsList.observe(this, stringList ->
+                mSearchResultsListAdapter.setData(stringList)
         );
 
-        mMainViewModel.charactersList.observe(this, stringList ->
-                mCharacterListAdapter.setData(stringList)
+        mMainViewModel.mCharactersList.observe(this, stringList ->
+                mSuggestedCharacterListAdapter.setData(stringList)
         );
 
-        mMainViewModel.radicalsList.observe(this, radicalsParentModels ->
+        mMainViewModel.mRadicalsList.observe(this, radicalsParentModels ->
                 mRadicalsParentAdapter.setData(radicalsParentModels)
         );
 
         if (savedInstanceState != null) {
-            mState = (State) savedInstanceState.getSerializable("state");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                mStateUI = (StateUI) savedInstanceState.getSerializable("state", StateUI.class);
+            } else {
+                mStateUI = (StateUI) savedInstanceState.getSerializable("state");
+            }
         }
-        setStateUI(mState);
+        setStateUI(mStateUI);
 
 
-        binding.searchTextBox.requestFocus();
-        binding.searchTextBox.setOnSelectionChangedListener(this);
+        mBinding.searchTextBox.requestFocus();
+        mBinding.searchTextBox.setOnSelectionChangedListener(this);
 
-        binding.resultsRv.setLayoutManager(new LinearLayoutManager(this));
-        mResultsListAdapter = new ResultsListAdapter(this, this);
-        binding.resultsRv.setAdapter(mResultsListAdapter);
+        mBinding.resultsRv.setLayoutManager(new LinearLayoutManager(this));
+        mSearchResultsListAdapter = new SearchResultListAdapter(this, this);
+        mBinding.resultsRv.setAdapter(mSearchResultsListAdapter);
 
-        binding.radicalsRv.setLayoutManager(new LinearLayoutManager(this));
+        mBinding.radicalsRv.setLayoutManager(new LinearLayoutManager(this));
         mRadicalsParentAdapter = new RadicalsParentAdapter(this);
-        binding.radicalsRv.setAdapter(mRadicalsParentAdapter);
+        mBinding.radicalsRv.setAdapter(mRadicalsParentAdapter);
 
-        binding.charactersRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        mCharacterListAdapter = new CharacterListAdapter(this);
-        binding.charactersRv.setAdapter(mCharacterListAdapter);
+        mBinding.charactersRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        mSuggestedCharacterListAdapter = new SuggestedCharacterListAdapter(this);
+        mBinding.charactersRv.setAdapter(mSuggestedCharacterListAdapter);
 
-        binding.characterDrawCanvas.setOnRecognizeListener(this);
-        binding.characterDrawCanvas.post(() -> binding.characterDrawCanvas.initialize(binding.characterDrawCanvas.getWidth(), binding.characterDrawCanvas.getHeight(), mMainViewModel));
+        mBinding.characterDrawCanvas.setOnRecognizeListener(this);
+        mBinding.characterDrawCanvas.post(() -> mBinding.characterDrawCanvas.initialize(mBinding.characterDrawCanvas.getWidth(), mBinding.characterDrawCanvas.getHeight(), mMainViewModel));
 
-        binding.undoBtn.setOnClickListener(view -> binding.characterDrawCanvas.undoStroke());
-        binding.searchBtn.setOnClickListener(v -> performSearch());
+        mBinding.undoBtn.setOnClickListener(view -> mBinding.characterDrawCanvas.undoStroke());
+        mBinding.searchBtn.setOnClickListener(v -> performSearch());
 
-        binding.puzzleBtn.setOnClickListener(view -> {
-            mState = State.PUZZLE;
-            binding.labelTv.setText(getString(R.string.puzzle_mode));
-            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
-            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-            binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-            binding.resultsRv.setVisibility(View.INVISIBLE);
-            binding.radicalsRv.setVisibility(View.VISIBLE);
-            binding.charactersRv.setVisibility(View.INVISIBLE);
-            binding.doneBtn.setVisibility(View.INVISIBLE);
-            binding.undoBtn.setVisibility(View.INVISIBLE);
+        mBinding.puzzleBtn.setOnClickListener(view -> {
+            mStateUI = StateUI.PUZZLE;
+            setPuzzleUI();
         });
 
-        binding.drawBtn.setOnClickListener(view -> {
-            mState = State.DRAW;
-            binding.labelTv.setText(getString(R.string.drawing_mode));
-            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
-            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-            binding.resultsRv.setVisibility(View.INVISIBLE);
-            binding.characterDrawCanvas.setVisibility(View.VISIBLE);
-            binding.undoBtn.setVisibility(View.VISIBLE);
-            binding.radicalsRv.setVisibility(View.INVISIBLE);
-            binding.charactersRv.setVisibility(View.VISIBLE);
+        mBinding.drawBtn.setOnClickListener(view -> {
+            mStateUI = StateUI.DRAW;
+            setDrawUI();
         });
         
-        binding.backspaceBtn.setOnClickListener(view -> {
-            binding.searchTextBox.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-            mMainViewModel.setCursorPosition(binding.searchTextBox.getSelectionEnd());
+        mBinding.backspaceBtn.setOnClickListener(view -> {
+            mBinding.searchTextBox.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+            mMainViewModel.setCursorPosition(mBinding.searchTextBox.getSelectionEnd());
 
-            if (mState == State.RESULTS && binding.searchTextBox.getText().length() > 0) {
+            if (mStateUI == StateUI.RESULTS && mBinding.searchTextBox.getText().length() > 0) {
                 performSearch();
-            } else if (mState == State.RESULTS) {
-                binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
-                binding.resultsRv.setVisibility(View.INVISIBLE);
-                binding.characterDrawCanvas.setVisibility(View.VISIBLE);
-                binding.labelTv.setText(getString(R.string.drawing_mode));
-                mState = State.DRAW;
+            } else if (mStateUI == StateUI.RESULTS) {
+                mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
+                mBinding.resultsRv.setVisibility(View.INVISIBLE);
+                mBinding.characterDrawCanvas.setVisibility(View.VISIBLE);
+                mBinding.labelTv.setText(getString(R.string.drawing_mode));
+                mStateUI = StateUI.DRAW;
             }
 
-            binding.doneBtn.setVisibility(View.INVISIBLE);
-            binding.characterDrawCanvas.clear();
-            binding.undoBtn.setVisibility(View.INVISIBLE);
+            mBinding.doneBtn.setVisibility(View.INVISIBLE);
+            mBinding.characterDrawCanvas.clear();
+            mBinding.undoBtn.setVisibility(View.INVISIBLE);
         });
 
-        binding.doneBtn.setOnClickListener(view -> {
+        mBinding.doneBtn.setOnClickListener(view -> {
             mMainViewModel.clearCharacterList();
-            mCharacterListAdapter.notifyDataSetChanged();
-            binding.doneBtn.setVisibility(View.INVISIBLE);
-            binding.searchTextBox.setSelection(binding.searchTextBox.getText().length());
-            mMainViewModel.setCursorPosition(binding.searchTextBox.getText().length());
-            binding.characterDrawCanvas.clear();
-            binding.undoBtn.setVisibility(View.INVISIBLE);
+            mSuggestedCharacterListAdapter.notifyDataSetChanged();
+            mBinding.doneBtn.setVisibility(View.INVISIBLE);
+            mBinding.searchTextBox.setSelection(mBinding.searchTextBox.getText().length());
+            mMainViewModel.setCursorPosition(mBinding.searchTextBox.getText().length());
+            mBinding.characterDrawCanvas.clear();
+            mBinding.undoBtn.setVisibility(View.INVISIBLE);
         });
 
-        binding.settingsBtn.setOnClickListener(view -> {
-            //TODO
+        mBinding.settingsBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(getBaseContext(), SettingsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         });
 
-        binding.searchTextBox.setOnEditorActionListener((textView, actionId, keyEvent) -> {
+        mBinding.cameraBtn.setOnClickListener(view -> {
+            Intent intent = new Intent(getBaseContext(), CameraActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        });
+
+        mBinding.searchTextBox.setOnEditorActionListener((textView, actionId, keyEvent) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 performSearch();
                 return true;
@@ -178,42 +179,50 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         //loadRadicals();
     }
 
-    private void setStateUI(State state) {
-        if (state == State.DRAW) {
-            binding.labelTv.setText(getString(R.string.drawing_mode));
-            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
-            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-            binding.charactersRv.setVisibility(View.VISIBLE);
-            binding.characterDrawCanvas.setVisibility(View.VISIBLE);
-            binding.resultsRv.setVisibility(View.INVISIBLE);
-            binding.radicalsRv.setVisibility(View.INVISIBLE);
-            binding.undoBtn.setVisibility(View.VISIBLE);
-            binding.doneBtn.setVisibility(View.INVISIBLE);
-        } else if (state == State.RESULTS) {
-            binding.labelTv.setText(getString(R.string.searching_mode));
-            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-            binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-            binding.charactersRv.setVisibility(View.INVISIBLE);
-            binding.doneBtn.setVisibility(View.INVISIBLE);
-            binding.resultsRv.setVisibility(View.VISIBLE);
-            binding.undoBtn.setVisibility(View.INVISIBLE);
-            binding.radicalsRv.setVisibility(View.INVISIBLE);
-            binding.searchTextBox.postDelayed(() -> {
-                   performSearch();
-            }, 1000);
+    private void setStateUI(StateUI stateUI) {
+        if (stateUI == StateUI.DRAW) {
+            setDrawUI();
+        } else if (stateUI == StateUI.RESULTS) {
+            setResultsUI();
+            mBinding.searchTextBox.postDelayed(this::performSearch, 1000);
         } else {
-            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
-            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-            binding.labelTv.setText(getString(R.string.puzzle_mode));
-            binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-            binding.resultsRv.setVisibility(View.INVISIBLE);
-            binding.undoBtn.setVisibility(View.INVISIBLE);
-            binding.radicalsRv.setVisibility(View.VISIBLE);
-            binding.doneBtn.setVisibility(View.INVISIBLE);
+            setPuzzleUI();
         }
+    }
 
+    private void setDrawUI() {
+        mBinding.labelTv.setText(getString(R.string.drawing_mode));
+        mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
+        mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+        mBinding.charactersRv.setVisibility(View.VISIBLE);
+        mBinding.characterDrawCanvas.setVisibility(View.VISIBLE);
+        mBinding.resultsRv.setVisibility(View.INVISIBLE);
+        mBinding.radicalsRv.setVisibility(View.INVISIBLE);
+        mBinding.undoBtn.setVisibility(View.VISIBLE);
+        mBinding.doneBtn.setVisibility(View.INVISIBLE);
+    }
 
+    private void setResultsUI() {
+        mBinding.labelTv.setText(getString(R.string.searching_mode));
+        mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+        mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
+        mBinding.characterDrawCanvas.setVisibility(View.INVISIBLE);
+        mBinding.charactersRv.setVisibility(View.INVISIBLE);
+        mBinding.doneBtn.setVisibility(View.INVISIBLE);
+        mBinding.resultsRv.setVisibility(View.VISIBLE);
+        mBinding.undoBtn.setVisibility(View.INVISIBLE);
+        mBinding.radicalsRv.setVisibility(View.INVISIBLE);
+    }
+
+    private void setPuzzleUI() {
+        mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_active, getTheme()));
+        mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
+        mBinding.labelTv.setText(getString(R.string.puzzle_mode));
+        mBinding.characterDrawCanvas.setVisibility(View.INVISIBLE);
+        mBinding.resultsRv.setVisibility(View.INVISIBLE);
+        mBinding.undoBtn.setVisibility(View.INVISIBLE);
+        mBinding.radicalsRv.setVisibility(View.VISIBLE);
+        mBinding.doneBtn.setVisibility(View.INVISIBLE);
     }
 
     private void loadRadicals() {
@@ -244,45 +253,44 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
-        String inputTextString = Objects.requireNonNull(binding.searchTextBox.getText()).toString();
+        String inputTextString;
+        if (mBinding.searchTextBox.getText() != null) {
+            inputTextString = mBinding.searchTextBox.getText().toString();
+        } else {
+            Log.e(LOG_TAG, "Search text box text is null");
+            return;
+        }
 
-        if (!Utils.containsChinese(inputTextString)) {
-            if (inputTextString.charAt(inputTextString.length() - 1) == ' ') {
-                inputTextString = inputTextString.substring(0, inputTextString.length() - 1);
-            }
-            mMainViewModel.searchByWordPL(inputTextString).observe(this, new Observer<List<Dictionary>>() {
-                @Override
-                public void onChanged(List<Dictionary> dictionaries) {
+        if (inputTextString.length() > 0) {
+            if (!Utils.containsChinese(inputTextString)) {
+                if (inputTextString.charAt(inputTextString.length() - 1) == ' ') {
+                    inputTextString = inputTextString.substring(0, inputTextString.length() - 1);
+                }
+                mMainViewModel.searchByWordPL(inputTextString).observe(this, dictionaries -> {
                     List<String> searchResults = new ArrayList<>();
-                    for (Dictionary dictionary: dictionaries) {
+                    for (Dictionary dictionary : dictionaries) {
                         searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
                     }
                     searchSwitch(searchResults);
-                }
-            });
-        } else {
-            if (inputTextString.length() == 1) {
-                mMainViewModel.searchSingleCH(inputTextString).observe(this, new Observer<List<Dictionary>>() {
-                    @Override
-                    public void onChanged(List<Dictionary> dictionaries) {
-                        List<String> searchResults = new ArrayList<>();
-                        for (Dictionary dictionary: dictionaries) {
-                            searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
-                        }
-                        searchSwitch(searchResults);
-                    }
                 });
             } else {
-                mMainViewModel.searchByWordCH(inputTextString).observe(this, new Observer<List<Dictionary>>() {
-                    @Override
-                    public void onChanged(List<Dictionary> dictionaries) {
+                if (inputTextString.length() == 1) {
+                    mMainViewModel.searchSingleCH(inputTextString).observe(this, dictionaries -> {
                         List<String> searchResults = new ArrayList<>();
-                        for (Dictionary dictionary: dictionaries) {
+                        for (Dictionary dictionary : dictionaries) {
                             searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
                         }
                         searchSwitch(searchResults);
-                    }
-                });
+                    });
+                } else {
+                    mMainViewModel.searchByWordCH(inputTextString).observe(this, dictionaries -> {
+                        List<String> searchResults = new ArrayList<>();
+                        for (Dictionary dictionary : dictionaries) {
+                            searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
+                        }
+                        searchSwitch(searchResults);
+                    });
+                }
             }
         }
     }
@@ -291,15 +299,14 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         if (searchResults.size() > 0) {
             mMainViewModel.updateResults(searchResults);
 
-            mState = State.RESULTS;
+            mStateUI = StateUI.RESULTS;
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm.isActive()) {
-                imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
+                imm.hideSoftInputFromWindow(mBinding.searchTextBox.getWindowToken(), 0);
             }
+            /*
             binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
             binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-
-            binding.searchTextBox.setSelection(binding.searchTextBox.length());
             binding.characterDrawCanvas.clear();
             binding.undoBtn.setVisibility(View.INVISIBLE);
             binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
@@ -308,7 +315,11 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             binding.labelTv.setText(getString(R.string.searching_mode));
             binding.doneBtn.setVisibility(View.INVISIBLE);
             binding.radicalsRv.setVisibility(View.INVISIBLE);
-        } else if (mState != State.RESULTS) {
+             */
+            mBinding.searchTextBox.setSelection(mBinding.searchTextBox.length());
+            setResultsUI();
+
+        } else if (mStateUI != StateUI.RESULTS) {
             Toast.makeText(this, getString(R.string.no_results), Toast.LENGTH_SHORT).show();
         }
     }
@@ -320,27 +331,31 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         for (RecognitionCandidate rc: recognitionCandidatesList) {
             mMainViewModel.addToCharacterList(rc.getText());
         }
-        mCharacterListAdapter.notifyDataSetChanged();
+        mSuggestedCharacterListAdapter.notifyDataSetChanged();
 
-        binding.searchTextBox.setText(binding.searchTextBox.getText().subSequence(0, mMainViewModel.getCursorPosition()) + recognitionCandidatesList.get(0).getText());
-        binding.searchTextBox.setSelection(binding.searchTextBox.getText().length());
+        mBinding.searchTextBox.setText(mBinding.searchTextBox.getText()
+                .subSequence(0, mMainViewModel.getCursorPosition())
+                + recognitionCandidatesList.get(0).getText());
+        mBinding.searchTextBox.setSelection(mBinding.searchTextBox.getText().length());
 
-        binding.doneBtn.setVisibility(View.VISIBLE);
-        binding.charactersRv.setVisibility(View.VISIBLE);
-        binding.undoBtn.setVisibility(View.VISIBLE);
+        mBinding.doneBtn.setVisibility(View.VISIBLE);
+        mBinding.charactersRv.setVisibility(View.VISIBLE);
+        mBinding.undoBtn.setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onItemReleased(int position) {
-        binding.searchTextBox.setText(binding.searchTextBox.getText().subSequence(0, mMainViewModel.getCursorPosition()) + mMainViewModel.charactersList.getValue().get(position));
-        binding.searchTextBox.setSelection(binding.searchTextBox.getText().length());
-        mMainViewModel.setCursorPosition(binding.searchTextBox.getText().length());
+        mBinding.searchTextBox.setText(mBinding.searchTextBox.getText()
+                .subSequence(0, mMainViewModel.getCursorPosition())
+                + mMainViewModel.mCharactersList.getValue().get(position));
+        mBinding.searchTextBox.setSelection(mBinding.searchTextBox.getText().length());
+        mMainViewModel.setCursorPosition(mBinding.searchTextBox.getText().length());
         mMainViewModel.clearCharacterList();
-        mCharacterListAdapter.notifyDataSetChanged();
-        binding.doneBtn.setVisibility(View.INVISIBLE);
-        binding.undoBtn.setVisibility(View.INVISIBLE);
-        binding.characterDrawCanvas.clear();
+        mSuggestedCharacterListAdapter.notifyDataSetChanged();
+        mBinding.doneBtn.setVisibility(View.INVISIBLE);
+        mBinding.undoBtn.setVisibility(View.INVISIBLE);
+        mBinding.characterDrawCanvas.clear();
     }
 
     @Override
@@ -356,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onResultClicked(int position) {
-        Intent intent = new Intent(getBaseContext(), DictionaryActivity.class);
+        Intent intent = new Intent(getBaseContext(), DefinitionWordActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra("word", mMainViewModel.getResult(position));
         startActivity(intent);
@@ -370,14 +385,14 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        binding.searchTextBox.postDelayed(new Runnable() {
+        mBinding.searchTextBox.postDelayed(new Runnable() {
             @Override
             public void run() {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (imm.isActive()) {
-                    imm.hideSoftInputFromWindow(binding.searchTextBox.getWindowToken(), 0);
+                    imm.hideSoftInputFromWindow(mBinding.searchTextBox.getWindowToken(), 0);
                 } else {
-                    binding.searchTextBox.postDelayed(this, 50);
+                    mBinding.searchTextBox.postDelayed(this, 10);
                 }
             }
         }, 50);
@@ -385,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putSerializable("state", mState);
+        outState.putSerializable("state", mStateUI);
         super.onSaveInstanceState(outState);
     }
 

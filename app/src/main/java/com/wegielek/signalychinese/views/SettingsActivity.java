@@ -8,30 +8,27 @@ import android.view.MenuItem;
 
 import com.wegielek.signalychinese.R;
 
-import java.util.Map;
-
-public class DictionaryActivity extends AppCompatActivity {
-
-    private Map<String, String> jsonTraditionalMap;
-    private Map<String, String> jsonSimplifiedMap;
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dictionary);
+        setContentView(R.layout.activity_settings);
 
-        Toolbar myToolbar = findViewById(R.id.toolbar);
+        Toolbar myToolbar = findViewById(R.id.settingsToolbar);
         setSupportActionBar(myToolbar);
         myToolbar.setTitleTextColor(getColor(R.color.white));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        String word = getIntent().getStringExtra("word");
-
-        getSupportActionBar().setTitle(word.split("/")[0] + " (" + word.split("/")[1]+ ")");
+        getSupportActionBar().setTitle("Settings");
 
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -43,5 +40,4 @@ public class DictionaryActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 }

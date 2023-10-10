@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dictionary_word_nav_graph"
+    app:startDestination="@id/dictionaryListFragment">
+
+    <fragment
+        android:id="@+id/dictionaryListFragment"
+        android:name="com.wegielek.signalychinese.views.fragments.DefinitionListFragment"
+        android:label="fragment_dictionary_list"
+        tools:layout="@layout/fragment_definition_list" />
+
+    <fragment
+        android:id="@+id/strokesFragment"
+        android:name="com.wegielek.signalychinese.views.fragments.StrokesFragment"
+        android:label="fragment_strokes"
+        tools:layout="@layout/fragment_strokes" />
+
+</navigation>

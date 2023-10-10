@@ -106,8 +106,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/cameraBtn"
+        <ImageView
+            android:id="@+id/cameraIV"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginTop="16dp"
@@ -117,14 +117,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/settingsBtn"
+        <ImageView
+            android:id="@+id/settingsIV"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:background="@drawable/ic_settings_default"
-            android:contentDescription="Camera"
+            android:background="@drawable/ic_menu_default"
+            android:contentDescription="Settings"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -150,19 +150,19 @@
             app:layout_constraintBottom_toBottomOf="@+id/charactersRv"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.wegielek.signalychinese.views.CanvasView
+        <com.wegielek.signalychinese.views.CharacterRecognizeCanvasView
             android:id="@+id/characterDrawCanvas"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/charactersRv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settingsBtn" />
+            app:layout_constraintTop_toBottomOf="@+id/divider" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/charactersRv"
@@ -193,14 +193,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toTopOf="@+id/drawBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settingsBtn"
+            app:layout_constraintTop_toBottomOf="@+id/divider"
             app:layout_constraintVertical_bias="0.0" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -208,14 +208,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="6dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toTopOf="@+id/drawBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settingsBtn"
+            app:layout_constraintTop_toBottomOf="@+id/divider"
             app:layout_constraintVertical_bias="0.0" />
 
         <View
@@ -223,12 +223,12 @@
             android:layout_width="0dp"
             android:layout_height="2dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="11dp"
             android:layout_marginEnd="16dp"
             android:background="@color/grey"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settingsBtn" />
+            app:layout_constraintTop_toBottomOf="@+id/labelTv" />
 
         <View
             android:id="@+id/divider2"
@@ -241,6 +241,28 @@
             app:layout_constraintBottom_toTopOf="@+id/puzzleBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/settingsBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="settings button"
+            app:layout_constraintBottom_toBottomOf="@+id/settingsIV"
+            app:layout_constraintEnd_toEndOf="@+id/settingsIV"
+            app:layout_constraintStart_toStartOf="@+id/settingsIV"
+            app:layout_constraintTop_toTopOf="@+id/settingsIV" />
+
+        <Button
+            android:id="@+id/cameraBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="camera button"
+            app:layout_constraintBottom_toBottomOf="@+id/cameraIV"
+            app:layout_constraintEnd_toEndOf="@+id/cameraIV"
+            app:layout_constraintStart_toStartOf="@+id/cameraIV"
+            app:layout_constraintTop_toTopOf="@+id/cameraIV" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

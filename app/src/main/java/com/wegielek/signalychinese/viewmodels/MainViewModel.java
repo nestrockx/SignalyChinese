@@ -18,127 +18,127 @@ import java.util.List;
 
 public class MainViewModel extends AndroidViewModel {
 
-    public MutableLiveData<Ink.Stroke.Builder> strokeBuilder = new MutableLiveData<>();
-    public MutableLiveData<ArrayList<Ink.Stroke.Builder>> strokesHistory = new MutableLiveData<>();
-    public MutableLiveData<Ink.Builder> inkBuilder = new MutableLiveData<>();
-    public MutableLiveData<Path> currentVisibleStroke = new MutableLiveData<>();
-    public MutableLiveData<ArrayList<Path>> visibleStrokesHistory = new MutableLiveData<>();
-    public MutableLiveData<Integer> cursorPosition = new MutableLiveData<>();
-    public MutableLiveData<List<String>> charactersList = new MutableLiveData<>();
-    public MutableLiveData<List<String>> dictionaryResultsList = new MutableLiveData<>();
-    public MutableLiveData<List<RadicalsParentModel>> radicalsList = new MutableLiveData<>();
-    private DictionaryRepository dictionaryRepository;
+    public MutableLiveData<Ink.Stroke.Builder> mStrokeBuilder = new MutableLiveData<>();
+    public MutableLiveData<ArrayList<Ink.Stroke.Builder>> mStrokesHistory = new MutableLiveData<>();
+    public MutableLiveData<Ink.Builder> mInkBuilder = new MutableLiveData<>();
+    public MutableLiveData<Path> mCurrentVisibleStroke = new MutableLiveData<>();
+    public MutableLiveData<ArrayList<Path>> mVisibleStrokesHistory = new MutableLiveData<>();
+    public MutableLiveData<Integer> mCursorPosition = new MutableLiveData<>();
+    public MutableLiveData<List<String>> mCharactersList = new MutableLiveData<>();
+    public MutableLiveData<List<String>> mDictionaryResultsList = new MutableLiveData<>();
+    public MutableLiveData<List<RadicalsParentModel>> mRadicalsList = new MutableLiveData<>();
+    private DictionaryRepository mDictionaryRepository;
 
     public MainViewModel(Application application) {
         super(application);
-        dictionaryRepository = new DictionaryRepository(application);
-        strokeBuilder.setValue(Ink.Stroke.builder());
-        inkBuilder.setValue(Ink.builder());
-        strokesHistory.setValue(new ArrayList<>());
-        dictionaryResultsList.setValue(new ArrayList<>());
-        charactersList.setValue(new ArrayList<>());
-        visibleStrokesHistory.setValue(new ArrayList<>());
-        currentVisibleStroke.setValue(new Path());
-        cursorPosition.setValue(0);
-        radicalsList.setValue(new ArrayList<>());
+        mDictionaryRepository = new DictionaryRepository(application);
+        mStrokeBuilder.setValue(Ink.Stroke.builder());
+        mInkBuilder.setValue(Ink.builder());
+        mStrokesHistory.setValue(new ArrayList<>());
+        mDictionaryResultsList.setValue(new ArrayList<>());
+        mCharactersList.setValue(new ArrayList<>());
+        mVisibleStrokesHistory.setValue(new ArrayList<>());
+        mCurrentVisibleStroke.setValue(new Path());
+        mCursorPosition.setValue(0);
+        mRadicalsList.setValue(new ArrayList<>());
     }
 
     public LiveData<List<Dictionary>> searchSingleCH(String searchQuery) {
-        return dictionaryRepository.searchSingleCH(searchQuery);
+        return mDictionaryRepository.searchSingleCH(searchQuery);
     }
 
     public LiveData<List<Dictionary>> searchByWordCH(String searchQuery) {
-        return dictionaryRepository.searchByWordCH(searchQuery);
+        return mDictionaryRepository.searchByWordCH(searchQuery);
     }
 
     public LiveData<List<Dictionary>> searchByWordPL(String searchQuery) {
-        return dictionaryRepository.searchByWordPL(searchQuery);
+        return mDictionaryRepository.searchByWordPL(searchQuery);
     }
 
     public LiveData<List<Dictionary>> getAllWords() {
-        return dictionaryRepository.getAllWords();
+        return mDictionaryRepository.getAllWords();
     }
 
     public String getResult(int index) {
-        return dictionaryResultsList.getValue().get(index);
+        return mDictionaryResultsList.getValue().get(index);
     }
 
     public void updateResults(List<String> searchResults) {
-        dictionaryResultsList.setValue(searchResults);
+        mDictionaryResultsList.setValue(searchResults);
     }
 
     public void addToCharacterList(String text) {
-        List<String> characterListCopy = new ArrayList<>(charactersList.getValue());
+        List<String> characterListCopy = new ArrayList<>(mCharactersList.getValue());
         characterListCopy.add(text);
-        charactersList.setValue(characterListCopy);
+        mCharactersList.setValue(characterListCopy);
     }
 
     public void clearCharacterList() {
-        charactersList.setValue(Collections.emptyList());
+        mCharactersList.setValue(Collections.emptyList());
     }
 
     public void setCursorPosition(int x) {
-        cursorPosition.setValue(x);
+        mCursorPosition.setValue(x);
     }
 
     public int getCursorPosition() {
-        return cursorPosition.getValue();
+        return mCursorPosition.getValue();
     }
 
     public void addVisibleStroke(Path path) {
-        ArrayList<Path> visibleStrokesHistoryCopy = new ArrayList<>(visibleStrokesHistory.getValue());
+        ArrayList<Path> visibleStrokesHistoryCopy = new ArrayList<>(mVisibleStrokesHistory.getValue());
         visibleStrokesHistoryCopy.add(path);
-        visibleStrokesHistory.setValue(visibleStrokesHistoryCopy);
+        mVisibleStrokesHistory.setValue(visibleStrokesHistoryCopy);
     }
 
     public void removeVisibleStroke(int index) {
-        ArrayList<Path> visibleStrokesHistoryCopy = new ArrayList<>(visibleStrokesHistory.getValue());
+        ArrayList<Path> visibleStrokesHistoryCopy = new ArrayList<>(mVisibleStrokesHistory.getValue());
         visibleStrokesHistoryCopy.remove(index);
-        visibleStrokesHistory.setValue(visibleStrokesHistoryCopy);
+        mVisibleStrokesHistory.setValue(visibleStrokesHistoryCopy);
     }
 
     public int getVisibleStrokeSize() {
-        return visibleStrokesHistory.getValue().size();
+        return mVisibleStrokesHistory.getValue().size();
     }
 
     public Path getVisibleStroke(int index) {
-        return visibleStrokesHistory.getValue().get(index);
+        return mVisibleStrokesHistory.getValue().get(index);
     }
 
     public void clearVisibleStrokes() {
-        visibleStrokesHistory.setValue(new ArrayList<>());
+        mVisibleStrokesHistory.setValue(new ArrayList<>());
     }
 
     public Path getCurrentVisibleStroke() {
-        return currentVisibleStroke.getValue();
+        return mCurrentVisibleStroke.getValue();
     }
 
     public void setCurrentVisibleStroke(Path path) {
-        currentVisibleStroke.setValue(path);
+        mCurrentVisibleStroke.setValue(path);
     }
 
     public void resetCurrentVisibleStroke() {
-        currentVisibleStroke.setValue(new Path());
+        mCurrentVisibleStroke.setValue(new Path());
     }
 
     public void lineToCurrentVisibleStroke(float x, float y) {
-        Path currentVisibleStrokeCopy = new Path(currentVisibleStroke.getValue());
+        Path currentVisibleStrokeCopy = new Path(mCurrentVisibleStroke.getValue());
         currentVisibleStrokeCopy.lineTo(x, y);
-        currentVisibleStroke.setValue(currentVisibleStrokeCopy);
+        mCurrentVisibleStroke.setValue(currentVisibleStrokeCopy);
     }
 
     public void moveToCurrentVisibleStroke(float x, float y) {
-        Path currentVisibleStrokeCopy = new Path(currentVisibleStroke.getValue());
+        Path currentVisibleStrokeCopy = new Path(mCurrentVisibleStroke.getValue());
         currentVisibleStrokeCopy.moveTo(x, y);
-        currentVisibleStroke.setValue(currentVisibleStrokeCopy);
+        mCurrentVisibleStroke.setValue(currentVisibleStrokeCopy);
     }
 
-    public void setInkBuilder(Ink.Builder inkBuilder) {
-        this.inkBuilder.setValue(inkBuilder);
+    public void setInkBuilder(Ink.Builder mInkBuilder) {
+        this.mInkBuilder.setValue(mInkBuilder);
     }
 
     public Ink inkBuilderBuild() {
-        return inkBuilder.getValue().build();
+        return mInkBuilder.getValue().build();
     }
 
     public void addInkBuilderStroke(Ink.Stroke stroke) {
@@ -148,39 +148,39 @@ public class MainViewModel extends AndroidViewModel {
             builder.addStroke(iStroke);
         }
         builder.addStroke(stroke);
-        inkBuilder.setValue(builder);
+        mInkBuilder.setValue(builder);
     }
 
     public void removeFromStrokesHistory(int index) {
-        ArrayList<Ink.Stroke.Builder> strokesHistoryCopy = new ArrayList<>(strokesHistory.getValue());
+        ArrayList<Ink.Stroke.Builder> strokesHistoryCopy = new ArrayList<>(mStrokesHistory.getValue());
         strokesHistoryCopy.remove(index);
-        strokesHistory.setValue(strokesHistoryCopy);
+        mStrokesHistory.setValue(strokesHistoryCopy);
     }
 
     public int getStrokesHistorySize() {
-        return strokesHistory.getValue().size();
+        return mStrokesHistory.getValue().size();
     }
 
     public void clearStrokesHistory() {
-        strokesHistory.setValue(new ArrayList<>());
+        mStrokesHistory.setValue(new ArrayList<>());
     }
 
     public void addToStrokesHistory(Ink.Stroke.Builder strokeBuilder) {
-        ArrayList<Ink.Stroke.Builder> strokesHistoryCopy = new ArrayList<>(strokesHistory.getValue());
+        ArrayList<Ink.Stroke.Builder> strokesHistoryCopy = new ArrayList<>(mStrokesHistory.getValue());
         strokesHistoryCopy.add(strokeBuilder);
-        strokesHistory.setValue(strokesHistoryCopy);
+        mStrokesHistory.setValue(strokesHistoryCopy);
     }
 
     public Ink.Stroke strokeHistoryBuild(int index) {
-        return strokesHistory.getValue().get(index).build();
+        return mStrokesHistory.getValue().get(index).build();
     }
 
-    public Ink.Stroke.Builder getStrokeBuilder() {
-        return strokeBuilder.getValue();
+    public Ink.Stroke.Builder getmStrokeBuilder() {
+        return mStrokeBuilder.getValue();
     }
 
     public Ink.Stroke strokeBuilderBuild() {
-        return strokeBuilder.getValue().build();
+        return mStrokeBuilder.getValue().build();
     }
 
     public void addStrokeBuilderPoint(Ink.Point point) {
@@ -190,19 +190,19 @@ public class MainViewModel extends AndroidViewModel {
             builder.addPoint(iPoint);
         }
         builder.addPoint(point);
-        strokeBuilder.setValue(builder);
+        mStrokeBuilder.setValue(builder);
     }
 
     public void clearStrokeBuilder() {
-        strokeBuilder.setValue(Ink.Stroke.builder());
+        mStrokeBuilder.setValue(Ink.Stroke.builder());
     }
 
     public List<RadicalsParentModel> getRadicalsList() {
-        return radicalsList.getValue();
+        return mRadicalsList.getValue();
     }
 
     public void setRadicalsList(List<RadicalsParentModel> radicalsParentModels) {
-        radicalsList.postValue(radicalsParentModels);
+        mRadicalsList.postValue(radicalsParentModels);
     }
 
 

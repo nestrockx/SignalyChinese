@@ -15,12 +15,12 @@ import com.wegielek.signalychinese.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdapter.ViewHolder> {
+public class SuggestedCharacterListAdapter extends RecyclerView.Adapter<SuggestedCharacterListAdapter.ViewHolder> {
 
     private final CharactersRecyclerViewListener charactersRecyclerViewListener;
     private final List<String> dataList;
 
-    public CharacterListAdapter(CharactersRecyclerViewListener charactersRecyclerViewListener) {
+    public SuggestedCharacterListAdapter(CharactersRecyclerViewListener charactersRecyclerViewListener) {
         this.charactersRecyclerViewListener = charactersRecyclerViewListener;
         this.dataList = new ArrayList<>();
     }
@@ -60,7 +60,7 @@ public class CharacterListAdapter extends RecyclerView.Adapter<CharacterListAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_character, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_suggested_character_list, parent, false);
         return new ViewHolder(itemView);
     }
 
