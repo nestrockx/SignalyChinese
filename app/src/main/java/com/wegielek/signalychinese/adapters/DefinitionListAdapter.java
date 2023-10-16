@@ -39,7 +39,7 @@ public class DefinitionListAdapter extends RecyclerView.Adapter<DefinitionListAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.definitionRowTv.setText((position + 1) + " " + dataList.get(position));
+        holder.definitionRowTv.setText(context.getString(R.string.definition_list_item_placeholder, position + 1, dataList.get(position)));
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DefinitionListAdapter extends RecyclerView.Adapter<DefinitionListAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView definitionRowTv;
+        private final TextView definitionRowTv;
 
         public ViewHolder(View itemView) {
             super(itemView);

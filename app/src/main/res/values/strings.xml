@@ -8,6 +8,8 @@
     <string name="word_search_hint">Wyszukaj słowo</string>
     <string name="dictionary_files_not_loaded">Pliki słownika niezaładowane. Spróbuj ponownie.</string>
     <string name="no_results">Brak wyników wyszukiwania</string>
+
     <string name="result_text_placeholder_1" translatable="false">%1$s (%2$s)</string>
+    <string name="definition_list_item_placeholder" translatable="false">%1$d %2$s</string>
 
 </resources>

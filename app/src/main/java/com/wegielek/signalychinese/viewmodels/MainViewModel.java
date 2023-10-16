@@ -9,7 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.mlkit.vision.digitalink.Ink;
 import com.wegielek.signalychinese.database.Dictionary;
-import com.wegielek.signalychinese.models.RadicalsParentModel;
+import com.wegielek.signalychinese.database.Radicals;
 import com.wegielek.signalychinese.repository.DictionaryRepository;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class MainViewModel extends AndroidViewModel {
     public MutableLiveData<Integer> mCursorPosition = new MutableLiveData<>();
     public MutableLiveData<List<String>> mCharactersList = new MutableLiveData<>();
     public MutableLiveData<List<String>> mDictionaryResultsList = new MutableLiveData<>();
-    public MutableLiveData<List<RadicalsParentModel>> mRadicalsList = new MutableLiveData<>();
+    public MutableLiveData<List<String[]>> mRadicalsList = new MutableLiveData<>();
     private DictionaryRepository mDictionaryRepository;
 
     public MainViewModel(Application application) {
@@ -41,6 +41,10 @@ public class MainViewModel extends AndroidViewModel {
         mCurrentVisibleStroke.setValue(new Path());
         mCursorPosition.setValue(0);
         mRadicalsList.setValue(new ArrayList<>());
+    }
+
+    public LiveData<List<Radicals>> getSection(String section) {
+        return mDictionaryRepository.getSection(section);
     }
 
     public LiveData<List<Dictionary>> searchSingleCH(String searchQuery) {
@@ -197,11 +201,11 @@ public class MainViewModel extends AndroidViewModel {
         mStrokeBuilder.setValue(Ink.Stroke.builder());
     }
 
-    public List<RadicalsParentModel> getRadicalsList() {
+    public List<String[]> getRadicalsList() {
         return mRadicalsList.getValue();
     }
 
-    public void setRadicalsList(List<RadicalsParentModel> radicalsParentModels) {
+    public void setRadicalsList(List<String[]> radicalsParentModels) {
         mRadicalsList.postValue(radicalsParentModels);
     }
 

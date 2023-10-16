@@ -32,7 +32,7 @@ public class SuggestedCharacterListAdapter extends RecyclerView.Adapter<Suggeste
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView textView;
+        private final TextView textView;
 
         public ViewHolder(View itemView) {
             super(itemView);

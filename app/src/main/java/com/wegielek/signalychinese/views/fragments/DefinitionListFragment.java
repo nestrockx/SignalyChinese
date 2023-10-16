@@ -2,26 +2,23 @@ package com.wegielek.signalychinese.views.fragments;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.wegielek.signalychinese.R;
 import com.wegielek.signalychinese.adapters.DefinitionListAdapter;
 import com.wegielek.signalychinese.databinding.FragmentDefinitionListBinding;
 import com.wegielek.signalychinese.viewmodels.DefinitionViewModel;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class DefinitionListFragment extends Fragment {
 
@@ -46,12 +43,23 @@ public class DefinitionListFragment extends Fragment {
 
         DefinitionViewModel definitionViewModel = new ViewModelProvider(requireActivity()).get(DefinitionViewModel.class);
         definitionViewModel.word.observe(getViewLifecycleOwner(), s -> {
-            mDefinitionListAdapter.setData(Arrays.asList(Arrays.copyOfRange(s.split("/"), 3, s.split("/").length)));
+            mDefinitionListAdapter.setData(Arrays.asList(Arrays.copyOfRange(s.split("/"), 4, s.split("/").length)));
         });
 
         mBinding.definitionListRv.setLayoutManager(new LinearLayoutManager(getContext()));
         mDefinitionListAdapter = new DefinitionListAdapter(getContext());
         mBinding.definitionListRv.setAdapter(mDefinitionListAdapter);
 
+        onBackPressed();
     }
+
+    private void onBackPressed() {
+        requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().finish();
+            }
+        });
+    }
+
 }

@@ -1,13 +1,13 @@
 package com.wegielek.signalychinese.views;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -67,15 +67,19 @@ public class DefinitionWordActivity extends AppCompatActivity {
         NavHostFragment dictionaryWordNavHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.dictionaryWordNavHostFragment);
         if (dictionaryWordNavHostFragment != null) {
             mBinding.bottomNavigationView.setOnItemSelectedListener(item -> {
-                NavigationUI.onNavDestinationSelected(item, dictionaryWordNavHostFragment.getNavController());
+                NavOptions.Builder navOptions = new NavOptions.Builder().setLaunchSingleTop(true);
+                if (item.getItemId() == R.id.strokesFragment) {
+                    navOptions.setEnterAnim(R.anim.slide_in_right).setExitAnim(R.anim.slide_out_left);
+                } else {
+                    navOptions.setEnterAnim(R.anim.slide_in_left).setExitAnim(R.anim.slide_out_right);
+                }
+                dictionaryWordNavHostFragment.getNavController().navigate(item.getItemId(), null, navOptions.build());
                 return true;
             });
         }
 
         mBinding.definitionCharactersTv.setText(getString(R.string.result_text_placeholder_1, word.split("/")[0], word.split("/")[1]));
         mBinding.definitionPronunciationTv.setText(word.split("/")[2]);
-
-
 
 
 
@@ -91,5 +95,4 @@ public class DefinitionWordActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 }

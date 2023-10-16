@@ -7,15 +7,19 @@ import androidx.lifecycle.LiveData;
 import com.wegielek.signalychinese.database.AppDictionaryDatabase;
 import com.wegielek.signalychinese.database.Dictionary;
 import com.wegielek.signalychinese.database.DictionaryDao;
+import com.wegielek.signalychinese.database.RadicalDao;
+import com.wegielek.signalychinese.database.Radicals;
 
 import java.util.List;
 
 public class DictionaryRepository {
 
     private DictionaryDao dictionaryDao;
+    private RadicalDao radicalDao;
 
     public DictionaryRepository(Application application) {
         dictionaryDao = AppDictionaryDatabase.getInstance(application).dictionaryDao();
+        radicalDao = AppDictionaryDatabase.getInstance(application).radicalDao();
     }
 
     public LiveData<List<Dictionary>> getAllWords() {
@@ -32,6 +36,10 @@ public class DictionaryRepository {
 
     public LiveData<List<Dictionary>> searchByWordPL(String searchQuery) {
         return dictionaryDao.searchByWordPL(searchQuery);
+    }
+
+    public LiveData<List<Radicals>> getSection(String section) {
+        return radicalDao.getSection(section);
     }
 
 }

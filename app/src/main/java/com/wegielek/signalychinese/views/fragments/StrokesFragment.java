@@ -2,6 +2,7 @@ package com.wegielek.signalychinese.views.fragments;
 
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -18,7 +19,6 @@ import com.wegielek.signalychinese.views.LearnStrokesView;
 import java.util.Arrays;
 
 public class StrokesFragment extends Fragment {
-
 
     public StrokesFragment() {
         // Required empty public constructor
@@ -41,7 +41,15 @@ public class StrokesFragment extends Fragment {
             learnStrokesView.setHanziCharacter(s.split("/")[1].charAt(0));
         });
 
+        onBackPressed();
+    }
 
-
+    private void onBackPressed() {
+        requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().finish();
+            }
+        });
     }
 }

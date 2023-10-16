@@ -23,6 +23,10 @@ public class Dictionary {
     public String pronunciation;
 
     @NonNull
+    @ColumnInfo(name = "pronunciation_phonetic")
+    public String pronunciationPhonetic;
+
+    @NonNull
     @ColumnInfo(name = "translation")
     public String translation;
 }

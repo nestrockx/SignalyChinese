@@ -19,4 +19,5 @@ local.properties
 /Assetsus/draw_active.svg
 /.idea/deploymentTargetDropDown.xml
 /app/src/main/assets/polishJSON.json
-/app/src/main/assets/dictionary.db
+/app/src/main/assets/dictionaryModel.db
+/hs_err_pid18472.log

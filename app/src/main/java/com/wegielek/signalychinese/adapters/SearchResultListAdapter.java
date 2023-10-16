@@ -45,15 +45,13 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
     public void onBindViewHolder(ViewHolder holder, int position) {
         String inputString = dataList.get(position);
 
-
         List<String> list = Arrays.asList(inputString.split("/"));
-
         StringBuilder translation = new StringBuilder();
-        for (int i = 3; i < list.size(); i++) {
+        for (int i = 4; i < list.size(); i++) {
             if (i != list.size() - 1) {
-                translation.append((i - 2)).append("").append(list.get(i)).append(" ");
+                translation.append((i - 3)).append(".").append(list.get(i)).append(" ");
             } else {
-                translation.append((i - 2)).append("").append(list.get(i)).append("");
+                translation.append((i - 3)).append(".").append(list.get(i)).append("");
             }
         }
 
@@ -72,16 +70,15 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView charactersTv;
-        TextView pronunciationTv;
-        TextView translationTv;
+        private final TextView charactersTv;
+        private final TextView pronunciationTv;
+        private final TextView translationTv;
 
         public ViewHolder(View itemView) {
             super(itemView);
             charactersTv = itemView.findViewById(R.id.labelTv);
             pronunciationTv = itemView.findViewById(R.id.pronunciationTv);
             translationTv = itemView.findViewById(R.id.translationTv);
-
             itemView.setOnClickListener(view -> resultsRecyclerViewListener.onResultClicked(getAdapterPosition()));
         }
     }

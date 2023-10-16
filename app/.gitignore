@@ -174,9 +174,11 @@ resultTest.txt
 /src/main/res/drawable/_8863.xml
 /src/main/res/drawable/_9662.xml
 /src/main/res/drawable/_9762.xml
-/src/main/assets/dictionary.txt
+/src/main/assets/dictionaryModel.txt
 /src/main/assets/resultsJSON1.json
 /src/main/assets/resultsJSON2.json
 /src/main/assets/resultsJSON1_backup.json
 /src/main/assets/resultsJSON2_backup.json
 /src/main/assets/radicalsJSON.json
+/src/main/assets/radicals.db
+/src/main/assets/dictionary.db

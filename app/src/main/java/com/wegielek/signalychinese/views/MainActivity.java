@@ -1,5 +1,6 @@
 package com.wegielek.signalychinese.views;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
@@ -20,11 +21,9 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.google.mlkit.vision.digitalink.RecognitionCandidate;
 import com.wegielek.signalychinese.BR;
-import com.wegielek.signalychinese.adapters.RadicalsParentAdapter;
+import com.wegielek.signalychinese.adapters.RadicalsAdapter;
 import com.wegielek.signalychinese.database.Dictionary;
 import com.wegielek.signalychinese.interfaces.CanvasViewListener;
 import com.wegielek.signalychinese.interfaces.CharactersRecyclerViewListener;
@@ -36,28 +35,18 @@ import com.wegielek.signalychinese.enums.StateUI;
 import com.wegielek.signalychinese.adapters.SuggestedCharacterListAdapter;
 import com.wegielek.signalychinese.adapters.SearchResultListAdapter;
 import com.wegielek.signalychinese.databinding.ActivityMainBinding;
-import com.wegielek.signalychinese.models.RadicalsParentModel;
 import com.wegielek.signalychinese.utils.Utils;
 import com.wegielek.signalychinese.viewmodels.MainViewModel;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity implements CanvasViewListener, CharactersRecyclerViewListener, ResultsRecyclerViewListener, RadicalsRecyclerViewListener, SearchTextBoxListener {
     private static final String LOG_TAG = "MainActivity";
 
     private SuggestedCharacterListAdapter mSuggestedCharacterListAdapter;
     private SearchResultListAdapter mSearchResultsListAdapter;
-    private RadicalsParentAdapter mRadicalsParentAdapter;
-    private Map<Integer, String[]> jsonRadicalsMap;
+    private RadicalsAdapter mRadicalsAdapter;
     private StateUI mStateUI = StateUI.DRAW;
     private ActivityMainBinding mBinding;
     private MainViewModel mMainViewModel;
@@ -80,8 +69,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 mSuggestedCharacterListAdapter.setData(stringList)
         );
 
-        mMainViewModel.mRadicalsList.observe(this, radicalsParentModels ->
-                mRadicalsParentAdapter.setData(radicalsParentModels)
+        mMainViewModel.mRadicalsList.observe(this, radicalsList ->
+                mRadicalsAdapter.setData(radicalsList)
         );
 
         if (savedInstanceState != null) {
@@ -92,7 +81,23 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             }
         }
         setStateUI(mStateUI);
-
+        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+        mBinding.radicalsBackBtn.setOnClickListener(v -> {
+            mMainViewModel.getSection("0").observe(this, radicals -> {
+                List<String[]> radicalsList = new ArrayList<>();
+                for (int i = 0; i < radicals.size(); i++) {
+                    radicalsList.add(radicals.get(i).radicals.split(" "));
+                }
+                mMainViewModel.setRadicalsList(radicalsList);
+                mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+                getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        finish();
+                    }
+                });
+            });
+        });
 
         mBinding.searchTextBox.requestFocus();
         mBinding.searchTextBox.setOnSelectionChangedListener(this);
@@ -102,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mBinding.resultsRv.setAdapter(mSearchResultsListAdapter);
 
         mBinding.radicalsRv.setLayoutManager(new LinearLayoutManager(this));
-        mRadicalsParentAdapter = new RadicalsParentAdapter(this);
-        mBinding.radicalsRv.setAdapter(mRadicalsParentAdapter);
+        mRadicalsAdapter = new RadicalsAdapter(this, this);
+        mBinding.radicalsRv.setAdapter(mRadicalsAdapter);
 
         mBinding.charactersRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         mSuggestedCharacterListAdapter = new SuggestedCharacterListAdapter(this);
@@ -117,12 +122,12 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
         mBinding.puzzleBtn.setOnClickListener(view -> {
             mStateUI = StateUI.PUZZLE;
-            setPuzzleUI();
+            setStateUI(mStateUI);
         });
 
         mBinding.drawBtn.setOnClickListener(view -> {
             mStateUI = StateUI.DRAW;
-            setDrawUI();
+            setStateUI(mStateUI);
         });
         
         mBinding.backspaceBtn.setOnClickListener(view -> {
@@ -176,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             return false;
         });
 
-        //loadRadicals();
+        loadRadicals();
     }
 
     private void setStateUI(StateUI stateUI) {
@@ -223,36 +228,22 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mBinding.undoBtn.setVisibility(View.INVISIBLE);
         mBinding.radicalsRv.setVisibility(View.VISIBLE);
         mBinding.doneBtn.setVisibility(View.INVISIBLE);
+        mBinding.charactersRv.setVisibility(View.INVISIBLE);
     }
 
     private void loadRadicals() {
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            String jsonRadicalsString;
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("radicalsJSON.json"), StandardCharsets.UTF_8))) {
-                jsonRadicalsString = reader.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        mMainViewModel.getSection("0").observe(this, radicals -> {
+            List<String[]> radicalsList = new ArrayList<>();
+            for (int i = 0; i < radicals.size(); i++) {
+                radicalsList.add(radicals.get(i).radicals.split(" "));
             }
-
-            jsonRadicalsMap = new Gson().fromJson(
-                    jsonRadicalsString, new TypeToken<HashMap<Integer, String[]>>() {
-                    }.getType()
-            );
-
-            List<RadicalsParentModel> radicalsParentModels = new ArrayList<>();
-            for (int i = 0; i < jsonRadicalsMap.get(0).length - 1; i++) {
-                radicalsParentModels.add(new RadicalsParentModel(jsonRadicalsMap.get(0)[i].split(" ")));
-            }
-
-            mMainViewModel.setRadicalsList(radicalsParentModels);
-
+            mMainViewModel.setRadicalsList(radicalsList);
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private void performSearch() {
+        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+
         String inputTextString;
         if (mBinding.searchTextBox.getText() != null) {
             inputTextString = mBinding.searchTextBox.getText().toString();
@@ -269,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 mMainViewModel.searchByWordPL(inputTextString).observe(this, dictionaries -> {
                     List<String> searchResults = new ArrayList<>();
                     for (Dictionary dictionary : dictionaries) {
-                        searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
+                        searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.pronunciationPhonetic + "/" + dictionary.translation);
                     }
                     searchSwitch(searchResults);
                 });
@@ -278,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                     mMainViewModel.searchSingleCH(inputTextString).observe(this, dictionaries -> {
                         List<String> searchResults = new ArrayList<>();
                         for (Dictionary dictionary : dictionaries) {
-                            searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
+                            searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.pronunciationPhonetic + "/" + dictionary.translation);
                         }
                         searchSwitch(searchResults);
                     });
@@ -286,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                     mMainViewModel.searchByWordCH(inputTextString).observe(this, dictionaries -> {
                         List<String> searchResults = new ArrayList<>();
                         for (Dictionary dictionary : dictionaries) {
-                            searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.translation);
+                            searchResults.add(dictionary.traditionalSign + "/" + dictionary.simplifiedSign + "/" + dictionary.pronunciation + "/" + dictionary.pronunciationPhonetic + "/" + dictionary.translation);
                         }
                         searchSwitch(searchResults);
                     });
@@ -300,24 +291,13 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mMainViewModel.updateResults(searchResults);
 
             mStateUI = StateUI.RESULTS;
+            setResultsUI();
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm.isActive()) {
                 imm.hideSoftInputFromWindow(mBinding.searchTextBox.getWindowToken(), 0);
             }
-            /*
-            binding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_default, getTheme()));
-            binding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_puzzle_default, getTheme()));
-            binding.characterDrawCanvas.clear();
-            binding.undoBtn.setVisibility(View.INVISIBLE);
-            binding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-            binding.charactersRv.setVisibility(View.INVISIBLE);
-            binding.resultsRv.setVisibility(View.VISIBLE);
-            binding.labelTv.setText(getString(R.string.searching_mode));
-            binding.doneBtn.setVisibility(View.INVISIBLE);
-            binding.radicalsRv.setVisibility(View.INVISIBLE);
-             */
             mBinding.searchTextBox.setSelection(mBinding.searchTextBox.length());
-            setResultsUI();
+
 
         } else if (mStateUI != StateUI.RESULTS) {
             Toast.makeText(this, getString(R.string.no_results), Toast.LENGTH_SHORT).show();
@@ -379,7 +359,41 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onRadicalClicked(String radical) {
-
+        mMainViewModel.getSection(radical).observe(this, radicals -> {
+            if(radicals.size() > 0) {
+               List<String[]> radicalsList = new ArrayList<>();
+               for (int i = 0; i < radicals.size(); i++) {
+                    radicalsList.add(radicals.get(i).radicals.split(" "));
+               }
+               mMainViewModel.setRadicalsList(radicalsList);
+               mBinding.radicalsBackBtn.setVisibility(View.VISIBLE);
+            } else {
+                mBinding.searchTextBox.append(radical);
+            }
+        });
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                mMainViewModel.getSection("0").observe(MainActivity.this, radicals -> {
+                    if(radicals.size() > 0) {
+                        List<String[]> radicalsList = new ArrayList<>();
+                        for (int i = 0; i < radicals.size(); i++) {
+                            radicalsList.add(radicals.get(i).radicals.split(" "));
+                        }
+                        mMainViewModel.setRadicalsList(radicalsList);
+                        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+                    } else {
+                        mBinding.searchTextBox.append(radical);
+                    }
+                });
+                getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+                    @Override
+                    public void handleOnBackPressed() {
+                        finish();
+                    }
+                });
+            }
+        });
     }
 
     @Override
