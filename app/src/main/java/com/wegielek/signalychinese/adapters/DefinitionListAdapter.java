@@ -1,5 +1,6 @@
 package com.wegielek.signalychinese.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ public class DefinitionListAdapter extends RecyclerView.Adapter<DefinitionListAd
         this.dataList = new ArrayList<>();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setData(List<String> dataList) {
         this.dataList.clear();
         this.dataList.addAll(dataList);

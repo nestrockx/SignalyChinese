@@ -34,7 +34,6 @@ public class HanziCharacter {
         initDefaultResize();
     }
 
-
     public boolean nextIndex() {
         if(index < size - 1) {
             index++;

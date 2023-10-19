@@ -1,5 +1,6 @@
 package com.wegielek.signalychinese.adapters;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,6 +26,7 @@ public class SuggestedCharacterListAdapter extends RecyclerView.Adapter<Suggeste
         this.dataList = new ArrayList<>();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setData(List<String> dataList) {
         this.dataList.clear();
         this.dataList.addAll(dataList);

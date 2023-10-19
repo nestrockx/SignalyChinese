@@ -14,16 +14,12 @@ import java.util.List;
 
 public class DictionaryRepository {
 
-    private DictionaryDao dictionaryDao;
-    private RadicalDao radicalDao;
+    private final DictionaryDao dictionaryDao;
+    private final RadicalDao radicalDao;
 
     public DictionaryRepository(Application application) {
         dictionaryDao = AppDictionaryDatabase.getInstance(application).dictionaryDao();
         radicalDao = AppDictionaryDatabase.getInstance(application).radicalDao();
-    }
-
-    public LiveData<List<Dictionary>> getAllWords() {
-        return dictionaryDao.getAllWords();
     }
 
     public LiveData<List<Dictionary>> searchSingleCH(String searchQuery) {

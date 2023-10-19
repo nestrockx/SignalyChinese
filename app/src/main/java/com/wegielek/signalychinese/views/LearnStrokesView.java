@@ -1,12 +1,16 @@
 package com.wegielek.signalychinese.views;
 
+import static androidx.core.content.ContextCompat.getColor;
+
+import static com.wegielek.signalychinese.utils.Utils.getPaint;
+
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -17,12 +21,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 
 import com.sdsmdg.harjot.vectormaster.VectorMasterDrawable;
 import com.sdsmdg.harjot.vectormaster.models.GroupModel;
 import com.sdsmdg.harjot.vectormaster.models.PathModel;
+
 import com.wegielek.signalychinese.enums.CharacterMode;
 import com.wegielek.signalychinese.models.FingerPath;
 import com.wegielek.signalychinese.R;
@@ -36,8 +41,7 @@ public class LearnStrokesView extends View {
     private static final String LOG_TAG = "LearnStrokesView";
 
     private HanziCharacter hanziCharacter;
-    private CharacterMode characterMode = CharacterMode.LEARN;
-    boolean hintOn = false;
+    private CharacterMode characterMode = CharacterMode.PRESENTATION;
 
     private ValueAnimator valueStrokeAnimator;
     private ValueAnimator valueSuccessAnimator;
@@ -49,20 +53,20 @@ public class LearnStrokesView extends View {
     private final PathMeasure pathMeasure = new PathMeasure();
 
     private final PointF pointF = new PointF();
-    private boolean setup = false;
+    private boolean setup = true;
     private static final int BITMAP_DIMENSION = 400;
 
     private final Matrix transformMat = new Matrix();
     private final Matrix inverseTransformMat = new Matrix();
 
-    private final int DEFAULT_DIMENSIONS = 1000;
+    private static final int DEFAULT_DIMENSIONS = 1000;
     private int width;
     private int height;
 
-    private int BRUSH_SIZE = 10;
-    private final int DEFAULT_COLOR = ContextCompat.getColor(this.getContext(), R.color.white);
-    private final int BACKGROUND_COLOR = ContextCompat.getColor(this.getContext(), R.color.writing_background);
-    private final float TOUCH_TOLERANCE = 4;
+    private static final int BRUSH_SIZE = 10;
+    private final int DEFAULT_COLOR = getColor(this.getContext(), R.color.white);
+    private final int BACKGROUND_COLOR = getColor(this.getContext(), R.color.canvas_background);
+    private static final float TOUCH_TOLERANCE = 4;
     private float mX, mY;
     private Path mPath;
 
@@ -72,15 +76,13 @@ public class LearnStrokesView extends View {
     private Paint gridPaint;
     private Paint gridThinPaint;
 
-
     private final ArrayList<FingerPath> paths = new ArrayList<>();
-    private int currentColor;
-    private int backgroundColor = BACKGROUND_COLOR;
     private int strokeWidth;
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private final Paint mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 
+    private char hanziChar;
 
     public LearnStrokesView(Context context) {
         super(context);
@@ -91,33 +93,45 @@ public class LearnStrokesView extends View {
         this.initialize();
     }
 
-    public LearnStrokesView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+    public void setMode(CharacterMode characterMode) {
+        this.characterMode = characterMode;
+        setHanziCharacter(hanziChar);
+        if (characterMode == CharacterMode.PRESENTATION) {
+            valueStrokeAnimator.setDuration(1000);
+        } else {
+            valueStrokeAnimator.setDuration(1500);
+        }
     }
 
     public void setHanziCharacter(char hanziChar) {
+        this.hanziChar = hanziChar;
         clear();
         valueStrokeAnimator.cancel();
         this.hanziCharacter = initHanziStrokes(hanziChar);
+        if (this.hanziCharacter != null) {
+            if (characterMode == CharacterMode.PRESENTATION) {
+                valueStrokeAnimator.start();
+            }
+        }
     }
 
     public void setDimensions(int dimensions) {
         width = dimensions;
         height = dimensions;
+        setMeasuredDimension(width, height);
     }
 
-    public void clear() {
+    private void clear() {
         valueStrokeAnimator.cancel();
         if(hanziCharacter != null) {
             hanziCharacter.reset();
         }
-        backgroundColor = BACKGROUND_COLOR;
         invalidate();
     }
 
     private void initAnimators() {
-        valueMistakeAnimator = ValueAnimator.ofArgb(ContextCompat.getColor(getContext(), R.color.mistake),
-                ContextCompat.getColor(getContext(), R.color.mistake_fade));
+        valueMistakeAnimator = ValueAnimator.ofArgb(getColor(getContext(), R.color.mistake),
+                getColor(getContext(), R.color.mistake_fade));
         int vMistakeDuration = 500;
         valueMistakeAnimator.setDuration(vMistakeDuration);
         valueMistakeAnimator.addUpdateListener(animation -> {
@@ -131,8 +145,8 @@ public class LearnStrokesView extends View {
             }
         });
 
-        valueSuccessAnimator = ValueAnimator.ofArgb(ContextCompat.getColor(getContext(), R.color.white),
-                ContextCompat.getColor(getContext(), R.color.success), DEFAULT_COLOR);
+        valueSuccessAnimator = ValueAnimator.ofArgb(getColor(getContext(), R.color.white),
+                getColor(getContext(), R.color.success), DEFAULT_COLOR);
         int vSuccessDuration = 1000;
         valueSuccessAnimator.setDuration(vSuccessDuration);
         valueSuccessAnimator.addUpdateListener(animation -> {
@@ -141,8 +155,11 @@ public class LearnStrokesView extends View {
         });
 
         valueStrokeAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-        int mDuration = 2000;
-        valueStrokeAnimator.setDuration(mDuration);
+        if (characterMode == CharacterMode.PRESENTATION) {
+            valueStrokeAnimator.setDuration(1000);
+        } else {
+            valueStrokeAnimator.setDuration(1500);
+        }
         valueStrokeAnimator.addUpdateListener(animation -> {
             markerProgress[hanziCharacter.getIndex()] = (float)animation.getAnimatedValue();
             invalidate();
@@ -150,30 +167,18 @@ public class LearnStrokesView extends View {
     }
 
     private void initialize() {
-        this.characterMode = CharacterMode.LEARN;
-        ///
         initAnimators();
         initPaints();
+        hanziChar = '一';
         setHanziCharacter('一');
-        ///
         this.width = DEFAULT_DIMENSIONS;
         this.height = DEFAULT_DIMENSIONS;
         mBitmap = Bitmap.createBitmap(BITMAP_DIMENSION, BITMAP_DIMENSION, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
-        currentColor = DEFAULT_COLOR;
         strokeWidth = BRUSH_SIZE;
     }
 
-    public void showHint() {
-        hintOn = true;
-        invalidate();
-    }
-
-    public void hideHint() {
-        hintOn = false;
-        invalidate();
-    }
-
+    @SuppressLint("DiscouragedApi")
     private HanziCharacter initHanziStrokes(char hanziChar) {
         String hanziCharacterUnicode;
         hanziCharacterUnicode = Integer.toHexString(hanziChar | 0x10000).substring(1);
@@ -193,7 +198,7 @@ public class LearnStrokesView extends View {
                     )
             );
         } catch (Resources.NotFoundException e) {
-            Log.e(LOG_TAG, e.getMessage());
+            Log.e(LOG_TAG, "Error message: " + e.getMessage());
             return null;
         }
 
@@ -206,17 +211,27 @@ public class LearnStrokesView extends View {
     }
 
     private void drawGrid() {
+        mCanvas.drawLine(0.0f, 0.0f, BITMAP_DIMENSION, BITMAP_DIMENSION, gridThinPaint);
+        mCanvas.drawLine(0.0f, BITMAP_DIMENSION, BITMAP_DIMENSION, 0.0f, gridThinPaint);
         mCanvas.drawLine((float)BITMAP_DIMENSION / 2, 10.0f, (float)BITMAP_DIMENSION / 2, BITMAP_DIMENSION - 10.0f, gridPaint);
-        mCanvas.drawLine((float)BITMAP_DIMENSION / 4, 30.0f, (float)BITMAP_DIMENSION / 4, BITMAP_DIMENSION - 30.0f, gridThinPaint);
-        mCanvas.drawLine((float)BITMAP_DIMENSION * 3 / 4, 30.0f, (float)BITMAP_DIMENSION * 3 / 4, BITMAP_DIMENSION - 30.0f, gridThinPaint);
         mCanvas.drawLine(10.0f, (float)BITMAP_DIMENSION / 2, BITMAP_DIMENSION - 10.0f, (float)BITMAP_DIMENSION / 2, gridPaint);
-        mCanvas.drawLine(10.0f, (float)BITMAP_DIMENSION / 4, BITMAP_DIMENSION - 10.0f, (float)BITMAP_DIMENSION / 4, gridThinPaint);
-        mCanvas.drawLine(10.0f, (float)BITMAP_DIMENSION * 3 / 4, BITMAP_DIMENSION - 10.0f, (float)BITMAP_DIMENSION * 3 / 4, gridThinPaint);
     }
 
     private void drawHanziCharacterPath() {
         if (hanziCharacter != null) {
-            if (characterMode.equals(CharacterMode.LEARN) || hintOn) {
+            if (characterMode.equals(CharacterMode.LEARN)) {
+                mCanvas.drawPath(hanziCharacter.getCurrPath(), sketchPaint);
+
+                pathMeasure.setPath(hanziCharacter.getCurrPath(), false);
+                pathMeasure.getPosTan(markerProgress[hanziCharacter.getIndex()] * pathMeasure.getLength(), pos, tan);
+                mCanvas.drawPoint(pos[0], pos[1], mainPaint);
+
+                if (!valueStrokeAnimator.isRunning()) {
+                    valueStrokeAnimator.start();
+                }
+            }
+
+            if (characterMode.equals(CharacterMode.PRESENTATION)) {
                 mCanvas.drawPath(hanziCharacter.getCurrPath(), sketchPaint);
 
                 pathMeasure.setPath(hanziCharacter.getCurrPath(), false);
@@ -225,14 +240,16 @@ public class LearnStrokesView extends View {
                 mCanvas.drawPoint(pos[0], pos[1], mainPaint);
 
                 if (!valueStrokeAnimator.isRunning()) {
-                    valueStrokeAnimator.start();
+                    if (hanziCharacter.nextIndex()) {
+                        valueStrokeAnimator.start();
+                    }
                 }
             }
+
             if (hanziCharacter.isMatched()) {
                 if (!hanziCharacter.nextIndex()) {
                     valueSuccessAnimator.start();
                 }
-                hintOn = false;
                 valueStrokeAnimator.cancel();
                 invalidate();
             }
@@ -242,12 +259,11 @@ public class LearnStrokesView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.save();
-        mCanvas.drawColor(backgroundColor);
+        mCanvas.drawColor(BACKGROUND_COLOR);
 
-        if(!setup) {
+        if (setup) {
             setupScaleMatrices();
         }
-
 
         drawGrid();
         if (hanziCharacter != null) {
@@ -274,58 +290,63 @@ public class LearnStrokesView extends View {
     }
 
     private void touchStart(float x, float y) {
+        if (characterMode != CharacterMode.PRESENTATION) {
+            if (valueMistakeAnimator.isRunning()) {
+                valueMistakeAnimator.cancel();
+                fingerPathPaint.setColor(DEFAULT_COLOR);
+                fingerPathPaint.setAlpha(0xff);
+                paths.clear();
+            }
 
-        if(valueMistakeAnimator.isRunning()) {
-            valueMistakeAnimator.cancel();
-            fingerPathPaint.setColor(DEFAULT_COLOR);
-            fingerPathPaint.setAlpha(0xff);
-            paths.clear();
-        }
+            mPath = new Path();
+            FingerPath fp = new FingerPath(DEFAULT_COLOR, strokeWidth, mPath);
+            paths.add(fp);
 
-        mPath = new Path();
-        FingerPath fp = new FingerPath(currentColor, strokeWidth, mPath);
-        paths.add(fp);
-
-        mPath.reset();
-        mPath.moveTo(x, y);
-        mX = x;
-        mY = y;
-        if (hanziCharacter != null) {
-            if (hanziCharacter.matchStart(mX, mY, 60.0f)) {
-                Log.i(LOG_TAG, "MATCHED_START");
+            mPath.reset();
+            mPath.moveTo(x, y);
+            mX = x;
+            mY = y;
+            if (hanziCharacter != null) {
+                if (hanziCharacter.matchStart(mX, mY, 60.0f)) {
+                    Log.i(LOG_TAG, "MATCHED_START");
+                }
             }
         }
     }
 
     private void touchMove(float x, float y) {
-        float dx = Math.abs(x - mX);
-        float dy = Math.abs(y - mY);
-        if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-            mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-            mX = x;
-            mY = y;
-        }
-        if (hanziCharacter != null) {
-            if (hanziCharacter.matchControlPoint(mX, mY, 50.0f)) {
-                Log.i(LOG_TAG, "MATCHED_CONTROL_POINT");
+        if (characterMode != CharacterMode.PRESENTATION) {
+            float dx = Math.abs(x - mX);
+            float dy = Math.abs(y - mY);
+            if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+                mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
+                mX = x;
+                mY = y;
+            }
+            if (hanziCharacter != null) {
+                if (hanziCharacter.matchControlPoint(mX, mY, 50.0f)) {
+                    Log.i(LOG_TAG, "MATCHED_CONTROL_POINT");
+                }
             }
         }
     }
 
     private void touchUp() {
-        if (hanziCharacter != null) {
-            if (hanziCharacter.isMatchedStart() && hanziCharacter.isMatchedControlPoint()) {
-                if (hanziCharacter.matchEnd(mX, mY, 60.0f)) {
-                    Log.i(LOG_TAG, "MATCHED_END");
-                } else {
-                    hanziCharacter.matchReset();
+        if (characterMode != CharacterMode.PRESENTATION) {
+            if (hanziCharacter != null) {
+                if (hanziCharacter.isMatchedStart() && hanziCharacter.isMatchedControlPoint()) {
+                    if (hanziCharacter.matchEnd(mX, mY, 60.0f)) {
+                        Log.i(LOG_TAG, "MATCHED_END");
+                    } else {
+                        hanziCharacter.matchReset();
+                    }
                 }
-            }
-            mPath.lineTo(mX, mY);
-            if (hanziCharacter.isMatched()) {
-                paths.clear();
-            } else {
-                valueMistakeAnimator.start();
+                mPath.lineTo(mX, mY);
+                if (hanziCharacter.isMatched()) {
+                    paths.clear();
+                } else {
+                    valueMistakeAnimator.start();
+                }
             }
         }
     }
@@ -337,13 +358,13 @@ public class LearnStrokesView extends View {
 
         switch(event.getAction()) {
             case MotionEvent.ACTION_DOWN :
-                getBitmapCoords(x, y, pointF);
+                getBitmapCoordinates(x, y, pointF);
                 Log.i(LOG_TAG, "Starting point " + pointF.x + " : " + pointF.y);
                 touchStart(pointF.x, pointF.y);
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE :
-                getBitmapCoords(x, y, pointF);
+                getBitmapCoordinates(x, y, pointF);
                 touchMove(pointF.x, pointF.y);
                 invalidate();
                 break;
@@ -352,12 +373,15 @@ public class LearnStrokesView extends View {
                 invalidate();
                 break;
         }
-
         return true;
     }
 
-    private void setupScaleMatrices() {
+    @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
 
+    private void setupScaleMatrices() {
         // View size.
         float width = this.width;
         float height = this.height;
@@ -378,10 +402,10 @@ public class LearnStrokesView extends View {
         transformMat.setScale(scale, scale);
         transformMat.postTranslate(dx, dy);
         transformMat.invert(inverseTransformMat);
-        setup = true;
+        setup = false;
     }
 
-    private void getBitmapCoords(float x, float y, PointF out) {
+    private void getBitmapCoordinates(float x, float y, @NonNull PointF out) {
         float[] points = new float[2];
         points[0] = x;
         points[1] = y;
@@ -391,62 +415,16 @@ public class LearnStrokesView extends View {
     }
 
     private void initPaints() {
-        fingerPathPaint = new Paint();
-        fingerPathPaint.setAntiAlias(true);
-        fingerPathPaint.setDither(true);
-        fingerPathPaint.setColor(DEFAULT_COLOR);
-        fingerPathPaint.setStyle(Paint.Style.STROKE);
-        fingerPathPaint.setStrokeJoin(Paint.Join.ROUND);
-        fingerPathPaint.setStrokeCap(Paint.Cap.ROUND);
-        fingerPathPaint.setXfermode(null);
-        fingerPathPaint.setAlpha(0xff);
-        fingerPathPaint.setStrokeWidth(BRUSH_SIZE);
-
-        mainPaint = new Paint();
-        mainPaint.setAntiAlias(true);
-        mainPaint.setDither(true);
-        mainPaint.setColor(DEFAULT_COLOR);
-        mainPaint.setStyle(Paint.Style.STROKE);
-        mainPaint.setStrokeJoin(Paint.Join.ROUND);
-        mainPaint.setStrokeCap(Paint.Cap.ROUND);
-        mainPaint.setXfermode(null);
-        mainPaint.setAlpha(0xff);
-        mainPaint.setStrokeWidth(BRUSH_SIZE);
-
-        sketchPaint = new Paint();
-        sketchPaint.setAntiAlias(true);
-        sketchPaint.setDither(true);
-        sketchPaint.setColor(Color.GRAY);
-        sketchPaint.setStyle(Paint.Style.STROKE);
-        sketchPaint.setStrokeJoin(Paint.Join.ROUND);
-        sketchPaint.setStrokeCap(Paint.Cap.ROUND);
-        sketchPaint.setXfermode(null);
-        sketchPaint.setAlpha(0xff);
-        sketchPaint.setStrokeWidth(5.0f);
-
-        gridPaint = new Paint();
-        gridPaint.setAntiAlias(true);
-        gridPaint.setDither(true);
-        gridPaint.setColor(Color.parseColor("#666666"));
-        gridPaint.setStyle(Paint.Style.STROKE);
-        gridPaint.setStrokeJoin(Paint.Join.ROUND);
-        gridPaint.setStrokeCap(Paint.Cap.ROUND);
-        gridPaint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 5f));
-        gridPaint.setXfermode(null);
-        gridPaint.setAlpha(0xff);
-        gridPaint.setStrokeWidth(1.0f);
-
-        gridThinPaint = new Paint();
-        gridThinPaint.setAntiAlias(true);
-        gridThinPaint.setDither(true);
-        gridThinPaint.setColor(Color.parseColor("#555555"));
-        gridThinPaint.setStyle(Paint.Style.STROKE);
-        gridThinPaint.setStrokeJoin(Paint.Join.ROUND);
-        gridThinPaint.setStrokeCap(Paint.Cap.ROUND);
-        gridThinPaint.setPathEffect(new DashPathEffect(new float[]{10, 10}, 5f));
-        gridThinPaint.setXfermode(null);
-        gridThinPaint.setAlpha(0xff);
-        gridThinPaint.setStrokeWidth(0.2f);
+        fingerPathPaint = getPaint(DEFAULT_COLOR, BRUSH_SIZE, false);
+        mainPaint = getPaint(DEFAULT_COLOR, BRUSH_SIZE, false);
+        sketchPaint = getPaint(Color.GRAY, 5.0f, false);
+        gridPaint = getPaint(getColor(getContext(), R.color.grid_color), 1.0f, true);
+        gridThinPaint = getPaint(getColor(getContext(), R.color.grid_color), 0.4f, true);
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        setMeasuredDimension(width, height);
+    }
 }

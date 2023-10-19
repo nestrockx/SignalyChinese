@@ -27,7 +27,7 @@ public class MainViewModel extends AndroidViewModel {
     public MutableLiveData<List<String>> mCharactersList = new MutableLiveData<>();
     public MutableLiveData<List<String>> mDictionaryResultsList = new MutableLiveData<>();
     public MutableLiveData<List<String[]>> mRadicalsList = new MutableLiveData<>();
-    private DictionaryRepository mDictionaryRepository;
+    private final DictionaryRepository mDictionaryRepository;
 
     public MainViewModel(Application application) {
         super(application);
@@ -59,12 +59,12 @@ public class MainViewModel extends AndroidViewModel {
         return mDictionaryRepository.searchByWordPL(searchQuery);
     }
 
-    public LiveData<List<Dictionary>> getAllWords() {
-        return mDictionaryRepository.getAllWords();
-    }
-
     public String getResult(int index) {
-        return mDictionaryResultsList.getValue().get(index);
+        if (mDictionaryResultsList.getValue() != null) {
+            return mDictionaryResultsList.getValue().get(index);
+        } else {
+            return null;
+        }
     }
 
     public void updateResults(List<String> searchResults) {
@@ -72,9 +72,11 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void addToCharacterList(String text) {
-        List<String> characterListCopy = new ArrayList<>(mCharactersList.getValue());
-        characterListCopy.add(text);
-        mCharactersList.setValue(characterListCopy);
+        if (mCharactersList.getValue() != null) {
+            List<String> characterListCopy = new ArrayList<>(mCharactersList.getValue());
+            characterListCopy.add(text);
+            mCharactersList.setValue(characterListCopy);
+        }
     }
 
     public void clearCharacterList() {
@@ -86,27 +88,43 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public int getCursorPosition() {
-        return mCursorPosition.getValue();
+        if (mCursorPosition.getValue() != null) {
+            return mCursorPosition.getValue();
+        } else {
+            return -1;
+        }
     }
 
     public void addVisibleStroke(Path path) {
-        ArrayList<Path> visibleStrokesHistoryCopy = new ArrayList<>(mVisibleStrokesHistory.getValue());
-        visibleStrokesHistoryCopy.add(path);
-        mVisibleStrokesHistory.setValue(visibleStrokesHistoryCopy);
+        if (mVisibleStrokesHistory.getValue() != null) {
+            ArrayList<Path> visibleStrokesHistoryCopy = new ArrayList<>(mVisibleStrokesHistory.getValue());
+            visibleStrokesHistoryCopy.add(path);
+            mVisibleStrokesHistory.setValue(visibleStrokesHistoryCopy);
+        }
     }
 
     public void removeVisibleStroke(int index) {
-        ArrayList<Path> visibleStrokesHistoryCopy = new ArrayList<>(mVisibleStrokesHistory.getValue());
-        visibleStrokesHistoryCopy.remove(index);
-        mVisibleStrokesHistory.setValue(visibleStrokesHistoryCopy);
+        if (mVisibleStrokesHistory.getValue() != null) {
+            ArrayList<Path> visibleStrokesHistoryCopy = new ArrayList<>(mVisibleStrokesHistory.getValue());
+            visibleStrokesHistoryCopy.remove(index);
+            mVisibleStrokesHistory.setValue(visibleStrokesHistoryCopy);
+        }
     }
 
     public int getVisibleStrokeSize() {
-        return mVisibleStrokesHistory.getValue().size();
+        if (mVisibleStrokesHistory.getValue() != null) {
+            return mVisibleStrokesHistory.getValue().size();
+        } else {
+            return -1;
+        }
     }
 
     public Path getVisibleStroke(int index) {
-        return mVisibleStrokesHistory.getValue().get(index);
+        if (mVisibleStrokesHistory.getValue() != null) {
+            return mVisibleStrokesHistory.getValue().get(index);
+        } else {
+            return null;
+        }
     }
 
     public void clearVisibleStrokes() {
@@ -142,7 +160,11 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public Ink inkBuilderBuild() {
-        return mInkBuilder.getValue().build();
+        if (mInkBuilder.getValue() != null) {
+            return mInkBuilder.getValue().build();
+        } else {
+            return null;
+        }
     }
 
     public void addInkBuilderStroke(Ink.Stroke stroke) {
@@ -156,13 +178,19 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void removeFromStrokesHistory(int index) {
-        ArrayList<Ink.Stroke.Builder> strokesHistoryCopy = new ArrayList<>(mStrokesHistory.getValue());
-        strokesHistoryCopy.remove(index);
-        mStrokesHistory.setValue(strokesHistoryCopy);
+        if (mStrokesHistory.getValue() != null) {
+            ArrayList<Ink.Stroke.Builder> strokesHistoryCopy = new ArrayList<>(mStrokesHistory.getValue());
+            strokesHistoryCopy.remove(index);
+            mStrokesHistory.setValue(strokesHistoryCopy);
+        }
     }
 
     public int getStrokesHistorySize() {
-        return mStrokesHistory.getValue().size();
+        if (mStrokesHistory.getValue() != null) {
+            return mStrokesHistory.getValue().size();
+        } else {
+            return -1;
+        }
     }
 
     public void clearStrokesHistory() {
@@ -170,13 +198,19 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void addToStrokesHistory(Ink.Stroke.Builder strokeBuilder) {
-        ArrayList<Ink.Stroke.Builder> strokesHistoryCopy = new ArrayList<>(mStrokesHistory.getValue());
-        strokesHistoryCopy.add(strokeBuilder);
-        mStrokesHistory.setValue(strokesHistoryCopy);
+        if (mStrokesHistory.getValue() != null) {
+            ArrayList<Ink.Stroke.Builder> strokesHistoryCopy = new ArrayList<>(mStrokesHistory.getValue());
+            strokesHistoryCopy.add(strokeBuilder);
+            mStrokesHistory.setValue(strokesHistoryCopy);
+        }
     }
 
     public Ink.Stroke strokeHistoryBuild(int index) {
-        return mStrokesHistory.getValue().get(index).build();
+        if (mStrokesHistory.getValue() != null) {
+            return mStrokesHistory.getValue().get(index).build();
+        } else {
+            return null;
+        }
     }
 
     public Ink.Stroke.Builder getmStrokeBuilder() {
@@ -184,7 +218,11 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public Ink.Stroke strokeBuilderBuild() {
-        return mStrokeBuilder.getValue().build();
+        if (mStrokeBuilder.getValue() != null) {
+            return mStrokeBuilder.getValue().build();
+        } else {
+            return null;
+        }
     }
 
     public void addStrokeBuilderPoint(Ink.Point point) {
@@ -201,13 +239,8 @@ public class MainViewModel extends AndroidViewModel {
         mStrokeBuilder.setValue(Ink.Stroke.builder());
     }
 
-    public List<String[]> getRadicalsList() {
-        return mRadicalsList.getValue();
-    }
-
     public void setRadicalsList(List<String[]> radicalsParentModels) {
         mRadicalsList.postValue(radicalsParentModels);
     }
-
 
 }

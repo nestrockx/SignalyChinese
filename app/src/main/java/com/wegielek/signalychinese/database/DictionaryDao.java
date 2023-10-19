@@ -20,7 +20,7 @@ public interface DictionaryDao {
             "WHERE traditional_sign LIKE :searchQuery || '%' OR simplified_sign LIKE :searchQuery || '%' ORDER BY LENGTH(traditional_sign) ASC")
     LiveData<List<Dictionary>> searchByWordCH(String searchQuery);
 
-    @Query("SELECT * FROM dictionary WHERE translation LIKE :searchQuery || ' %' OR translation LIKE '%/ ' || :searchQuery || ' %' OR pronunciation_phonetic LIKE :searchQuery || ' %' ORDER BY LENGTH(traditional_sign) ASC")
+    @Query("SELECT * FROM dictionary WHERE translation LIKE :searchQuery || ' %' OR translation LIKE '%/ ' || :searchQuery || ' %' OR translation LIKE '%) ' || :searchQuery || ' %' OR translation LIKE '%. ' || :searchQuery || ' %' OR pronunciation_phonetic LIKE :searchQuery || ' %' ORDER BY LENGTH(traditional_sign) ASC")
     LiveData<List<Dictionary>> searchByWordPL(String searchQuery);
 
 }

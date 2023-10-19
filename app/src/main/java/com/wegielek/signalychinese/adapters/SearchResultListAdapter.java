@@ -42,7 +42,7 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String inputString = dataList.get(position);
 
         List<String> list = Arrays.asList(inputString.split("/"));

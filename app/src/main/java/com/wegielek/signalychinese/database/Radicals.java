@@ -12,9 +12,9 @@ public class Radicals {
 
     @NonNull
     @ColumnInfo(name = "section")
-    public String section;
+    public String section = "";
 
     @NonNull
     @ColumnInfo(name = "radicals")
-    public String radicals;
+    public String radicals = "";
 }

@@ -1,6 +1,5 @@
 package com.wegielek.signalychinese.views;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
@@ -21,6 +20,8 @@ import java.util.Locale;
 
 public class DefinitionWordActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = "DefinitionWordActivity";
+
     private ActivityDefinitionWordBinding mBinding;
     private TextToSpeech mTts;
     public DefinitionViewModel mDefinitionViewModel;
@@ -33,16 +34,22 @@ public class DefinitionWordActivity extends AppCompatActivity {
         mDefinitionViewModel = new ViewModelProvider(this).get(DefinitionViewModel.class);
         mBinding.executePendingBindings();
 
+        String word = getIntent().getStringExtra("word");
+
         Toolbar myToolbar = findViewById(R.id.settingsToolbar);
         setSupportActionBar(myToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        String word = getIntent().getStringExtra("word");
-        mDefinitionViewModel.setWord(word);
-
-        getSupportActionBar().setTitle(word.split("/")[1]);
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            if (word != null) {
+                getSupportActionBar().setTitle(word.split("/")[1]);
+                mDefinitionViewModel.setWord(word);
+            } else {
+                Log.e(LOG_TAG, "Word definition is null in onCreate");
+            }
+        } else {
+            Log.e(LOG_TAG, "Support action bar is null in onCreate");
+        }
 
         mTts = new TextToSpeech(this, status -> {
             if (status == TextToSpeech.SUCCESS) {
@@ -58,11 +65,13 @@ public class DefinitionWordActivity extends AppCompatActivity {
             }
         });
 
-
         mBinding.speakBtn.setOnClickListener(v -> {
-            mTts.speak(word.split("/")[0], TextToSpeech.QUEUE_FLUSH, null, null);
+            if (word != null) {
+                mTts.speak(word.split("/")[0], TextToSpeech.QUEUE_FLUSH, null, null);
+            } else {
+                Log.e(LOG_TAG, "Word definition is null in speakBtn.onClick");
+            }
         });
-
 
         NavHostFragment dictionaryWordNavHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.dictionaryWordNavHostFragment);
         if (dictionaryWordNavHostFragment != null) {
@@ -78,19 +87,19 @@ public class DefinitionWordActivity extends AppCompatActivity {
             });
         }
 
-        mBinding.definitionCharactersTv.setText(getString(R.string.result_text_placeholder_1, word.split("/")[0], word.split("/")[1]));
-        mBinding.definitionPronunciationTv.setText(word.split("/")[2]);
-
-
-
+        if (word != null) {
+            mBinding.definitionCharactersTv.setText(getString(R.string.result_text_placeholder_1, word.split("/")[0], word.split("/")[1]));
+            mBinding.definitionPronunciationTv.setText(word.split("/")[2]);
+        } else {
+            Log.e(LOG_TAG, "Word definition is null in onCreate");
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

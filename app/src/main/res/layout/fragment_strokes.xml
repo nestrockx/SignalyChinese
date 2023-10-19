@@ -9,8 +9,8 @@
 
         <com.wegielek.signalychinese.views.LearnStrokesView
             android:id="@+id/learnStrokesView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
@@ -21,6 +21,41 @@
             app:layout_constraintTop_toTopOf="parent">
 
         </com.wegielek.signalychinese.views.LearnStrokesView>
+
+        <Button
+            android:id="@+id/testBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Test"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/learnCBtn"
+            app:layout_constraintTop_toBottomOf="@+id/learnStrokesView" />
+
+        <Button
+            android:id="@+id/learnCBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Learn"
+            app:layout_constraintEnd_toStartOf="@+id/testBtn"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/presentBtn"
+            app:layout_constraintTop_toBottomOf="@+id/learnStrokesView" />
+
+        <Button
+            android:id="@+id/presentBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Present"
+            app:layout_constraintEnd_toStartOf="@+id/learnCBtn"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/learnStrokesView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

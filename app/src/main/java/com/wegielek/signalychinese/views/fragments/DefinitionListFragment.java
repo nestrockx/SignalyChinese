@@ -31,7 +31,7 @@ public class DefinitionListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mBinding = FragmentDefinitionListBinding.inflate(inflater, container, false);
         return mBinding.getRoot();
@@ -42,13 +42,14 @@ public class DefinitionListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         DefinitionViewModel definitionViewModel = new ViewModelProvider(requireActivity()).get(DefinitionViewModel.class);
-        definitionViewModel.word.observe(getViewLifecycleOwner(), s -> {
-            mDefinitionListAdapter.setData(Arrays.asList(Arrays.copyOfRange(s.split("/"), 4, s.split("/").length)));
-        });
+        definitionViewModel.word.observe(getViewLifecycleOwner(), s ->
+                mDefinitionListAdapter.setData(Arrays.asList(Arrays.copyOfRange(s.split("/"), 4, s.split("/").length))));
 
         mBinding.definitionListRv.setLayoutManager(new LinearLayoutManager(getContext()));
         mDefinitionListAdapter = new DefinitionListAdapter(getContext());
         mBinding.definitionListRv.setAdapter(mDefinitionListAdapter);
+
+
 
         onBackPressed();
     }

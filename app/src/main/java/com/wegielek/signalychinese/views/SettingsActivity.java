@@ -4,11 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.wegielek.signalychinese.R;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private static final String LOG_TAG = "SettingsActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,10 +21,13 @@ public class SettingsActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.settingsToolbar);
         setSupportActionBar(myToolbar);
         myToolbar.setTitleTextColor(getColor(R.color.white));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setTitle("Settings");
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setTitle("Settings");
+        } else {
+            Log.e(LOG_TAG, "Support action bar is null in onCreate");
+        }
     }
 
     @Override
@@ -32,12 +38,10 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

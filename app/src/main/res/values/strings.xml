@@ -11,5 +11,6 @@
 
     <string name="result_text_placeholder_1" translatable="false">%1$s (%2$s)</string>
     <string name="definition_list_item_placeholder" translatable="false">%1$d %2$s</string>
+    <string name="search_text_box_append_placeholder" translatable="false">%1$s%2$s</string>
 
 </resources>

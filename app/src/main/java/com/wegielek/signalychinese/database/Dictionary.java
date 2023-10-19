@@ -12,21 +12,21 @@ public class Dictionary {
 
     @NonNull
     @ColumnInfo(name = "traditional_sign")
-    public String traditionalSign;
+    public String traditionalSign = "";
 
     @NonNull
     @ColumnInfo(name = "simplified_sign")
-    public String simplifiedSign;
+    public String simplifiedSign = "";
 
     @NonNull
     @ColumnInfo(name = "pronunciation")
-    public String pronunciation;
+    public String pronunciation = "";
 
     @NonNull
     @ColumnInfo(name = "pronunciation_phonetic")
-    public String pronunciationPhonetic;
+    public String pronunciationPhonetic = "";
 
     @NonNull
     @ColumnInfo(name = "translation")
-    public String translation;
+    public String translation = "";
 }

@@ -1,5 +1,6 @@
 package com.wegielek.signalychinese.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -22,8 +23,7 @@ public class RadicalsAdapter extends RecyclerView.Adapter<RadicalsAdapter.ViewHo
 
     private final Context context;
     private final List<String[]> dataList;
-
-    private RadicalsRecyclerViewListener radicalsRecyclerViewListener;
+    private final RadicalsRecyclerViewListener radicalsRecyclerViewListener;
 
     public RadicalsAdapter (Context context, RadicalsRecyclerViewListener radicalsRecyclerViewListener) {
         this.context = context;
@@ -31,6 +31,7 @@ public class RadicalsAdapter extends RecyclerView.Adapter<RadicalsAdapter.ViewHo
         this.radicalsRecyclerViewListener = radicalsRecyclerViewListener;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setData(List<String[]> dataList) {
         this.dataList.clear();
         this.dataList.addAll(dataList);
@@ -57,9 +58,10 @@ public class RadicalsAdapter extends RecyclerView.Adapter<RadicalsAdapter.ViewHo
             textView.setOnTouchListener((v, event) -> {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        v.setBackgroundColor(context.getColor(R.color.blueish));
+                        v.setBackgroundColor(context.getColor(R.color.selection_blue));
                         break;
                     case MotionEvent.ACTION_UP:
+                        v.performClick();
                         v.setBackgroundColor(Color.TRANSPARENT);
                         radicalsRecyclerViewListener.onRadicalClicked(dataList.get(position)[finalI]);
                         break;
@@ -69,6 +71,8 @@ public class RadicalsAdapter extends RecyclerView.Adapter<RadicalsAdapter.ViewHo
                 }
                 return true;
             });
+
+
             holder.flexboxLayout.addView(textView);
         }
     }
@@ -77,7 +81,6 @@ public class RadicalsAdapter extends RecyclerView.Adapter<RadicalsAdapter.ViewHo
     public int getItemCount() {
         return dataList.size();
     }
-
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 

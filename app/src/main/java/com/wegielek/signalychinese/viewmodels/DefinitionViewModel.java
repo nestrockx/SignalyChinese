@@ -18,8 +18,4 @@ public class DefinitionViewModel extends AndroidViewModel {
     public void setWord(String word) {
         this.word.setValue(word);
     }
-
-    public String getWord() {
-        return word.getValue();
-    }
 }
