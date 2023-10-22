@@ -1,6 +1,6 @@
 # SignalyChinese
 
-## In development
+# Dictionary database excluded from repo
 
 <p>
   Chinese-Polish dictionaryModel app with easy character search.
