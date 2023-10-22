@@ -15,4 +15,5 @@
 <br>
 <img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/1b029a03-b741-4bd8-8328-f5ce023e37c6" width="400">
 <br>
-<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/46660080-0b52-4ceb-9972-7b12c9672e77" width="400">
+<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/2a0785da-d87c-464d-93cd-900136374432" width="400">
+
