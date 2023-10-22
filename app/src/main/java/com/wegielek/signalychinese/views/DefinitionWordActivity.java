@@ -1,5 +1,6 @@
 package com.wegielek.signalychinese.views;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
@@ -7,10 +8,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+
 import com.wegielek.signalychinese.R;
 import com.wegielek.signalychinese.databinding.ActivityDefinitionWordBinding;
 import com.wegielek.signalychinese.viewmodels.DefinitionViewModel;
@@ -66,6 +74,38 @@ public class DefinitionWordActivity extends AppCompatActivity {
         });
 
         mBinding.speakBtn.setOnClickListener(v -> {
+            /*
+            Intent intent = new Intent();
+            intent.setAction("com.android.settings.TTS_SETTINGS");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+             */
+            ////
+            View dialogTtsView = LayoutInflater.from(DefinitionWordActivity.this).inflate(R.layout.dialog_tts, null);
+            AlertDialog.Builder dialogTtsBuilder = new AlertDialog.Builder(DefinitionWordActivity.this);
+            dialogTtsBuilder.setView(dialogTtsView);
+            final AlertDialog dialogTts = dialogTtsBuilder.create();
+            dialogTts.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialogTts.show();
+
+            Button dialogPronunciationButton = dialogTtsView.findViewById(R.id.dialogPronunciationBtn);
+            dialogPronunciationButton.setOnClickListener(v1 -> {
+                if (word != null) {
+                    mTts.speak(word.split("/")[0], TextToSpeech.QUEUE_FLUSH, null, null);
+                } else {
+                    Log.e(LOG_TAG, "Word definition is null in speakBtn.onClick");
+                }
+            });
+
+            Button dialogSettingsBtn = dialogTtsView.findViewById(R.id.dialogSettingsBtn);
+            dialogSettingsBtn.setOnClickListener(v12 -> {
+                Intent installIntent = new Intent();
+                installIntent.setAction(
+                        TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+            });
+
+
             if (word != null) {
                 mTts.speak(word.split("/")[0], TextToSpeech.QUEUE_FLUSH, null, null);
             } else {

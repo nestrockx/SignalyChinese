@@ -51,12 +51,14 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     private final Handler mSearchHandler = new Handler();
 
-    private StateUI mStateUI = StateUI.DRAW;
     private SuggestedCharacterListAdapter mSuggestedCharacterListAdapter;
     private SearchResultListAdapter mSearchResultsListAdapter;
     private RadicalsAdapter mRadicalsAdapter;
+    private StateUI mStateUI = StateUI.DRAW;
     private ActivityMainBinding mBinding;
     private MainViewModel mMainViewModel;
+
+    private boolean mRadicalChosen = false;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
@@ -89,14 +91,14 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         }
         setStateUI(mStateUI);
 
-        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
         mBinding.radicalsBackBtn.setOnClickListener(v -> mMainViewModel.getSection("0").observe(this, radicals -> {
             List<String[]> radicalsList = new ArrayList<>();
             for (int i = 0; i < radicals.size(); i++) {
                 radicalsList.add(radicals.get(i).radicals.split(" "));
             }
             mMainViewModel.setRadicalsList(radicalsList);
-            mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+            mRadicalChosen = false;
+            setStateUI(StateUI.PUZZLE);
             getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
                 @Override
                 public void handleOnBackPressed() {
@@ -134,13 +136,11 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mBinding.searchBtn.setOnClickListener(v -> performSearch(true));
 
         mBinding.puzzleBtn.setOnClickListener(view -> {
-            mStateUI = StateUI.PUZZLE;
-            setStateUI(mStateUI);
+            setStateUI(StateUI.PUZZLE);
         });
 
         mBinding.drawBtn.setOnClickListener(view -> {
-            mStateUI = StateUI.DRAW;
-            setStateUI(mStateUI);
+            setStateUI(StateUI.DRAW);
         });
         
         mBinding.backspaceBtn.setOnClickListener(view -> {
@@ -148,12 +148,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                 mBinding.searchTextBox.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                 mMainViewModel.setCursorPosition(mBinding.searchTextBox.getSelectionEnd());
 
-                if (mStateUI == StateUI.RESULTS || mBinding.searchTextBox.getText().length() <= 0) {
-                    mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_draw_active, getTheme()));
-                    mBinding.resultsRv.setVisibility(View.INVISIBLE);
-                    mBinding.characterDrawCanvas.setVisibility(View.VISIBLE);
-                    mBinding.labelTv.setText(getString(R.string.drawing_mode));
-                    mStateUI = StateUI.DRAW;
+                if (mBinding.searchTextBox.getText().length() <= 0) {
+                    setStateUI(StateUI.DRAW);
                 }
 
                 mBinding.doneBtn.setVisibility(View.INVISIBLE);
@@ -211,51 +207,62 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             mBinding.searchTextBox.postDelayed(() ->
                     performSearch(true),
                     1000);
-        } else {
+        } else if (stateUI == StateUI.PUZZLE){
             setPuzzleUI();
         }
     }
 
     private void setDrawUI() {
+        mStateUI = StateUI.DRAW;
         mBinding.labelTv.setText(getString(R.string.drawing_mode));
         mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.ic_draw_active, getTheme()));
         mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.ic_puzzle_default, getTheme()));
-        mBinding.charactersRv.setVisibility(View.VISIBLE);
-        mBinding.characterDrawCanvas.setVisibility(View.VISIBLE);
-        mBinding.resultsRv.setVisibility(View.INVISIBLE);
-        mBinding.radicalsRv.setVisibility(View.INVISIBLE);
         mBinding.undoBtn.setVisibility(View.VISIBLE);
         mBinding.doneBtn.setVisibility(View.INVISIBLE);
+        mBinding.resultsRv.setVisibility(View.INVISIBLE);
+        mBinding.radicalsRv.setVisibility(View.INVISIBLE);
+        mBinding.charactersRv.setVisibility(View.VISIBLE);
+        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+        mBinding.characterDrawCanvas.setVisibility(View.VISIBLE);
     }
 
     private void setResultsUI() {
+        mStateUI = StateUI.RESULTS;
         mBinding.labelTv.setText(getString(R.string.searching_mode));
         mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.ic_draw_default, getTheme()));
         mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.ic_puzzle_default, getTheme()));
-        mBinding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-        mBinding.charactersRv.setVisibility(View.INVISIBLE);
-        mBinding.doneBtn.setVisibility(View.INVISIBLE);
         mBinding.resultsRv.setVisibility(View.VISIBLE);
+        mBinding.doneBtn.setVisibility(View.INVISIBLE);
         mBinding.undoBtn.setVisibility(View.INVISIBLE);
         mBinding.radicalsRv.setVisibility(View.INVISIBLE);
+        mBinding.charactersRv.setVisibility(View.INVISIBLE);
+        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+        mBinding.characterDrawCanvas.setVisibility(View.INVISIBLE);
     }
 
     private void setPuzzleUI() {
+        mStateUI = StateUI.PUZZLE;
         mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.ic_puzzle_active, getTheme()));
         mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
                 R.drawable.ic_draw_default, getTheme()));
         mBinding.labelTv.setText(getString(R.string.puzzle_mode));
-        mBinding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-        mBinding.resultsRv.setVisibility(View.INVISIBLE);
-        mBinding.undoBtn.setVisibility(View.INVISIBLE);
         mBinding.radicalsRv.setVisibility(View.VISIBLE);
+        mBinding.undoBtn.setVisibility(View.INVISIBLE);
         mBinding.doneBtn.setVisibility(View.INVISIBLE);
+        mBinding.resultsRv.setVisibility(View.INVISIBLE);
         mBinding.charactersRv.setVisibility(View.INVISIBLE);
+        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+        mBinding.characterDrawCanvas.setVisibility(View.INVISIBLE);
+        if (mRadicalChosen) {
+            mBinding.radicalsBackBtn.setVisibility(View.VISIBLE);
+        } else {
+            mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void loadRadicals() {
@@ -269,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     }
 
     private void performSearch(boolean hideKeyboard) {
-        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
 
         String inputTextString;
         if (mBinding.searchTextBox.getText() != null) {
@@ -323,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         if (searchResults.size() > 0) {
             mMainViewModel.updateResults(searchResults);
 
-            mStateUI = StateUI.RESULTS;
             setResultsUI();
             if (hideKeyboard) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -406,32 +411,34 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
                     radicalsList.add(radicals.get(i).radicals.split(" "));
                }
                mMainViewModel.setRadicalsList(radicalsList);
-               mBinding.radicalsBackBtn.setVisibility(View.VISIBLE);
-            } else {
-                mBinding.searchTextBox.append(radical);
-            }
-        });
-        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                mMainViewModel.getSection("0").observe(MainActivity.this, radicals -> {
-                    if(radicals.size() > 0) {
-                        List<String[]> radicalsList = new ArrayList<>();
-                        for (int i = 0; i < radicals.size(); i++) {
-                            radicalsList.add(radicals.get(i).radicals.split(" "));
-                        }
-                        mMainViewModel.setRadicalsList(radicalsList);
-                        mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
-                    } else {
-                        mBinding.searchTextBox.append(radical);
-                    }
-                });
+
+               mRadicalChosen = true;
+               setStateUI(StateUI.PUZZLE);
+
                 getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
                     @Override
                     public void handleOnBackPressed() {
-                        finish();
+                        mMainViewModel.getSection("0").observe(MainActivity.this, radicals -> {
+                            if(radicals.size() > 0) {
+                                List<String[]> radicalsList = new ArrayList<>();
+                                for (int i = 0; i < radicals.size(); i++) {
+                                    radicalsList.add(radicals.get(i).radicals.split(" "));
+                                }
+                                mMainViewModel.setRadicalsList(radicalsList);
+                                mRadicalChosen = false;
+                                setStateUI(StateUI.PUZZLE);
+                            }
+                        });
+                        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+                            @Override
+                            public void handleOnBackPressed() {
+                                finish();
+                            }
+                        });
                     }
                 });
+            } else {
+                mBinding.searchTextBox.append(radical);
             }
         });
     }
