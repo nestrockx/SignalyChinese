@@ -11,6 +11,8 @@
 
     <string name="settings">Ustawienia</string>
     <string name="do_not_show_again">Nie pokazuj ponownie</string>
+    <string name="definition">Definicja</string>
+    <string name="strokes">Kreski</string>
 
     <string name="tts_dialog_message">Naciśnij głośnik. Jeśli nic nie słyszysz wejdź w ustawienia i pobierz dane języka chińskiego</string>
 </resources>
