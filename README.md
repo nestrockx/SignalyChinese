@@ -1,8 +1,8 @@
 # SignalyChinese
 
 <p>
-  Dictionary database excluded from repo.
   Chinese-Polish dictionaryModel app with easy character search.
+  Dictionary database excluded from repo. <br>
 </p>
 <img src="https://github.com/nestrockx/SignalyChinese/assets/72703958/910b00d4-2fcc-45c2-a7b0-82554ab903bd" width="400">
 <br>
