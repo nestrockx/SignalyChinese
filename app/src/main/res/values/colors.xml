@@ -6,17 +6,26 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
 
-    <color name="black">#FF000000</color>
+    <color name="dark_mode_black">#FF000000</color>
     <color name="grey">#333333</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="dark_mode_white">#FFFFFFFF</color>
     <color name="canvas_background">#131313</color>
+
     <color name="mistake">#FFB60000</color>
     <color name="mistake_fade">#00B60000</color>
+
     <color name="success">#009B19</color>
-    <color name="blueish">#3F51B5</color>
-    <color name="blues">#2196F3</color>
-    <color name="selection_blue">#0055CC</color>
+    <color name="backspace_color">#FFB60000</color>
+    <color name="flash_card_green">#1B5E20</color>
+    <color name="active_state_color">#508B0C</color>
+    <color name="greenish">#4CAF50</color>
+    <color name="selection_color">#4CAF50</color>
     <color name="grid_color">#666666</color>
 
-    <color name="pink">#C799F4</color>
+    <color name="button_grey_base">#181819</color>
+    <color name="button_grey_ripple">#4F4F53</color>
+
+    <color name="pink">#CDA6F3</color>
+
+
 </resources>

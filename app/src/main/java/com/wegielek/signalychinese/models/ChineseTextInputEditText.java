@@ -5,12 +5,12 @@ import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatEditText;
 
-import com.google.android.material.textfield.TextInputEditText;
 import com.wegielek.signalychinese.interfaces.SearchTextBoxListener;
 
 
-public class ChineseTextInputEditText extends TextInputEditText {
+public class ChineseTextInputEditText extends AppCompatEditText {
 
     private SearchTextBoxListener mListener;
 
@@ -20,6 +20,7 @@ public class ChineseTextInputEditText extends TextInputEditText {
 
     public ChineseTextInputEditText(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        //setBackgroundTintList(context.getColorStateList(R.color.selector_edit_text));
     }
 
     public ChineseTextInputEditText(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -40,6 +41,7 @@ public class ChineseTextInputEditText extends TextInputEditText {
 
         super.onSelectionChanged(selStart, selEnd);
     }
+
 
 
 }

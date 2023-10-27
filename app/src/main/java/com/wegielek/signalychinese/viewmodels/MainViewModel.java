@@ -1,7 +1,9 @@
 package com.wegielek.signalychinese.viewmodels;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.graphics.Path;
+import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -10,11 +12,15 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.mlkit.vision.digitalink.Ink;
 import com.wegielek.signalychinese.database.Dictionary;
 import com.wegielek.signalychinese.database.Radicals;
+import com.wegielek.signalychinese.database.SearchHistory;
 import com.wegielek.signalychinese.repository.DictionaryRepository;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class MainViewModel extends AndroidViewModel {
 
@@ -27,6 +33,8 @@ public class MainViewModel extends AndroidViewModel {
     public MutableLiveData<List<String>> mCharactersList = new MutableLiveData<>();
     public MutableLiveData<List<String>> mDictionaryResultsList = new MutableLiveData<>();
     public MutableLiveData<List<String[]>> mRadicalsList = new MutableLiveData<>();
+    public MutableLiveData<Boolean> mIsRadicalChosen = new MutableLiveData<>();
+    public MutableLiveData<String> mRadicalChosenCharacter = new MutableLiveData<>();
     private final DictionaryRepository mDictionaryRepository;
 
     public MainViewModel(Application application) {
@@ -40,11 +48,14 @@ public class MainViewModel extends AndroidViewModel {
         mVisibleStrokesHistory.setValue(new ArrayList<>());
         mCurrentVisibleStroke.setValue(new Path());
         mCursorPosition.setValue(0);
+        mRadicalChosenCharacter.setValue("0");
         mRadicalsList.setValue(new ArrayList<>());
+        mIsRadicalChosen.setValue(false);
     }
 
-    public LiveData<List<Radicals>> getSection(String section) {
-        return mDictionaryRepository.getSection(section);
+    public LiveData<List<Radicals>> getRadicalsSection(String section) {
+        setRadicalChosenCharacter(section);
+        return mDictionaryRepository.getRadicalsSection(section);
     }
 
     public LiveData<List<Dictionary>> searchSingleCH(String searchQuery) {
@@ -59,12 +70,48 @@ public class MainViewModel extends AndroidViewModel {
         return mDictionaryRepository.searchByWordPL(searchQuery);
     }
 
+    public String getRadicalChosenCharacter() {
+        return mRadicalChosenCharacter.getValue();
+    }
+
+    public void setRadicalChosenCharacter(String radicalChosenCharacter) {
+        mRadicalChosenCharacter.setValue(radicalChosenCharacter);
+    }
+
     public String getResult(int index) {
         if (mDictionaryResultsList.getValue() != null) {
+            String word = mDictionaryResultsList.getValue().get(index);
+
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf =
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            String ts = sdf.format(timestamp);
+            Log.i("TIME", ts);
+            SearchHistory searchHistory = new SearchHistory();
+            searchHistory.time = ts;
+            searchHistory.traditionalSign = word.split("/")[0];
+            searchHistory.simplifiedSign = word.split("/")[1];
+            searchHistory.pronunciation = word.split("/")[2];
+            searchHistory.pronunciationPhonetic = word.split("/")[3];
+            int x = word.split("/")[0].length() + word.split("/")[1].length()
+                    + word.split("/")[2].length() + word.split("/")[3].length() + 4;
+            searchHistory.translation = word.substring(x);
+            mDictionaryRepository.addHistoryRecord(searchHistory).addListener(() ->
+                    Log.d("MainViewModel", "History record added successfully"), Executors.newSingleThreadExecutor()
+            );
+
             return mDictionaryResultsList.getValue().get(index);
         } else {
             return null;
         }
+    }
+
+    public void setRadicalChosen(Boolean isRadicalChosen) {
+        mIsRadicalChosen.setValue(isRadicalChosen);
+    }
+
+    public Boolean getRadicalChosen() {
+        return mIsRadicalChosen.getValue();
     }
 
     public void updateResults(List<String> searchResults) {

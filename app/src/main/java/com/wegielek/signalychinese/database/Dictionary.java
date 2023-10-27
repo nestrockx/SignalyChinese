@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 
 @Entity
 public class Dictionary {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     public int uid;
 
     @NonNull

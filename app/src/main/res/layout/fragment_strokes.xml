@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.wegielek.signalychinese.views.LearnStrokesView
-            android:id="@+id/learnStrokesView"
+        <com.wegielek.signalychinese.views.LearnStrokesCanvasView
+            android:id="@+id/learnStrokesCanvasView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -20,9 +19,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        </com.wegielek.signalychinese.views.LearnStrokesView>
+        </com.wegielek.signalychinese.views.LearnStrokesCanvasView>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/testBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,9 +31,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/learnCBtn"
-            app:layout_constraintTop_toBottomOf="@+id/learnStrokesView" />
+            app:layout_constraintTop_toBottomOf="@+id/learnStrokesCanvasView" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/learnCBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,9 +42,9 @@
             app:layout_constraintEnd_toStartOf="@+id/testBtn"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/presentBtn"
-            app:layout_constraintTop_toBottomOf="@+id/learnStrokesView" />
+            app:layout_constraintTop_toBottomOf="@+id/learnStrokesCanvasView" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/presentBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,7 +54,7 @@
             app:layout_constraintEnd_toStartOf="@+id/learnCBtn"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/learnStrokesView" />
+            app:layout_constraintTop_toBottomOf="@+id/learnStrokesCanvasView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

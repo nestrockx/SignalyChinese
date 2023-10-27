@@ -132,13 +132,9 @@ public class CharacterRecognizeCanvasView extends View {
 
     private void recognize() {
         recognizer.recognize(mainViewModel.inkBuilderBuild()).addOnSuccessListener(
-                result -> {
-                    canvasViewListener.onResults(result.getCandidates());
-                }
+                result -> canvasViewListener.onResults(result.getCandidates())
         ).addOnFailureListener(
-                e -> {
-                    Toast.makeText(getContext(), "Error during recognition: " + e, Toast.LENGTH_SHORT).show();
-                }
+                e -> Toast.makeText(getContext(), "Error during recognition: " + e, Toast.LENGTH_SHORT).show()
         );
     }
 
@@ -155,7 +151,7 @@ public class CharacterRecognizeCanvasView extends View {
             throw new RuntimeException();
         }
         if (modelIdentifier == null) {
-            Toast.makeText(getContext(), "Model not find", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Model not found", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -191,15 +187,15 @@ public class CharacterRecognizeCanvasView extends View {
         long t = System.currentTimeMillis();
 
         switch (action) {
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN -> {
                 mainViewModel.moveToCurrentVisibleStroke(x, y);
                 mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t));
-                break;
-            case MotionEvent.ACTION_MOVE:
+            }
+            case MotionEvent.ACTION_MOVE -> {
                 mainViewModel.lineToCurrentVisibleStroke(x, y);
                 mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t));
-                break;
-            case MotionEvent.ACTION_UP:
+            }
+            case MotionEvent.ACTION_UP -> {
                 mainViewModel.lineToCurrentVisibleStroke(x, y);
                 mainViewModel.addVisibleStroke(new Path(mainViewModel.getCurrentVisibleStroke()));
                 mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t));
@@ -207,9 +203,7 @@ public class CharacterRecognizeCanvasView extends View {
                 mainViewModel.addInkBuilderStroke(mainViewModel.strokeBuilderBuild());
                 mainViewModel.clearStrokeBuilder();
                 recognizeCharacter();
-                break;
-            default:
-                break;
+            }
         }
         invalidate();
         return true;

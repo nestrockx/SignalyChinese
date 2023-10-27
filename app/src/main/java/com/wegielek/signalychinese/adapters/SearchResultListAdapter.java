@@ -1,5 +1,6 @@
 package com.wegielek.signalychinese.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
         this.dataList = new ArrayList<>();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setData(List<String> dataList) {
         this.dataList.clear();
         this.dataList.addAll(dataList);
@@ -37,7 +39,7 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_search_result_list, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_item_search_result_list, parent, false);
         return new ViewHolder(view);
     }
 
@@ -48,7 +50,9 @@ public class SearchResultListAdapter extends RecyclerView.Adapter<SearchResultLi
         List<String> list = Arrays.asList(inputString.split("/"));
         StringBuilder translation = new StringBuilder();
         for (int i = 4; i < list.size(); i++) {
-            if (i != list.size() - 1) {
+            if (i == 4) {
+                translation.append((i - 3)).append(". ").append(list.get(i)).append(" ");
+            } else if (i != list.size() - 1) {
                 translation.append((i - 3)).append(".").append(list.get(i)).append(" ");
             } else {
                 translation.append((i - 3)).append(".").append(list.get(i)).append("");

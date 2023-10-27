@@ -41,7 +41,7 @@ public class RadicalsAdapter extends RecyclerView.Adapter<RadicalsAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_radicals_layout, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_item_radicals_layout, parent, false);
         return new ViewHolder(view);
     }
 
@@ -51,23 +51,20 @@ public class RadicalsAdapter extends RecyclerView.Adapter<RadicalsAdapter.ViewHo
         for (int i = 0; i < dataList.get(position).length; i++) {
             TextView textView = new TextView(context);
             textView.setTextSize(32.0f);
-            textView.setTextColor(context.getColor(R.color.white));
+            textView.setTextColor(context.getColor(R.color.dark_mode_white));
             textView.setText(dataList.get(position)[i]);
             textView.setPadding(16, 8, 16, 8);
             int finalI = i;
             textView.setOnTouchListener((v, event) -> {
                 switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        v.setBackgroundColor(context.getColor(R.color.selection_blue));
-                        break;
-                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_DOWN ->
+                            v.setBackgroundColor(context.getColor(R.color.selection_color));
+                    case MotionEvent.ACTION_UP -> {
                         v.performClick();
                         v.setBackgroundColor(Color.TRANSPARENT);
                         radicalsRecyclerViewListener.onRadicalClicked(dataList.get(position)[finalI]);
-                        break;
-                    case MotionEvent.ACTION_CANCEL:
-                        v.setBackgroundColor(Color.TRANSPARENT);
-                        break;
+                    }
+                    case MotionEvent.ACTION_CANCEL -> v.setBackgroundColor(Color.TRANSPARENT);
                 }
                 return true;
             });

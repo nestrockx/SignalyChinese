@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/dark_mode_black"
+        tools:context=".views.FlashCardsActivity">
+
+
+        <TextView
+            android:id="@+id/cardFront"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/flash_card_front_bg"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:text="天"
+            android:textAlignment="center"
+            android:textColor="@color/dark_mode_white"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/flashCardsToolbar" />
+
+        <TextView
+            android:id="@+id/cardBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:alpha="0"
+            android:background="@drawable/flash_card_back_bg"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:text="tiān\n\nniebo"
+            android:textAlignment="center"
+            android:textColor="@color/dark_mode_white"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/flashCardsToolbar" />
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/flashCardsToolbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/dark_mode_black"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/Theme.SignalyChinese"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="Button"
+            app:layout_constraintBottom_toBottomOf="@+id/cardFront"
+            app:layout_constraintStart_toStartOf="@+id/cardFront" />
+
+        <Button
+            android:id="@+id/button4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="Button"
+            app:layout_constraintBottom_toBottomOf="@+id/cardFront"
+            app:layout_constraintEnd_toEndOf="@+id/cardFront" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

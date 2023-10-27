@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:background="@color/black"
+        android:background="@color/dark_mode_black"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".views.DefinitionWordActivity">
@@ -13,22 +13,22 @@
             android:id="@+id/bottomNavigationView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            app:itemIconTint="@color/bottom_nav_color"
+            app:itemTextColor="@color/bottom_nav_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:menu="@menu/bottom_navigation_menu"
-            app:itemTextColor="@color/bottom_nav_color"
-            app:itemIconTint="@color/bottom_nav_color"/>
+            app:menu="@menu/bottom_navigation_menu" />
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/settingsToolbar"
+            android:id="@+id/definitionToolbar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@color/black"
+            android:background="@color/dark_mode_black"
             android:minHeight="?attr/actionBarSize"
             android:theme="@style/Theme.SignalyChinese"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -41,27 +41,61 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <TextView
-            android:id="@+id/definitionCharactersTv"
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/definitionFlexBoxLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:text="TextView"
-            android:textColor="@color/blues"
-            android:textSize="28sp"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toTopOf="@+id/definitionPronunciationTv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/settingsToolbar" />
+            app:layout_constraintTop_toBottomOf="@+id/definitionToolbar">
 
-        <Button
+            <TextView
+                android:id="@+id/definitionCharactersTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:text="TextView"
+                android:textColor="@color/greenish"
+                android:textSize="28sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/definitionToolbar" />
+
+            <TextView
+                android:id="@+id/definitionCharactersSimplifiedTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:text="TextView"
+                android:textColor="@color/greenish"
+                android:textSize="28sp"
+                app:layout_constraintStart_toEndOf="@+id/definitionCharactersTv"
+                app:layout_constraintTop_toBottomOf="@+id/definitionToolbar" />
+
+        </com.google.android.flexbox.FlexboxLayout>
+
+
+
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/speakBtn"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_marginEnd="16dp"
-            android:background="@drawable/ic_sound_default"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/btn_sound_bg"
             android:contentDescription="speak"
+            android:src="@drawable/ic_sound_default"
             app:layout_constraintBottom_toBottomOf="@+id/definitionPronunciationTv"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -76,7 +110,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/definitionPronunciationTv">
 
-            <fragment
+            <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/dictionaryWordNavHostFragment"
                 android:name="androidx.navigation.fragment.NavHostFragment"
                 android:layout_width="match_parent"
@@ -96,9 +130,10 @@
             android:text="TextView"
             android:textColor="@color/pink"
             android:textSize="28sp"
+            android:clickable="true"
             app:layout_constraintEnd_toStartOf="@+id/speakBtn"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/definitionCharactersTv" />
+            app:layout_constraintTop_toBottomOf="@+id/definitionFlexBoxLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

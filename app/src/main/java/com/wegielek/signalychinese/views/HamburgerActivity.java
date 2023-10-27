@@ -3,24 +3,26 @@ package com.wegielek.signalychinese.views;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Button;
 
 import com.wegielek.signalychinese.R;
 
-public class SettingsActivity extends AppCompatActivity {
+public class HamburgerActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "SettingsActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_hamburger);
 
-        Toolbar myToolbar = findViewById(R.id.settingsToolbar);
-        setSupportActionBar(myToolbar);
-        myToolbar.setTitleTextColor(getColor(R.color.white));
+        Toolbar definitionToolbar = findViewById(R.id.definitionToolbar);
+        setSupportActionBar(definitionToolbar);
+        definitionToolbar.setTitleTextColor(getColor(R.color.dark_mode_white));
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -28,6 +30,20 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             Log.e(LOG_TAG, "Support action bar is null in onCreate");
         }
+
+        Button button = findViewById(R.id.flashCardsBtn);
+        button.setOnClickListener(v -> {
+            Intent intent = new Intent(getBaseContext(), FlashCardsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
+
+        Button button1 = findViewById(R.id.historyBtn);
+        button1.setOnClickListener(v -> {
+            Intent intent = new Intent(getBaseContext(), HistoryActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(intent);
+        });
     }
 
     @Override

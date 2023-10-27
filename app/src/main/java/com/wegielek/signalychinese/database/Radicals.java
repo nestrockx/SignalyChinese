@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 
 @Entity
 public class Radicals {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     public int uid;
 
     @NonNull

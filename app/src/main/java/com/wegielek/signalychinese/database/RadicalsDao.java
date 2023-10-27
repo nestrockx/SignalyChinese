@@ -7,9 +7,9 @@ import androidx.room.Query;
 import java.util.List;
 
 @Dao
-public interface RadicalDao {
+public interface RadicalsDao {
 
     @Query("SELECT * FROM radicals WHERE section LIKE '%' || :section || '%'")
-    LiveData<List<Radicals>> getSection(String section);
+    LiveData<List<Radicals>> getRadicalsSection(String section);
 
 }

@@ -36,12 +36,12 @@ import com.wegielek.signalychinese.models.HanziCharacter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LearnStrokesView extends View {
+public class LearnStrokesCanvasView extends View {
 
     private static final String LOG_TAG = "LearnStrokesView";
 
     private HanziCharacter hanziCharacter;
-    private CharacterMode characterMode = CharacterMode.PRESENTATION;
+    private CharacterMode characterMode = CharacterMode.LEARN;
 
     private ValueAnimator valueStrokeAnimator;
     private ValueAnimator valueSuccessAnimator;
@@ -64,7 +64,7 @@ public class LearnStrokesView extends View {
     private int height;
 
     private static final int BRUSH_SIZE = 10;
-    private final int DEFAULT_COLOR = getColor(this.getContext(), R.color.white);
+    private final int DEFAULT_COLOR = getColor(this.getContext(), R.color.dark_mode_white);
     private final int BACKGROUND_COLOR = getColor(this.getContext(), R.color.canvas_background);
     private static final float TOUCH_TOLERANCE = 4;
     private float mX, mY;
@@ -84,11 +84,11 @@ public class LearnStrokesView extends View {
 
     private char hanziChar;
 
-    public LearnStrokesView(Context context) {
+    public LearnStrokesCanvasView(Context context) {
         super(context);
     }
 
-    public LearnStrokesView(Context context, @Nullable AttributeSet attrs) {
+    public LearnStrokesCanvasView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.initialize();
     }
@@ -145,7 +145,7 @@ public class LearnStrokesView extends View {
             }
         });
 
-        valueSuccessAnimator = ValueAnimator.ofArgb(getColor(getContext(), R.color.white),
+        valueSuccessAnimator = ValueAnimator.ofArgb(getColor(getContext(), R.color.dark_mode_white),
                 getColor(getContext(), R.color.success), DEFAULT_COLOR);
         int vSuccessDuration = 1000;
         valueSuccessAnimator.setDuration(vSuccessDuration);
@@ -356,22 +356,23 @@ public class LearnStrokesView extends View {
         float x = event.getX();
         float y = event.getY();
 
-        switch(event.getAction()) {
-            case MotionEvent.ACTION_DOWN :
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN -> {
                 getBitmapCoordinates(x, y, pointF);
                 Log.i(LOG_TAG, "Starting point " + pointF.x + " : " + pointF.y);
                 touchStart(pointF.x, pointF.y);
                 invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE :
+            }
+            case MotionEvent.ACTION_MOVE -> {
                 getBitmapCoordinates(x, y, pointF);
                 touchMove(pointF.x, pointF.y);
                 invalidate();
-                break;
-            case MotionEvent.ACTION_UP :
+            }
+            case MotionEvent.ACTION_UP -> {
+                performClick();
                 touchUp();
                 invalidate();
-                break;
+            }
         }
         return true;
     }

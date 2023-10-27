@@ -16,14 +16,16 @@ import android.view.ViewGroup;
 import com.wegielek.signalychinese.R;
 import com.wegielek.signalychinese.adapters.DefinitionListAdapter;
 import com.wegielek.signalychinese.databinding.FragmentDefinitionListBinding;
+import com.wegielek.signalychinese.interfaces.DefinitionListRecyclerViewListener;
+import com.wegielek.signalychinese.utils.Utils;
 import com.wegielek.signalychinese.viewmodels.DefinitionViewModel;
+import com.wegielek.signalychinese.views.DefinitionWordActivity;
 
 import java.util.Arrays;
 
-public class DefinitionListFragment extends Fragment {
+public class DefinitionListFragment extends Fragment implements DefinitionListRecyclerViewListener {
 
     private FragmentDefinitionListBinding mBinding;
-
     private DefinitionListAdapter mDefinitionListAdapter;
 
     public DefinitionListFragment() {
@@ -46,10 +48,8 @@ public class DefinitionListFragment extends Fragment {
                 mDefinitionListAdapter.setData(Arrays.asList(Arrays.copyOfRange(s.split("/"), 4, s.split("/").length))));
 
         mBinding.definitionListRv.setLayoutManager(new LinearLayoutManager(getContext()));
-        mDefinitionListAdapter = new DefinitionListAdapter(getContext());
+        mDefinitionListAdapter = new DefinitionListAdapter(getContext(), this);
         mBinding.definitionListRv.setAdapter(mDefinitionListAdapter);
-
-
 
         onBackPressed();
     }
@@ -63,4 +63,8 @@ public class DefinitionListFragment extends Fragment {
         });
     }
 
+    @Override
+    public void speak(View v, String text) {
+        Utils.showPopup(v, text, "pl", "en", ((DefinitionWordActivity) requireActivity()).mTtsPolish);
+    }
 }

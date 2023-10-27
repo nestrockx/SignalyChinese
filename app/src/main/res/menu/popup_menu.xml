@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/copy"
+        android:icon="@drawable/ic_copy_default"
+        android:title="@string/copy" />
+    <item
+        android:id="@+id/speak"
+        android:icon="@drawable/ic_sound_default"
+        android:title="@string/speak" />
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/ic_search_default"
+        android:title="@string/word_search" />
+    <item
+        android:id="@+id/translate"
+        android:icon="@drawable/ic_translate_default"
+        android:title="@string/translate_to_eng" />
+</menu>

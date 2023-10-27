@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/dialog_background"
-    android:padding="16dp">
+    android:background="@drawable/alert_dialog_background"
+    android:padding="8dp">
 
 
     <TextView
@@ -17,47 +16,59 @@
         android:layout_marginEnd="8dp"
         android:text="@string/tts_dialog_message"
         android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textColor="@color/dark_mode_white"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dialogPronunciationBtn" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/dialogPronunciationBtn"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/ic_sound_default"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_sound_default"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/dialogSettingsBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:text="@string/settings"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textColor="@color/dark_mode_white"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/dialogDontShowAgainBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:text="@string/do_not_show_again"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/dark_mode_white"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
-    <Button
-        android:id="@+id/button6"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/ic_arrow_back_default"
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/dialogCloseBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="?attr/selectableItemBackground"
+        android:padding="5dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_close_default"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,9 +9,6 @@ import java.util.List;
 @Dao
 public interface DictionaryDao {
 
-    @Query("SELECT * FROM dictionary")
-    LiveData<List<Dictionary>> getAllWords();
-
     @Query("SELECT * FROM dictionary " +
             "WHERE traditional_sign = :searchQuery OR simplified_sign = :searchQuery ORDER BY LENGTH(traditional_sign) ASC")
     LiveData<List<Dictionary>> searchSingleCH(String searchQuery);

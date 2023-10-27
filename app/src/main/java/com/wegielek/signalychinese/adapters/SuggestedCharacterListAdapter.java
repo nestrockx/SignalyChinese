@@ -62,7 +62,7 @@ public class SuggestedCharacterListAdapter extends RecyclerView.Adapter<Suggeste
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_suggested_character_list, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rv_item_suggested_character_list, parent, false);
         return new ViewHolder(itemView);
     }
 

@@ -5,7 +5,6 @@ import static com.wegielek.signalychinese.utils.Utils.containsChinese;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +16,8 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -58,8 +59,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private ActivityMainBinding mBinding;
     private MainViewModel mMainViewModel;
 
-    private boolean mRadicalChosen = false;
-
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,13 +90,13 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         }
         setStateUI(mStateUI);
 
-        mBinding.radicalsBackBtn.setOnClickListener(v -> mMainViewModel.getSection("0").observe(this, radicals -> {
+        mBinding.radicalsBackBtn.setOnClickListener(v -> mMainViewModel.getRadicalsSection("0").observe(this, radicals -> {
             List<String[]> radicalsList = new ArrayList<>();
             for (int i = 0; i < radicals.size(); i++) {
                 radicalsList.add(radicals.get(i).radicals.split(" "));
             }
             mMainViewModel.setRadicalsList(radicalsList);
-            mRadicalChosen = false;
+            mMainViewModel.setRadicalChosen(false);
             setStateUI(StateUI.PUZZLE);
             getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
                 @Override
@@ -108,6 +107,36 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         }));
 
         mBinding.searchTextBox.requestFocus();
+        mBinding.searchTextBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (mBinding.searchTextBox.getText() != null) {
+                    if (mStateUI == StateUI.RESULTS && mBinding.searchTextBox.getText().length() > 0) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            if (!mSearchHandler.hasCallbacks(delayedSearch())) {
+                                mSearchHandler.postDelayed(delayedSearch(), 200);
+                            }
+                        } else {
+                            if (!mSearchHandler.hasMessages(0)) {
+                                mSearchHandler.postDelayed(delayedSearch(), 200);
+                            }
+                        }
+                    }
+                } else {
+                    Log.e(LOG_TAG, "Search text box text is null in onSelectionChanged");
+                }
+            }
+        });
         mBinding.searchTextBox.setOnSelectionChangedListener(this);
 
         mBinding.resultsRv.setLayoutManager(new LinearLayoutManager(this));
@@ -135,21 +164,18 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mBinding.undoBtn.setOnClickListener(view -> mBinding.characterDrawCanvas.undoStroke());
         mBinding.searchBtn.setOnClickListener(v -> performSearch(true));
 
-        mBinding.puzzleBtn.setOnClickListener(view -> {
-            setStateUI(StateUI.PUZZLE);
-        });
+        mBinding.puzzleBtn.setOnClickListener(view -> setStateUI(StateUI.PUZZLE));
 
-        mBinding.drawBtn.setOnClickListener(view -> {
-            setStateUI(StateUI.DRAW);
-        });
+        mBinding.drawBtn.setOnClickListener(view -> setStateUI(StateUI.DRAW));
         
         mBinding.backspaceBtn.setOnClickListener(view -> {
             if (mBinding.searchTextBox.getText() != null) {
                 mBinding.searchTextBox.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                 mMainViewModel.setCursorPosition(mBinding.searchTextBox.getSelectionEnd());
 
-                if (mBinding.searchTextBox.getText().length() <= 0) {
+                if (mBinding.searchTextBox.getText().length() <= 0 && mStateUI != StateUI.PUZZLE) {
                     setStateUI(StateUI.DRAW);
+                    mSearchHandler.removeCallbacks(delayedSearch());
                 }
 
                 mBinding.doneBtn.setVisibility(View.INVISIBLE);
@@ -158,6 +184,12 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
             } else {
                 Log.e(LOG_TAG, "Search text box text is null in backspaceBtn.onClick");
             }
+        });
+
+        mBinding.backspaceBtn.setOnLongClickListener(v -> {
+            mBinding.searchTextBox.setText("");
+            setStateUI(StateUI.DRAW);
+            return true;
         });
 
         mBinding.doneBtn.setOnClickListener(view -> {
@@ -175,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         });
 
         mBinding.settingsBtn.setOnClickListener(view -> {
-            Intent intent = new Intent(getBaseContext(), SettingsActivity.class);
+            Intent intent = new Intent(getBaseContext(), HamburgerActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
@@ -215,10 +247,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private void setDrawUI() {
         mStateUI = StateUI.DRAW;
         mBinding.labelTv.setText(getString(R.string.drawing_mode));
-        mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.ic_draw_active, getTheme()));
-        mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.ic_puzzle_default, getTheme()));
+        mBinding.drawBtn.setImageResource(R.drawable.ic_draw_active);
+        mBinding.puzzleBtn.setImageResource(R.drawable.ic_puzzle_default);
         mBinding.undoBtn.setVisibility(View.VISIBLE);
         mBinding.doneBtn.setVisibility(View.INVISIBLE);
         mBinding.resultsRv.setVisibility(View.INVISIBLE);
@@ -231,10 +261,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
     private void setResultsUI() {
         mStateUI = StateUI.RESULTS;
         mBinding.labelTv.setText(getString(R.string.searching_mode));
-        mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.ic_draw_default, getTheme()));
-        mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.ic_puzzle_default, getTheme()));
+        mBinding.drawBtn.setImageResource(R.drawable.ic_draw_default);
+        mBinding.puzzleBtn.setImageResource(R.drawable.ic_puzzle_default);
         mBinding.resultsRv.setVisibility(View.VISIBLE);
         mBinding.doneBtn.setVisibility(View.INVISIBLE);
         mBinding.undoBtn.setVisibility(View.INVISIBLE);
@@ -246,10 +274,8 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     private void setPuzzleUI() {
         mStateUI = StateUI.PUZZLE;
-        mBinding.puzzleBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.ic_puzzle_active, getTheme()));
-        mBinding.drawBtn.setBackground(ResourcesCompat.getDrawable(getResources(),
-                R.drawable.ic_draw_default, getTheme()));
+        mBinding.puzzleBtn.setImageResource(R.drawable.ic_puzzle_active);
+        mBinding.drawBtn.setImageResource(R.drawable.ic_draw_default);
         mBinding.labelTv.setText(getString(R.string.puzzle_mode));
         mBinding.radicalsRv.setVisibility(View.VISIBLE);
         mBinding.undoBtn.setVisibility(View.INVISIBLE);
@@ -258,15 +284,16 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
         mBinding.charactersRv.setVisibility(View.INVISIBLE);
         mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
         mBinding.characterDrawCanvas.setVisibility(View.INVISIBLE);
-        if (mRadicalChosen) {
+        if (mMainViewModel.getRadicalChosen()) {
             mBinding.radicalsBackBtn.setVisibility(View.VISIBLE);
+            mBinding.labelTv.setText(R.string.puzzle_chosen_mode);
         } else {
             mBinding.radicalsBackBtn.setVisibility(View.INVISIBLE);
         }
     }
 
     private void loadRadicals() {
-        mMainViewModel.getSection("0").observe(this, radicals -> {
+        mMainViewModel.getRadicalsSection(mMainViewModel.getRadicalChosenCharacter()).observe(this, radicals -> {
             List<String[]> radicalsList = new ArrayList<>();
             for (int i = 0; i < radicals.size(); i++) {
                 radicalsList.add(radicals.get(i).radicals.split(" "));
@@ -279,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
         String inputTextString;
         if (mBinding.searchTextBox.getText() != null) {
-            inputTextString = mBinding.searchTextBox.getText().toString();
+            inputTextString = mBinding.searchTextBox.getText().toString().trim();
         } else {
             Log.e(LOG_TAG, "Search text box text is null in performSearch");
             return;
@@ -287,9 +314,6 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
         if (inputTextString.length() > 0) {
             if (!containsChinese(inputTextString)) {
-                if (inputTextString.charAt(inputTextString.length() - 1) == ' ') {
-                    inputTextString = inputTextString.substring(0, inputTextString.length() - 1);
-                }
                 mMainViewModel.searchByWordPL(inputTextString).observe(this, dictionaries -> {
                     List<String> searchResults = new ArrayList<>();
                     for (Dictionary dictionary : dictionaries) {
@@ -385,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onItemPressed(View itemView) {
-        itemView.setBackgroundColor(getColor(R.color.selection_blue));
+        itemView.setBackgroundColor(getColor(R.color.selection_color));
         itemView.postDelayed(() -> itemView.setBackgroundColor(Color.TRANSPARENT), 500);
     }
 
@@ -404,43 +428,47 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onRadicalClicked(String radical) {
-        mMainViewModel.getSection(radical).observe(this, radicals -> {
-            if(radicals.size() > 0) {
-               List<String[]> radicalsList = new ArrayList<>();
-               for (int i = 0; i < radicals.size(); i++) {
-                    radicalsList.add(radicals.get(i).radicals.split(" "));
-               }
-               mMainViewModel.setRadicalsList(radicalsList);
-
-               mRadicalChosen = true;
-               setStateUI(StateUI.PUZZLE);
-
-                getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-                    @Override
-                    public void handleOnBackPressed() {
-                        mMainViewModel.getSection("0").observe(MainActivity.this, radicals -> {
-                            if(radicals.size() > 0) {
-                                List<String[]> radicalsList = new ArrayList<>();
-                                for (int i = 0; i < radicals.size(); i++) {
-                                    radicalsList.add(radicals.get(i).radicals.split(" "));
-                                }
-                                mMainViewModel.setRadicalsList(radicalsList);
-                                mRadicalChosen = false;
-                                setStateUI(StateUI.PUZZLE);
-                            }
-                        });
-                        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
-                            @Override
-                            public void handleOnBackPressed() {
-                                finish();
-                            }
-                        });
+        if (mMainViewModel.getRadicalChosen()) {
+            mBinding.searchTextBox.append(radical);
+        } else {
+            mMainViewModel.getRadicalsSection(radical).observe(this, radicals -> {
+                if (radicals.size() > 0) {
+                    List<String[]> radicalsList = new ArrayList<>();
+                    for (int i = 0; i < radicals.size(); i++) {
+                        radicalsList.add(radicals.get(i).radicals.split(" "));
                     }
-                });
-            } else {
-                mBinding.searchTextBox.append(radical);
-            }
-        });
+                    mMainViewModel.setRadicalsList(radicalsList);
+
+                    mMainViewModel.setRadicalChosen(true);
+                    setStateUI(StateUI.PUZZLE);
+
+                    getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+                        @Override
+                        public void handleOnBackPressed() {
+                            mMainViewModel.getRadicalsSection("0").observe(MainActivity.this, radicals -> {
+                                if (radicals.size() > 0) {
+                                    List<String[]> radicalsList = new ArrayList<>();
+                                    for (int i = 0; i < radicals.size(); i++) {
+                                        radicalsList.add(radicals.get(i).radicals.split(" "));
+                                    }
+                                    mMainViewModel.setRadicalsList(radicalsList);
+                                    mMainViewModel.setRadicalChosen(false);
+                                    setStateUI(StateUI.PUZZLE);
+                                }
+                            });
+                            getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+                                @Override
+                                public void handleOnBackPressed() {
+                                    finish();
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    mBinding.searchTextBox.append(radical);
+                }
+            });
+        }
     }
 
     @Override
@@ -467,21 +495,7 @@ public class MainActivity extends AppCompatActivity implements CanvasViewListene
 
     @Override
     public void onSelectionChanged(int selStart, int selEnd) {
-        if (mBinding.searchTextBox.getText() != null) {
-            if (mStateUI == StateUI.RESULTS && mBinding.searchTextBox.getText().length() > 0) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    if (!mSearchHandler.hasCallbacks(delayedSearch())) {
-                        mSearchHandler.postDelayed(delayedSearch(), 200);
-                    }
-                } else {
-                    if (!mSearchHandler.hasMessages(0)) {
-                        mSearchHandler.postDelayed(delayedSearch(), 200);
-                    }
-                }
-            }
-        } else {
-            Log.e(LOG_TAG, "Search text box text is null in onSelectionChanged");
-        }
+
     }
 
     private Runnable delayedSearch() {

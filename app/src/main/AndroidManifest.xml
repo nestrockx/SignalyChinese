@@ -3,17 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_rabbit"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_rabbit_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
         tools:targetApi="34">
+        <activity
+            android:name=".views.HistoryActivity"
+            android:exported="false" />
         <activity
             android:name=".views.SchoolActivity"
             android:exported="false" />
@@ -21,13 +25,13 @@
             android:name=".views.CameraActivity"
             android:exported="false" />
         <activity
-            android:name=".views.SettingsActivity"
+            android:name=".views.HamburgerActivity"
             android:exported="false" />
         <activity
             android:name=".views.DefinitionWordActivity"
             android:exported="false" />
         <activity
-            android:name=".views.HanziWritingActivity"
+            android:name=".views.FlashCardsActivity"
             android:exported="false" />
         <activity
             android:name=".views.MainActivity"
