@@ -9,4 +9,10 @@
         android:id="@+id/strokesFragment"
         android:icon="@drawable/ic_draw_default"
         android:title="@string/strokes" />
+
+    <item
+        android:id="@+id/sentencesFragment"
+        android:icon="@drawable/ic_article_default"
+        android:title="@string/sentences"/>
+
 </menu>

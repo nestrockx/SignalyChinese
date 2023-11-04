@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/alert_dialog_background"
@@ -8,7 +9,7 @@
 
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/messageTv"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -20,19 +21,34 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dialogPronunciationBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/dialogPronunciationCHBtn" />
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/dialogPronunciationBtn"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        android:id="@+id/dialogPronunciationCHBtn"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="10dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_sound_default"
+        app:layout_constraintEnd_toStartOf="@+id/dialogPronunciationPLBtn"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/dialogPronunciationPLBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:padding="10dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_sound_default"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/dialogPronunciationCHBtn"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -46,7 +62,7 @@
         android:text="@string/settings"
         android:textColor="@color/dark_mode_white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/messageTv" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/dialogDontShowAgainBtn"
@@ -59,7 +75,7 @@
         android:text="@string/do_not_show_again"
         android:textColor="@color/dark_mode_white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/messageTv" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/dialogCloseBtn"
@@ -71,4 +87,28 @@
         android:src="@drawable/ic_close_default"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-8dp"
+        android:text="CH"
+        android:textColor="@color/dark_mode_white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/dialogPronunciationCHBtn"
+        app:layout_constraintEnd_toEndOf="@+id/dialogPronunciationCHBtn"
+        app:layout_constraintStart_toStartOf="@+id/dialogPronunciationCHBtn" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-8dp"
+        android:text="PL"
+        android:textColor="@color/dark_mode_white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/dialogPronunciationPLBtn"
+        app:layout_constraintEnd_toEndOf="@+id/dialogPronunciationPLBtn"
+        app:layout_constraintStart_toStartOf="@+id/dialogPronunciationPLBtn" />
 </androidx.constraintlayout.widget.ConstraintLayout>

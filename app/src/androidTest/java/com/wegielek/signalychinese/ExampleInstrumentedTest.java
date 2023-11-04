@@ -1,9 +1,15 @@
 package com.wegielek.signalychinese;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import de.mannodermaus.junit5.ActivityScenarioExtension;
+import static org.junit.Assert.assertEquals;
+
+import android.content.Context;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -11,10 +17,11 @@ import de.mannodermaus.junit5.ActivityScenarioExtension;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 
-@ExtendWith(ActivityScenarioExtension.class)
+@RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
     @Test
     public void useAppContext() {
-
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertEquals("com.wegielek.signalychinese", appContext.getPackageName());
     }
 }

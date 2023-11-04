@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/definitionCharactersTv"
+                    android:id="@+id/definition_characters_traditonal_tv"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -49,7 +49,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/definitionCharactersTv" />
+                    app:layout_constraintTop_toBottomOf="@+id/definition_characters_traditonal_tv" />
 
                 <androidx.appcompat.widget.AppCompatImageButton
                     android:id="@+id/speakBtn"
@@ -84,7 +84,7 @@
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNavigationView"
-            android:layout_width="wrap_content"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
             app:itemIconTint="@color/bottom_nav_color"
             app:itemTextColor="@color/bottom_nav_color"

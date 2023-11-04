@@ -3,12 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="vm"
-            type="com.wegielek.signalychinese.viewmodels.MainViewModel" />
-    </data>
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -44,9 +38,10 @@
                 android:inputType="text"
                 android:paddingStart="8dp"
                 android:paddingTop="12dp"
-                android:paddingEnd="8dp"
+                android:paddingEnd="50dp"
                 android:paddingBottom="12dp"
                 android:textColor="#FFFFFF"
+                android:textColorHint="#C5C5C5"
                 android:textCursorDrawable="@null"
                 android:textSize="20sp" />
 
@@ -65,45 +60,45 @@
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/drawBtn"
-            android:background="?attr/selectableItemBackground"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Draw"
             android:padding="5dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_draw_active"
-            android:contentDescription="Draw"
-            app:layout_constraintBottom_toTopOf="@+id/backspaceBtn"
+            app:layout_constraintBottom_toTopOf="@+id/searchBtn"
             app:layout_constraintEnd_toStartOf="@+id/puzzleBtn"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/puzzleBtn"
-            android:background="?attr/selectableItemBackground"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Puzzle"
             android:padding="5dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_puzzle_default"
-            android:contentDescription="Puzzle"
-            app:layout_constraintBottom_toTopOf="@+id/backspaceBtn"
+            app:layout_constraintBottom_toTopOf="@+id/searchBtn"
             app:layout_constraintEnd_toStartOf="@+id/learnBtn"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/drawBtn" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/learnBtn"
-            android:background="?attr/selectableItemBackground"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_school_default"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Learn"
             android:padding="5dp"
             android:scaleType="fitCenter"
-            android:contentDescription="Learn"
-            app:layout_constraintBottom_toTopOf="@+id/backspaceBtn"
+            android:src="@drawable/ic_school_default"
+            app:layout_constraintBottom_toTopOf="@+id/searchBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/puzzleBtn" />
@@ -280,6 +275,18 @@
             android:src="@drawable/selector_undo_btn"
             app:layout_constraintBottom_toTopOf="@+id/doneBtn"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/micBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/selector_search_bg_btn"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_mic_default"
+            app:layout_constraintBottom_toBottomOf="@+id/textInputLayout"
+            app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+            app:layout_constraintTop_toTopOf="@+id/textInputLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -16,5 +16,10 @@
         android:name="com.wegielek.signalychinese.views.fragments.StrokesFragment"
         android:label="fragment_strokes"
         tools:layout="@layout/fragment_strokes" />
+    <fragment
+        android:id="@+id/sentencesFragment"
+        android:name="com.wegielek.signalychinese.views.fragments.SentencesFragment"
+        android:label="fragment_sentences"
+        tools:layout="@layout/fragment_sentences" />
 
 </navigation>

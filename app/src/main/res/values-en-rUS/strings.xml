@@ -8,16 +8,21 @@
     <string name="puzzle_chosen_mode">Choose sign</string>
     <string name="no_results">No results</string>
     <string name="dictionary_files_not_loaded">Dictionary files not loaded. Try again.</string>
-    <string name="word_search_hint">Search word</string>
+    <string name="word_search_hint">汉字 pinyin polish</string>
 
     <string name="settings">Settings</string>
     <string name="do_not_show_again">Don\'t show again</string>
     <string name="definition">Definition</string>
-    <string name="strokes">Strokes</string>
+    <string name="strokes">Chars</string>
     <string name="copy">Copy</string>
     <string name="speak">Speak</string>
     <string name="word_search">Search</string>
     <string name="translate_to_eng">Translate to eng</string>
 
-    <string name="tts_dialog_message">Press the speaker. If you don\'t hear anything open settings and download data for Chinese language</string>
+    <string name="tts_dialog_message">Please press the speakers. If you don\'t hear one or both of them open settings and download data for Chinese(Mandarin) or/and Polish language</string>
+    <string name="menu_chinese">Chinese</string>
+    <string name="menu_polish">Polish</string>
+    <string name="menu_search_mode_normal">Search mode: normal</string>
+    <string name="menu_search_mode_all">Search mode: all</string>
+    <string name="sentences">Sentences</string>
 </resources>

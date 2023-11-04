@@ -55,7 +55,7 @@
             app:layout_constraintTop_toBottomOf="@+id/definitionToolbar">
 
             <TextView
-                android:id="@+id/definitionCharactersTv"
+                android:id="@+id/definition_characters_traditonal_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="0dp"
@@ -79,7 +79,7 @@
                 android:text="TextView"
                 android:textColor="@color/greenish"
                 android:textSize="28sp"
-                app:layout_constraintStart_toEndOf="@+id/definitionCharactersTv"
+                app:layout_constraintStart_toEndOf="@+id/definition_characters_traditonal_tv"
                 app:layout_constraintTop_toBottomOf="@+id/definitionToolbar" />
 
         </com.google.android.flexbox.FlexboxLayout>

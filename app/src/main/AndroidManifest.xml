@@ -13,28 +13,35 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_rabbit_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+        android:theme="@style/Theme.App.Starting"
         tools:targetApi="34">
         <activity
             android:name=".views.HistoryActivity"
+            android:theme="@style/Theme.SignalyChinese"
             android:exported="false" />
         <activity
             android:name=".views.SchoolActivity"
+            android:theme="@style/Theme.SignalyChinese"
             android:exported="false" />
         <activity
             android:name=".views.CameraActivity"
+            android:theme="@style/Theme.SignalyChinese"
             android:exported="false" />
         <activity
             android:name=".views.HamburgerActivity"
+            android:theme="@style/Theme.SignalyChinese"
             android:exported="false" />
         <activity
             android:name=".views.DefinitionWordActivity"
+            android:theme="@style/Theme.SignalyChinese"
             android:exported="false" />
         <activity
             android:name=".views.FlashCardsActivity"
+            android:theme="@style/Theme.SignalyChinese"
             android:exported="false" />
         <activity
             android:name=".views.MainActivity"
+            android:theme="@style/Theme.App.Starting"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

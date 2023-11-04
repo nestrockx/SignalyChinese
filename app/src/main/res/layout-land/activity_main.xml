@@ -3,12 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
-        <variable
-            name="vm"
-            type="com.wegielek.signalychinese.viewmodels.MainViewModel" />
-    </data>
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -44,9 +38,10 @@
                 android:inputType="text"
                 android:paddingStart="8dp"
                 android:paddingTop="12dp"
-                android:paddingEnd="8dp"
+                android:paddingEnd="50dp"
                 android:paddingBottom="12dp"
                 android:textColor="#FFFFFF"
+                android:textColorHint="#C5C5C5"
                 android:textCursorDrawable="@null"
                 android:textSize="20sp" />
 
@@ -124,19 +119,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/undoBtn"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="Camera"
-            android:padding="5dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/selector_undo_btn"
-            app:layout_constraintBottom_toTopOf="@+id/doneBtn"
-            app:layout_constraintEnd_toEndOf="parent" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/doneBtn"
@@ -235,7 +217,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:background="?android:attr/listDivider"
-            app:layout_constraintBottom_toTopOf="@+id/backspaceBtn"
+            app:layout_constraintBottom_toTopOf="@+id/searchBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -288,6 +270,32 @@
             app:layout_constraintBottom_toTopOf="@+id/divider2"
             app:layout_constraintStart_toEndOf="@+id/learnBtn"
             app:layout_constraintTop_toBottomOf="@+id/divider" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/undoBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Camera"
+            android:padding="5dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/selector_undo_btn"
+            app:layout_constraintBottom_toTopOf="@+id/doneBtn"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ImageButton
+            android:id="@+id/micBtn"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/selector_search_bg_btn"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_mic_default"
+            app:layout_constraintBottom_toBottomOf="@+id/textInputLayout"
+            app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+            app:layout_constraintTop_toTopOf="@+id/textInputLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

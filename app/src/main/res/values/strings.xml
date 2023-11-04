@@ -8,22 +8,29 @@
     <string name="puzzle_chosen_mode">Wybierz znak</string>
     <string name="no_results">Brak wyników wyszukiwania</string>
     <string name="dictionary_files_not_loaded">Pliki słownika niezaładowane. Spróbuj ponownie.</string>
-    <string name="word_search_hint">Wyszukaj słowo</string>
+    <string name="word_search_hint">汉字 pinyin polski</string>
 
     <string name="settings">Ustawienia</string>
     <string name="do_not_show_again">Nie pokazuj ponownie</string>
     <string name="definition">Definicja</string>
-    <string name="strokes">Kreski</string>
+    <string name="strokes">Znaki</string>
     <string name="copy">Skopiuj</string>
     <string name="speak">Powiedz</string>
     <string name="word_search">Wyszukaj</string>
     <string name="translate_to_eng">Przetłumacz na ang.</string>
 
-    <string name="tts_dialog_message">Naciśnij głośnik. Jeśli nic nie słyszysz wejdź w ustawienia i pobierz dane języka chińskiego</string>
+    <string name="tts_dialog_message">Naciśnij głośniki. Jeśli nie słyszysz któregoś z nich, wejdź w ustawienia i pobierz dane języka chińskiego(mandaryńskiego) i/lub polskiego</string>
 
     <string name="result_text_placeholder_1" translatable="false">%1$s (%2$s)</string>
     <string name="definition_list_item_placeholder" translatable="false">%1$d %2$s</string>
     <string name="search_text_box_append_placeholder" translatable="false">%1$s%2$s</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="menu_chinese">chiński</string>
+    <string name="menu_polish">polski</string>
+    <string name="menu_search_mode_normal">Tryb wyszukiwania: zwykły</string>
+    <string name="menu_search_mode_all">Tryb wyszukiwania: wszystko</string>
+    <string name="sentences">Zdania</string>
 
     <!--Content Descriptions-->
 
