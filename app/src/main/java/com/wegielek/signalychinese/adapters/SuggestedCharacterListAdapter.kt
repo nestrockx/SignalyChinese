@@ -29,20 +29,18 @@ class SuggestedCharacterListAdapter(private val charactersRecyclerViewListener: 
         val character: TextView
 
         init {
-            character = itemView.findViewById<TextView>(R.id.textViewItem)
+            character = itemView.findViewById(R.id.textViewItem)
             itemView.setOnTouchListener { view: View, motionEvent: MotionEvent ->
-                if (charactersRecyclerViewListener != null) {
-                    if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                        charactersRecyclerViewListener.onItemPressed(itemView)
-                    } else if (motionEvent.action == MotionEvent.ACTION_UP) {
-                        view.performClick()
-                        val pos = adapterPosition
-                        if (pos != RecyclerView.NO_POSITION) {
-                            charactersRecyclerViewListener.onItemReleased(pos)
-                        }
-                    } else if (motionEvent.action == MotionEvent.ACTION_CANCEL) {
-                        charactersRecyclerViewListener.onItemCanceled(itemView)
+                if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    charactersRecyclerViewListener?.onItemPressed(itemView)
+                } else if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    view.performClick()
+                    val pos = adapterPosition
+                    if (pos != RecyclerView.NO_POSITION) {
+                        charactersRecyclerViewListener?.onItemReleased(pos)
                     }
+                } else if (motionEvent.action == MotionEvent.ACTION_CANCEL) {
+                    charactersRecyclerViewListener?.onItemCanceled(itemView)
                 }
                 true
             }

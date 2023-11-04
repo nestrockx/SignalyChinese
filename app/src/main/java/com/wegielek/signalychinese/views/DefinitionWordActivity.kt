@@ -18,7 +18,6 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.onNavDestinationSelected
@@ -40,9 +39,9 @@ class DefinitionWordActivity : AppCompatActivity() {
     lateinit var mDefinitionViewModel: DefinitionViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_definition_word)
+        mBinding = ActivityDefinitionWordBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
         mDefinitionViewModel = ViewModelProvider(this)[DefinitionViewModel::class.java]
-        mBinding.executePendingBindings()
         val dictionary: Dictionary? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.extras!!.getParcelable(
                 "word",

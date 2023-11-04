@@ -21,7 +21,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.common.util.concurrent.FutureCallback
@@ -77,8 +76,9 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
                     return@setKeepOnScreenCondition false
                 }
             }
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        mBinding.executePendingBindings()
+        mBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
+
         mMainViewModel.dictionaryResultsList.observe(
             this
         ) { dictionaries: List<Dictionary> ->
@@ -386,9 +386,11 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
     }
 
     private fun loadRadicals() {
-        val future = mMainViewModel.getRadicalsSection(
-            mMainViewModel.radicalChosenCharacter!!
-        )
+        val future = mMainViewModel.radicalChosenCharacter?.let {
+            mMainViewModel.getRadicalsSection(
+                it
+            )
+        }
         Futures.addCallback(future, object : FutureCallback<List<Radicals>> {
             override fun onSuccess(radicals: List<Radicals>) {
                 val radicalsList: MutableList<Array<String>> = ArrayList()
@@ -508,8 +510,10 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             mBinding.searchTextBox.setText(
                 getString(
                     R.string.search_text_box_append_placeholder,
-                    mBinding.searchTextBox.text!!
-                        .subSequence(0, mMainViewModel.cursorPosition),
+                    mMainViewModel.cursorPosition.let {
+                        mBinding.searchTextBox.text!!
+                            .subSequence(0, it)
+                    },
                     recognitionCandidatesList[0].text
                 )
             )
@@ -529,8 +533,10 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             mBinding.searchTextBox.setText(
                 getString(
                     R.string.search_text_box_append_placeholder,
-                    mBinding.searchTextBox.text!!
-                        .subSequence(0, mMainViewModel.cursorPosition),
+                    mMainViewModel.cursorPosition.let {
+                        mBinding.searchTextBox.text!!
+                            .subSequence(0, it)
+                    },
                     mMainViewModel.charactersList.value!![position]
                 )
             )

@@ -9,7 +9,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wegielek.signalychinese.R
@@ -27,7 +26,8 @@ class HistoryActivity : AppCompatActivity(), HistoryRecyclerViewListener {
     private lateinit var mHistoryViewModel: HistoryViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_history)
+        mBinding = ActivityHistoryBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
         mHistoryViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
         val historyToolbar: Toolbar = mBinding.historyToolbar
         setSupportActionBar(historyToolbar)

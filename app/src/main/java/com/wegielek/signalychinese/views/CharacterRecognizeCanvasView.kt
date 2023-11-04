@@ -174,7 +174,7 @@ class CharacterRecognizeCanvasView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawBitmap(canvasBitmap, 0f, 0f, canvasPaint)
-        drawCanvas.drawPath(mainViewModel.currentVisibleStroke!!, currentStrokePaint)
+        mainViewModel.currentVisibleStroke?.let { drawCanvas.drawPath(it, currentStrokePaint) }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

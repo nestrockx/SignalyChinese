@@ -20,70 +20,70 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var charactersList = MutableLiveData<List<String>>()
     var dictionaryResultsList = MutableLiveData<List<Dictionary>>()
     var radicalsList = MutableLiveData<List<Array<String>>>()
-    private val strokeBuilder = MutableLiveData<Ink.Stroke.Builder>()
-    private val strokesHistory = MutableLiveData<ArrayList<Ink.Stroke.Builder>>()
-    private val inkBuilder = MutableLiveData<Ink.Builder>()
+    private val mStrokeBuilder = MutableLiveData<Ink.Stroke.Builder>()
+    private val mStrokesHistory = MutableLiveData<ArrayList<Ink.Stroke.Builder>>()
+    private val mInkBuilder = MutableLiveData<Ink.Builder>()
     private val mCurrentVisibleStroke = MutableLiveData<Path>()
-    private val visibleStrokesHistory = MutableLiveData<ArrayList<Path>>()
+    private val mVisibleStrokesHistory = MutableLiveData<ArrayList<Path>>()
     private val mCursorPosition = MutableLiveData<Int>()
     private val isRadicalChosen = MutableLiveData<Boolean>()
     private val mRadicalChosenCharacter = MutableLiveData<String>()
-    private val keepSplashScreen = MutableLiveData<Boolean>()
-    private val dictionaryRepository: DictionaryRepository
+    private val mKeepSplashScreen = MutableLiveData<Boolean>()
+    private val mDictionaryRepository: DictionaryRepository
 
     init {
-        dictionaryRepository = DictionaryRepository(application)
-        strokeBuilder.value = Ink.Stroke.builder()
-        inkBuilder.value = Ink.builder()
-        strokesHistory.value = ArrayList()
+        mDictionaryRepository = DictionaryRepository(application)
+        mStrokeBuilder.value = Ink.Stroke.builder()
+        mInkBuilder.value = Ink.builder()
+        mStrokesHistory.value = ArrayList()
         dictionaryResultsList.value = ArrayList()
         charactersList.value = ArrayList()
-        visibleStrokesHistory.value = ArrayList()
+        mVisibleStrokesHistory.value = ArrayList()
         mCurrentVisibleStroke.value = Path()
         mCursorPosition.value = 0
         mRadicalChosenCharacter.value = "0"
         radicalsList.value = ArrayList()
         isRadicalChosen.value = false
-        keepSplashScreen.value = true
+        mKeepSplashScreen.value = true
     }
 
     fun setKeepSplashScreen(keepSplashScreen: Boolean) {
-        this.keepSplashScreen.value = keepSplashScreen
+        this.mKeepSplashScreen.value = keepSplashScreen
     }
 
     fun isKeepSplashScreen(): Boolean {
-        return keepSplashScreen.value!!
+        return mKeepSplashScreen.value!!
     }
 
     fun getRadicalsSection(section: String): ListenableFuture<List<Radicals>> {
         setRadicalChosenCharacter(section)
-        return dictionaryRepository.getRadicalsSection(section)
+        return mDictionaryRepository.getRadicalsSection(section)
     }
 
     fun searchSingleCH(searchQuery: String): ListenableFuture<List<Dictionary>> {
-        return dictionaryRepository.searchSingleCH(searchQuery)
+        return mDictionaryRepository.searchSingleCH(searchQuery)
     }
 
     fun searchByWordCH(searchQuery: String): ListenableFuture<List<Dictionary>> {
-        return dictionaryRepository.searchByWordCH(searchQuery)
+        return mDictionaryRepository.searchByWordCH(searchQuery)
     }
 
     fun searchByWordCHAll(searchQuery: String): ListenableFuture<List<Dictionary>> {
-        return dictionaryRepository.searchByWordCHAll(searchQuery)
+        return mDictionaryRepository.searchByWordCHAll(searchQuery)
     }
 
     fun searchByWordPL(searchQuery: String): ListenableFuture<List<Dictionary>> {
-        return dictionaryRepository.searchByWordPL(searchQuery)
+        return mDictionaryRepository.searchByWordPL(searchQuery)
     }
 
     fun searchByWordPLAll(searchQuery: String): ListenableFuture<List<Dictionary>> {
-        return dictionaryRepository.searchByWordPLAll(searchQuery)
+        return mDictionaryRepository.searchByWordPLAll(searchQuery)
     }
 
     val radicalChosenCharacter: String?
         get() = mRadicalChosenCharacter.value
 
-    fun setRadicalChosenCharacter(radicalChosenCharacter: String) {
+    private fun setRadicalChosenCharacter(radicalChosenCharacter: String) {
         mRadicalChosenCharacter.value = radicalChosenCharacter
     }
 
@@ -100,7 +100,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         history.pronunciation = dictionary.pronunciation
         history.pronunciationPhonetic = dictionary.pronunciationPhonetic
         history.translation = dictionary.translation
-        dictionaryRepository.addHistoryRecord(history).addListener(
+        mDictionaryRepository.addHistoryRecord(history).addListener(
             {
                 Log.d(
                     "MainViewModel",
@@ -125,7 +125,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addToCharacterList(text: String) {
         if (charactersList.value != null) {
-            val characterListCopy: MutableList<String> = ArrayList(charactersList.value)
+            val characterListCopy = ArrayList(charactersList.value!!)
             characterListCopy.add(text)
             charactersList.value = characterListCopy
         }
@@ -146,40 +146,40 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
     fun addVisibleStroke(path: Path) {
-        if (visibleStrokesHistory.value != null) {
-            val visibleStrokesHistoryCopy = ArrayList(visibleStrokesHistory.value)
+        if (mVisibleStrokesHistory.value != null) {
+            val visibleStrokesHistoryCopy = ArrayList(mVisibleStrokesHistory.value!!)
             visibleStrokesHistoryCopy.add(path)
-            visibleStrokesHistory.value = visibleStrokesHistoryCopy
+            mVisibleStrokesHistory.value = visibleStrokesHistoryCopy
         }
     }
 
     fun removeVisibleStroke(index: Int) {
-        if (visibleStrokesHistory.value != null) {
-            val visibleStrokesHistoryCopy = ArrayList(visibleStrokesHistory.value)
+        if (mVisibleStrokesHistory.value != null) {
+            val visibleStrokesHistoryCopy = ArrayList(mVisibleStrokesHistory.value!!)
             visibleStrokesHistoryCopy.removeAt(index)
-            visibleStrokesHistory.value = visibleStrokesHistoryCopy
+            mVisibleStrokesHistory.value = visibleStrokesHistoryCopy
         }
     }
 
     val visibleStrokeSize: Int
         get() {
-            return if (visibleStrokesHistory.value != null) {
-                visibleStrokesHistory.value!!.size
+            return if (mVisibleStrokesHistory.value != null) {
+                mVisibleStrokesHistory.value!!.size
             } else {
                 -1
             }
         }
 
     fun getVisibleStroke(index: Int): Path? {
-        return if (visibleStrokesHistory.value != null) {
-            visibleStrokesHistory.value!!.get(index)
+        return if (mVisibleStrokesHistory.value != null) {
+            mVisibleStrokesHistory.value!![index]
         } else {
             null
         }
     }
 
     fun clearVisibleStrokes() {
-        visibleStrokesHistory.value = ArrayList()
+        mVisibleStrokesHistory.value = ArrayList()
     }
 
     val currentVisibleStroke: Path?
@@ -206,12 +206,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setInkBuilder(mInkBuilder: Ink.Builder?) {
-        this.inkBuilder.value = mInkBuilder
+        this.mInkBuilder.value = mInkBuilder
     }
 
     fun inkBuilderBuild(): Ink? {
-        return if (inkBuilder.value != null) {
-            inkBuilder.value!!.build()
+        return if (mInkBuilder.value != null) {
+            mInkBuilder.value!!.build()
         } else {
             null
         }
@@ -224,53 +224,53 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             builder.addStroke(iStroke!!)
         }
         builder.addStroke(stroke!!)
-        inkBuilder.value = builder
+        mInkBuilder.value = builder
     }
 
     fun removeFromStrokesHistory(index: Int) {
-        if (strokesHistory.value != null) {
-            val strokesHistoryCopy = ArrayList(strokesHistory.value)
+        if (mStrokesHistory.value != null) {
+            val strokesHistoryCopy = ArrayList(mStrokesHistory.value!!)
             strokesHistoryCopy.removeAt(index)
-            strokesHistory.value = strokesHistoryCopy
+            mStrokesHistory.value = strokesHistoryCopy
         }
     }
 
     val strokesHistorySize: Int
         get() {
-            return if (strokesHistory.value != null) {
-                strokesHistory.value!!.size
+            return if (mStrokesHistory.value != null) {
+                mStrokesHistory.value!!.size
             } else {
                 -1
             }
         }
 
     fun clearStrokesHistory() {
-        strokesHistory.value = ArrayList()
+        mStrokesHistory.value = ArrayList()
     }
 
     fun addToStrokesHistory(strokeBuilder: Ink.Stroke.Builder) {
-        if (strokesHistory.value != null) {
-            val strokesHistoryCopy = ArrayList(strokesHistory.value)
+        if (mStrokesHistory.value != null) {
+            val strokesHistoryCopy = ArrayList(mStrokesHistory.value!!)
             strokesHistoryCopy.add(strokeBuilder)
-            strokesHistory.value = strokesHistoryCopy
+            mStrokesHistory.value = strokesHistoryCopy
         }
     }
 
     fun strokeHistoryBuild(index: Int): Ink.Stroke? {
-        return if (strokesHistory.value != null) {
-            strokesHistory.value!!.get(index).build()
+        return if (mStrokesHistory.value != null) {
+            mStrokesHistory.value!![index].build()
         } else {
             null
         }
     }
 
     fun getmStrokeBuilder(): Ink.Stroke.Builder? {
-        return strokeBuilder.value
+        return mStrokeBuilder.value
     }
 
     fun strokeBuilderBuild(): Ink.Stroke? {
-        return if (strokeBuilder.value != null) {
-            strokeBuilder.value!!.build()
+        return if (mStrokeBuilder.value != null) {
+            mStrokeBuilder.value!!.build()
         } else {
             null
         }
@@ -283,11 +283,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             builder.addPoint(iPoint)
         }
         builder.addPoint(point)
-        strokeBuilder.value = builder
+        mStrokeBuilder.value = builder
     }
 
     fun clearStrokeBuilder() {
-        strokeBuilder.value = Ink.Stroke.builder()
+        mStrokeBuilder.value = Ink.Stroke.builder()
     }
 
     fun setRadicalsList(radicalsParentModels: List<Array<String>>) {

@@ -11,7 +11,6 @@ import android.view.View
 import android.view.View.OnTouchListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.databinding.DataBindingUtil
 import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.databinding.ActivityFlashCardsBinding
 import com.wegielek.signalychinese.enums.Direction
@@ -29,7 +28,8 @@ class FlashCardsActivity : AppCompatActivity() {
     private var isFront = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_flash_cards)
+        mBinding = ActivityFlashCardsBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
         val flashCardsToolbar: Toolbar = mBinding.flashCardsToolbar
         setSupportActionBar(flashCardsToolbar)
         flashCardsToolbar.setTitleTextColor(getColor(R.color.dark_mode_white))
