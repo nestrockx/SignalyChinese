@@ -1,31 +1,36 @@
 package com.wegielek.signalychinese.views
 
-import android.animation.AnimatorInflater
-import android.animation.AnimatorSet
 import android.os.Bundle
-import android.view.GestureDetector
-import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MenuItem
-import android.view.MotionEvent
-import android.view.View
-import android.view.View.OnTouchListener
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.NavHostFragment
 import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.databinding.ActivityFlashCardsBinding
 import com.wegielek.signalychinese.enums.Direction
-import com.wegielek.signalychinese.utils.Utils.Companion.dpToPixels
-import com.wegielek.signalychinese.utils.Utils.Companion.getScreenHeight
-import com.wegielek.signalychinese.utils.Utils.Companion.getScreenWidth
-import com.wegielek.signalychinese.utils.Utils.Companion.isScreenRotated
-import kotlin.math.abs
+import com.wegielek.signalychinese.viewmodels.FlashCardsViewModel
 
 class FlashCardsActivity : AppCompatActivity() {
     private lateinit var mBinding: ActivityFlashCardsBinding
-    private lateinit var frontAnimUp: AnimatorSet
-    private lateinit var backAnimUp: AnimatorSet
-    private lateinit var swipeListener: SwipeListener
-    private var isFront = true
+    lateinit var flashCardsViewModel: FlashCardsViewModel
+
+    fun switchFragment(direction: Direction) {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerFlashCards) as NavHostFragment
+        val navController = navHostFragment.navController
+        val navBuilder = NavOptions.Builder()
+        if (direction == Direction.RIGHT) {
+            navBuilder.setEnterAnim(R.anim.slide_in_right).setExitAnim(R.anim.slide_out_left)
+                .setPopEnterAnim(R.anim.slide_in_left).setPopExitAnim(R.anim.slide_out_right)
+        } else if (direction == Direction.LEFT) {
+            navBuilder.setEnterAnim(R.anim.slide_in_left).setExitAnim(R.anim.slide_out_right)
+                .setPopEnterAnim(R.anim.slide_in_right).setPopExitAnim(R.anim.slide_out_left)
+        }
+        navController.navigate(R.id.flashCardFragment, null, navBuilder.build())
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityFlashCardsBinding.inflate(layoutInflater)
@@ -36,48 +41,17 @@ class FlashCardsActivity : AppCompatActivity() {
         if (supportActionBar != null) {
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowHomeEnabled(true)
-            supportActionBar!!.setTitle("Flash cards")
+            supportActionBar!!.title = getString(R.string.flash_cards)
         }
-        swipeListener = SwipeListener(mBinding.gesturePlain)
-        if (!isScreenRotated(this)) {
-            mBinding.cardFront.width = getScreenWidth(this) - dpToPixels(this, 64f)
-            mBinding.cardFront.height = getScreenWidth(this) - dpToPixels(this, 64f)
-            mBinding.cardBack.width = getScreenWidth(this) - dpToPixels(this, 64f)
-            mBinding.cardBack.height = getScreenWidth(this) - dpToPixels(this, 64f)
-        } else {
-            mBinding.cardFront.width = getScreenHeight(this) - dpToPixels(this, 64f)
-            mBinding.cardFront.height = getScreenHeight(this) - dpToPixels(this, 64f)
-            mBinding.cardBack.width = getScreenHeight(this) - dpToPixels(this, 64f)
-            mBinding.cardBack.height = getScreenHeight(this) - dpToPixels(this, 64f)
-        }
-        val scale = resources.displayMetrics.density
-        mBinding.cardFront.cameraDistance = 8000 * scale
-        mBinding.cardBack.cameraDistance = 8000 * scale
-        frontAnimUp =
-            AnimatorInflater.loadAnimator(this, R.animator.front_animator_up) as AnimatorSet
-        backAnimUp = AnimatorInflater.loadAnimator(this, R.animator.back_animator_up) as AnimatorSet
-    }
 
-    private fun flip(direction: Direction) {
-        if (!frontAnimUp.isRunning && !backAnimUp.isRunning) {
-            if (direction === Direction.UP) {
-                isFront = if (isFront) {
-                    frontAnimUp.setTarget(mBinding.cardFront)
-                    backAnimUp.setTarget(mBinding.cardBack)
-                    frontAnimUp.start()
-                    backAnimUp.start()
-                    false
-                } else {
-                    backAnimUp.setTarget(mBinding.cardFront)
-                    frontAnimUp.setTarget(mBinding.cardBack)
-                    backAnimUp.start()
-                    frontAnimUp.start()
-                    true
+        val group = intent.getStringExtra("group")
+        flashCardsViewModel = ViewModelProvider(this)[FlashCardsViewModel::class.java]
+        if (group != null) {
+            if (flashCardsViewModel.flashCardsList.value == null) {
+                flashCardsViewModel.getFlashCardGroup(group).observe(this) {
+                    flashCardsViewModel.setFlashCardsList(it)
+                    Toast.makeText(this, it.size.toString(), Toast.LENGTH_SHORT).show()
                 }
-                mBinding.button3.visibility = View.INVISIBLE
-                mBinding.button4.visibility = View.INVISIBLE
-                mBinding.button3.postDelayed({ mBinding.button3.visibility = View.VISIBLE }, 500)
-                mBinding.button4.postDelayed({ mBinding.button4.visibility = View.VISIBLE }, 500)
             }
         }
     }
@@ -90,60 +64,4 @@ class FlashCardsActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private inner class SwipeListener(v: View) :
-        OnTouchListener {
-        var gestureDetector: GestureDetector
-
-        init {
-            val threshold = 100
-            val velocityThreshold = 100
-            val listener: SimpleOnGestureListener = object : SimpleOnGestureListener() {
-                override fun onDown(e: MotionEvent): Boolean {
-                    return true
-                }
-
-                override fun onFling(
-                    e1: MotionEvent?,
-                    e2: MotionEvent,
-                    velocityX: Float,
-                    velocityY: Float
-                ): Boolean {
-                    val xDiff = e2.x - e1!!.x
-                    val yDiff = e2.y - e1.y
-                    try {
-                        if (abs(xDiff) > abs(yDiff)) {
-                            if (abs(xDiff) > threshold && abs(velocityX) > velocityThreshold) {
-                                if (xDiff > 0) {
-                                    //right
-                                } else {
-                                    //left
-                                }
-                                return true
-                            }
-                        } else {
-                            if (abs(yDiff) > threshold && abs(velocityY) > velocityThreshold) {
-                                if (yDiff > 0) {
-                                    //down
-                                } else {
-                                    //up
-                                    flip(Direction.UP)
-                                }
-                                return true
-                            }
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                    return false
-                }
-            }
-            gestureDetector = GestureDetector(applicationContext, listener)
-            v.setOnTouchListener(this)
-        }
-
-        override fun onTouch(v: View, event: MotionEvent): Boolean {
-            v.performClick()
-            return gestureDetector.onTouchEvent(event)
-        }
-    }
 }

@@ -27,7 +27,7 @@ import com.google.mlkit.vision.digitalink.RecognitionResult
 import com.wegielek.signalychinese.interfaces.CanvasViewListener
 import com.wegielek.signalychinese.viewmodels.MainViewModel
 
-class CharacterRecognizeCanvasView @JvmOverloads constructor(
+class CharacterRecognizeCanvasView(
     context: Context?,
     attributeSet: AttributeSet? = null
 ) :
@@ -35,7 +35,7 @@ class CharacterRecognizeCanvasView @JvmOverloads constructor(
     private val remoteModelManager = RemoteModelManager.getInstance()
     private lateinit var model: DigitalInkRecognitionModel
     private lateinit var recognizer: DigitalInkRecognizer
-    private lateinit var mainViewModel: MainViewModel
+    private var mainViewModel: MainViewModel? = null
     private val currentStrokePaint: Paint = Paint()
     private val canvasPaint: Paint
     private lateinit var drawCanvas: Canvas
@@ -83,55 +83,50 @@ class CharacterRecognizeCanvasView @JvmOverloads constructor(
         recognizer = DigitalInkRecognition.getClient(
             DigitalInkRecognizerOptions.builder(model).build()
         )
-        isModelDownloaded.onSuccessTask { result: Boolean? ->
-            if (!result!!) {
-                downloadModel()
-            }
-            Tasks.forResult<Any?>(null)
-        }
+        downloadModel()
     }
 
     fun clear() {
-        mainViewModel.resetCurrentVisibleStroke()
-        mainViewModel.setInkBuilder(Ink.builder())
+        mainViewModel?.resetCurrentVisibleStroke()
+        mainViewModel?.setInkBuilder(Ink.builder())
         drawCanvas.drawColor(Color.BLACK)
         invalidate()
         clearStrokesHistory()
     }
 
     fun undoStroke() {
-        if (mainViewModel.strokesHistorySize > 0) {
+        if (mainViewModel!!.strokesHistorySize > 0) {
             val newInkBuilder = Ink.Builder()
-            mainViewModel.removeFromStrokesHistory(mainViewModel.strokesHistorySize - 1)
-            for (i in 0 until mainViewModel.strokesHistorySize) {
-                newInkBuilder.addStroke(mainViewModel.strokeHistoryBuild(i)!!)
+            mainViewModel?.removeFromStrokesHistory(mainViewModel!!.strokesHistorySize - 1)
+            for (i in 0 until mainViewModel!!.strokesHistorySize) {
+                newInkBuilder.addStroke(mainViewModel?.strokeHistoryBuild(i)!!)
             }
-            mainViewModel.setInkBuilder(newInkBuilder)
-            if (mainViewModel.strokesHistorySize > 1) {
+            mainViewModel?.setInkBuilder(newInkBuilder)
+            if (mainViewModel!!.strokesHistorySize > 1) {
                 recognizeCharacter()
             }
         }
-        if (mainViewModel.visibleStrokeSize > 0) {
+        if (mainViewModel!!.visibleStrokeSize > 0) {
             val newCurrentVisibleStroke = Path()
-            mainViewModel.removeVisibleStroke(mainViewModel.visibleStrokeSize - 1)
-            for (i in 0 until mainViewModel.visibleStrokeSize) {
-                newCurrentVisibleStroke.addPath(mainViewModel.getVisibleStroke(i)!!)
+            mainViewModel?.removeVisibleStroke(mainViewModel!!.visibleStrokeSize - 1)
+            for (i in 0 until mainViewModel!!.visibleStrokeSize) {
+                newCurrentVisibleStroke.addPath(mainViewModel?.getVisibleStroke(i)!!)
             }
-            mainViewModel.setCurrentVisibleStroke(newCurrentVisibleStroke)
+            mainViewModel?.setCurrentVisibleStroke(newCurrentVisibleStroke)
             drawCanvas.drawColor(Color.BLACK)
             invalidate()
         }
     }
 
     private fun clearStrokesHistory() {
-        mainViewModel.clearStrokesHistory()
-        mainViewModel.clearVisibleStrokes()
+        mainViewModel?.clearStrokesHistory()
+        mainViewModel?.clearVisibleStrokes()
     }
 
     private fun recognizeCharacter() {
         isModelDownloaded.onSuccessTask { result: Boolean? ->
             if (!result!!) {
-                Toast.makeText(context, "Model not downloaded yet", Toast.LENGTH_SHORT).show()
+                Log.d(LOG_TAG, "Model not downloaded yet")
                 return@onSuccessTask Tasks.forResult<Any?>(null)
             }
             recognize()
@@ -140,7 +135,7 @@ class CharacterRecognizeCanvasView @JvmOverloads constructor(
     }
 
     private fun recognize() {
-        recognizer.recognize(mainViewModel.inkBuilderBuild()!!)
+        recognizer.recognize(mainViewModel?.inkBuilderBuild()!!)
             .addOnSuccessListener { result: RecognitionResult ->
                 canvasViewListener.onResults(
                     result.candidates
@@ -162,7 +157,7 @@ class CharacterRecognizeCanvasView @JvmOverloads constructor(
             .download(model, DownloadConditions.Builder().build())
             .addOnSuccessListener {
                 Log.i(LOG_TAG, "Model downloaded")
-                Toast.makeText(context, "Model downloaded", Toast.LENGTH_SHORT).show()
+                canvasViewListener.onModelDownloaded()
             }
             .addOnFailureListener { e: Exception ->
                 Log.e(
@@ -174,7 +169,7 @@ class CharacterRecognizeCanvasView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         canvas.drawBitmap(canvasBitmap, 0f, 0f, canvasPaint)
-        mainViewModel.currentVisibleStroke?.let { drawCanvas.drawPath(it, currentStrokePaint) }
+        mainViewModel?.currentVisibleStroke?.let { drawCanvas.drawPath(it, currentStrokePaint) }
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -184,23 +179,24 @@ class CharacterRecognizeCanvasView @JvmOverloads constructor(
         val t = System.currentTimeMillis()
         when (action) {
             MotionEvent.ACTION_DOWN -> {
-                mainViewModel.moveToCurrentVisibleStroke(x, y)
-                mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t))
+                mainViewModel?.moveToCurrentVisibleStroke(x, y)
+                mainViewModel?.addStrokeBuilderPoint(Ink.Point.create(x, y, t))
             }
 
             MotionEvent.ACTION_MOVE -> {
-                mainViewModel.lineToCurrentVisibleStroke(x, y)
-                mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t))
+                mainViewModel?.lineToCurrentVisibleStroke(x, y)
+                mainViewModel?.addStrokeBuilderPoint(Ink.Point.create(x, y, t))
             }
 
             MotionEvent.ACTION_UP -> {
-                mainViewModel.lineToCurrentVisibleStroke(x, y)
-                mainViewModel.addVisibleStroke(Path(mainViewModel.currentVisibleStroke))
-                mainViewModel.addStrokeBuilderPoint(Ink.Point.create(x, y, t))
-                mainViewModel.addToStrokesHistory(mainViewModel.getmStrokeBuilder()!!)
-                mainViewModel.addInkBuilderStroke(mainViewModel.strokeBuilderBuild())
-                mainViewModel.clearStrokeBuilder()
+                mainViewModel?.lineToCurrentVisibleStroke(x, y)
+                mainViewModel?.addVisibleStroke(Path(mainViewModel?.currentVisibleStroke))
+                mainViewModel?.addStrokeBuilderPoint(Ink.Point.create(x, y, t))
+                mainViewModel?.addToStrokesHistory(mainViewModel?.getStrokeBuilder()!!)
+                mainViewModel?.addInkBuilderStroke(mainViewModel?.strokeBuilderBuild())
+                mainViewModel?.clearStrokeBuilder()
                 recognizeCharacter()
+                performClick()
             }
         }
         invalidate()

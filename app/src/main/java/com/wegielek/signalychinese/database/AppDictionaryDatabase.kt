@@ -19,7 +19,7 @@ abstract class AppDictionaryDatabase : RoomDatabase() {
         private val LOCK = Any()
         private const val DATABASE_NAME = "dictionary.db"
         private var mInstance: AppDictionaryDatabase? = null
-        @JvmStatic fun getInstance(context: Context): AppDictionaryDatabase? {
+        fun getInstance(context: Context): AppDictionaryDatabase? {
             if (mInstance == null) {
                 synchronized(LOCK) {
                     mInstance = databaseBuilder(
@@ -27,7 +27,7 @@ abstract class AppDictionaryDatabase : RoomDatabase() {
                         AppDictionaryDatabase::class.java,
                         DATABASE_NAME
                     )
-                        .createFromAsset("dictionary.db").build()
+                        .createFromAsset("dictionarylp.db").build()
                 }
             }
             return mInstance

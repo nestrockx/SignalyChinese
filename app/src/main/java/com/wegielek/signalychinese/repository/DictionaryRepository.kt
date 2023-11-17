@@ -38,16 +38,16 @@ class DictionaryRepository(application: Application) {
         return flashCardsDao.deleteFlashCardGroup(group)
     }
 
-    fun getFlashCard(
+    fun isFlashCardExists(
         traditional: String,
         simplified: String,
         pronunciation: String
     ): ListenableFuture<Boolean> {
-        return flashCardsDao.getFlashCard(traditional, simplified, pronunciation)
+        return flashCardsDao.isFlashCardExists(traditional, simplified, pronunciation)
     }
 
-    fun addFlashCardToSaved(flashCards: FlashCards): ListenableFuture<Void?> {
-        return flashCardsDao.addFlashCardToSaved(flashCards)
+    fun addFlashCardToGroup(flashCards: FlashCards): ListenableFuture<Void?> {
+        return flashCardsDao.addFlashCardToGroup(flashCards)
     }
 
     fun deleteFlashCard(
@@ -56,6 +56,31 @@ class DictionaryRepository(application: Application) {
         pronunciation: String
     ): ListenableFuture<Void?> {
         return flashCardsDao.deleteFlashCard(traditional, simplified, pronunciation)
+    }
+
+    fun deleteFlashCardFromGroup(
+        group: String,
+        traditional: String,
+        simplified: String,
+        pronunciation: String
+    ): ListenableFuture<Void?> {
+        return flashCardsDao.deleteFlashCardFromGroup(group, traditional, simplified, pronunciation)
+    }
+
+    fun getFlashCardsGroups(): LiveData<List<String>> {
+        return flashCardsDao.getFlashCardsGroups()
+    }
+
+    fun getFlashCardsGroupsNonObserve(): ListenableFuture<List<String>> {
+        return flashCardsDao.getFlashCardsGroupsNonObserve()
+    }
+
+    fun getFlashCardGroups(
+        traditional: String,
+        simplified: String,
+        pronunciation: String
+    ): ListenableFuture<List<String>> {
+        return flashCardsDao.getFlashCardGroups(traditional, simplified, pronunciation)
     }
 
     fun searchSingleCH(searchQuery: String): ListenableFuture<List<Dictionary>> {

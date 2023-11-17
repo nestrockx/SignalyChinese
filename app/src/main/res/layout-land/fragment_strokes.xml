@@ -3,6 +3,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -20,37 +21,62 @@
 
     </com.wegielek.signalychinese.views.LearnStrokesCanvasView>
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/testBtn"
+    <ImageButton
+        android:id="@+id/prevCharacter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="Test"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/learnStrokesCanvasView"
-        app:layout_constraintTop_toBottomOf="@+id/learnCBtn"
-        app:layout_constraintVertical_bias="0.5" />
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/learnStrokesCanvasView"
+        app:layout_constraintStart_toStartOf="@+id/learnStrokesCanvasView"
+        app:srcCompat="@drawable/ic_arrow_back_default" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/nextCharacter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/learnStrokesCanvasView"
+        app:layout_constraintEnd_toEndOf="@+id/learnStrokesCanvasView"
+        app:srcCompat="@drawable/ic_arrow_forward_default" />
+
+    <TextView
+        android:id="@+id/characterIndex"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="1/2"
+        android:textColor="@color/dark_mode_white"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="@+id/learnStrokesCanvasView"
+        app:layout_constraintTop_toTopOf="@+id/learnStrokesCanvasView" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/learnCBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="Learn"
-        app:layout_constraintBottom_toTopOf="@+id/testBtn"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/btn_simple_black_ripple_border_bg"
+        android:paddingStart="0dp"
+        android:paddingTop="32dp"
+        android:paddingEnd="0dp"
+        android:paddingBottom="32dp"
+        android:text="@string/draw"
+        app:layout_constraintBottom_toBottomOf="@+id/learnStrokesCanvasView"
         app:layout_constraintEnd_toStartOf="@+id/learnStrokesCanvasView"
-        app:layout_constraintTop_toBottomOf="@+id/presentBtn"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintTop_toTopOf="@+id/learnStrokesCanvasView" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/presentBtn"
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/restartBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="Present"
-        app:layout_constraintBottom_toTopOf="@+id/learnCBtn"
-        app:layout_constraintEnd_toStartOf="@+id/learnStrokesCanvasView"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        android:background="?attr/selectableItemBackground"
+        android:padding="8dp"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="@+id/learnStrokesCanvasView"
+        app:layout_constraintTop_toTopOf="@+id/learnStrokesCanvasView"
+        app:srcCompat="@drawable/ic_replay_default" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

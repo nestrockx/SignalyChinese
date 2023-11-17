@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.vision.digitalink.Ink
 import com.wegielek.signalychinese.database.Dictionary
+import com.wegielek.signalychinese.database.FlashCards
 import com.wegielek.signalychinese.database.History
 import com.wegielek.signalychinese.database.Radicals
 import com.wegielek.signalychinese.repository.DictionaryRepository
@@ -45,6 +46,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         radicalsList.value = ArrayList()
         isRadicalChosen.value = false
         mKeepSplashScreen.value = true
+    }
+
+    fun addFlashCardToGroup(flashCards: FlashCards) {
+        mDictionaryRepository.addFlashCardToGroup(flashCards)
     }
 
     fun setKeepSplashScreen(keepSplashScreen: Boolean) {
@@ -264,7 +269,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getmStrokeBuilder(): Ink.Stroke.Builder? {
+    fun getStrokeBuilder(): Ink.Stroke.Builder? {
         return mStrokeBuilder.value
     }
 

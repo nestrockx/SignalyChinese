@@ -17,30 +17,34 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.findFragment
 import com.sdsmdg.harjot.vectormaster.VectorMasterDrawable
 import com.sdsmdg.harjot.vectormaster.models.PathModel
 import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.enums.CharacterMode
-import com.wegielek.signalychinese.models.FingerPath
-import com.wegielek.signalychinese.models.HanziCharacter
+import com.wegielek.signalychinese.classes.FingerPath
+import com.wegielek.signalychinese.classes.HanziCharacter
 import com.wegielek.signalychinese.utils.Utils.Companion.getPaint
+import com.wegielek.signalychinese.utils.Utils.Companion.getTextPaint
+import com.wegielek.signalychinese.viewmodels.DefinitionViewModel
+import com.wegielek.signalychinese.views.fragments.StrokesFragment
 import kotlin.math.abs
 
 class LearnStrokesCanvasView : View {
-    private var hanziCharacter: HanziCharacter? = null
     private lateinit var valueStrokeAnimator: ValueAnimator
     private lateinit var valueSuccessAnimator: ValueAnimator
     private lateinit var valueMistakeAnimator: ValueAnimator
     private lateinit var mPath: Path
     private lateinit var mainPaint: Paint
+    private lateinit var mainThinPaint: Paint
     private lateinit var fingerPathPaint: Paint
     private lateinit var sketchPaint: Paint
     private lateinit var gridPaint: Paint
     private lateinit var gridThinPaint: Paint
     private lateinit var mBitmap: Bitmap
     private lateinit var mCanvas: Canvas
-    private var characterMode = CharacterMode.LEARN
-    private val markerProgress = FloatArray(51)
+    private var hanziCharacter: HanziCharacter? = null
+    private val markerProgress = FloatArray(60)
     private val pos = FloatArray(2)
     private val tan = FloatArray(2)
     private val pathMeasure = PathMeasure()
@@ -50,8 +54,8 @@ class LearnStrokesCanvasView : View {
     private val inverseTransformMat = Matrix()
     private var width = 0
     private var height = 0
-    private val DEFAULT_COLOR = ContextCompat.getColor(this.context, R.color.dark_mode_white)
-    private val BACKGROUND_COLOR = ContextCompat.getColor(this.context, R.color.canvas_background)
+    private val defaultColor = ContextCompat.getColor(this.context, R.color.dark_mode_white)
+    private val backgroundColor = ContextCompat.getColor(this.context, R.color.canvas_background)
     private var mX = 0f
     private var mY = 0f
     private val paths = ArrayList<FingerPath>()
@@ -59,27 +63,48 @@ class LearnStrokesCanvasView : View {
     private val mBitmapPaint = Paint(Paint.DITHER_FLAG)
     private var hanziChar = 0.toChar()
 
+    private var definitionViewModel: DefinitionViewModel? = null
+
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
         initialize()
     }
 
+    fun setViewModel(definitionViewModel: DefinitionViewModel) {
+        this.definitionViewModel = definitionViewModel
+    }
+
     fun setMode(characterMode: CharacterMode) {
-        this.characterMode = characterMode
-        setHanziCharacter(hanziChar)
+        this.definitionViewModel?.characterMode = characterMode
         if (characterMode === CharacterMode.PRESENTATION) {
-            valueStrokeAnimator.duration = 1000
+            valueStrokeAnimator.duration = 500
         } else {
             valueStrokeAnimator.duration = 1500
         }
+        setHanziCharacter(hanziChar, characterMode)
     }
 
-    fun setHanziCharacter(hanziChar: Char) {
+    fun setHanziCharacter(hanziChar: Char, characterMode: CharacterMode) {
+        if (characterMode == CharacterMode.NOT_FOUND) {
+            if (findFragment<StrokesFragment>().mBinding.restartBtn.visibility == INVISIBLE) {
+                setHanziCharacter(hanziChar, CharacterMode.PRESENTATION)
+            } else {
+                setHanziCharacter(hanziChar, CharacterMode.LEARN)
+            }
+            return
+        }
+        if (characterMode == CharacterMode.PRESENTATION) {
+            definitionViewModel?.characterMode = CharacterMode.PRESENTATION
+            valueStrokeAnimator.duration = 500
+        } else if (characterMode == CharacterMode.LEARN) {
+            definitionViewModel?.characterMode = CharacterMode.LEARN
+            valueMistakeAnimator.duration = 1000
+        }
         this.hanziChar = hanziChar
         clear()
         valueStrokeAnimator.cancel()
         hanziCharacter = initHanziStrokes(hanziChar)
-        if (characterMode === CharacterMode.PRESENTATION) {
+        if (characterMode == CharacterMode.PRESENTATION) {
             valueStrokeAnimator.start()
         }
     }
@@ -108,14 +133,14 @@ class LearnStrokesCanvasView : View {
             fingerPathPaint.color = color
             invalidate()
             if (color == Color.parseColor("#00B60000")) {
-                fingerPathPaint.color = DEFAULT_COLOR
+                fingerPathPaint.color = defaultColor
                 fingerPathPaint.alpha = 0xff
                 paths.clear()
             }
         }
         valueSuccessAnimator = ValueAnimator.ofArgb(
             ContextCompat.getColor(context, R.color.dark_mode_white),
-            ContextCompat.getColor(context, R.color.success), DEFAULT_COLOR
+            ContextCompat.getColor(context, R.color.success), defaultColor
         )
         val vSuccessDuration = 1000
         valueSuccessAnimator.duration = vSuccessDuration.toLong()
@@ -124,8 +149,8 @@ class LearnStrokesCanvasView : View {
             invalidate()
         }
         valueStrokeAnimator = ValueAnimator.ofFloat(0.0f, 1.0f)
-        if (characterMode === CharacterMode.PRESENTATION) {
-            valueStrokeAnimator.duration = 1000
+        if (definitionViewModel?.characterMode === CharacterMode.PRESENTATION) {
+            valueStrokeAnimator.duration = 500
         } else {
             valueStrokeAnimator.duration = 1500
         }
@@ -140,7 +165,7 @@ class LearnStrokesCanvasView : View {
         initAnimators()
         initPaints()
         hanziChar = '一'
-        setHanziCharacter('一')
+        definitionViewModel?.characterMode?.let { setHanziCharacter('一', it) }
         width = DEFAULT_DIMENSIONS
         height = DEFAULT_DIMENSIONS
         mBitmap = Bitmap.createBitmap(BITMAP_DIMENSION, BITMAP_DIMENSION, Bitmap.Config.ARGB_8888)
@@ -165,6 +190,7 @@ class LearnStrokesCanvasView : View {
             )
         } catch (e: NotFoundException) {
             Log.e(LOG_TAG, "Error message: " + e.message)
+            definitionViewModel?.characterMode = CharacterMode.NOT_FOUND
             return initHanziStrokes('一')
         }
         val outline = vectorMasterDrawable.getGroupModelByName("Hanzi")
@@ -200,7 +226,7 @@ class LearnStrokesCanvasView : View {
     }
 
     private fun drawHanziCharacterPath() {
-        if (characterMode == CharacterMode.LEARN) {
+        if (definitionViewModel?.characterMode == CharacterMode.LEARN) {
             mCanvas.drawPath(hanziCharacter!!.currPath, sketchPaint)
             pathMeasure.setPath(hanziCharacter!!.currPath, false)
             pathMeasure.getPosTan(
@@ -213,7 +239,7 @@ class LearnStrokesCanvasView : View {
                 valueStrokeAnimator.start()
             }
         }
-        if (characterMode == CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.characterMode == CharacterMode.PRESENTATION) {
             mCanvas.drawPath(hanziCharacter!!.currPath, sketchPaint)
             pathMeasure.setPath(hanziCharacter!!.currPath, false)
             pathMeasure.getPosTan(
@@ -238,40 +264,50 @@ class LearnStrokesCanvasView : View {
 
     override fun onDraw(canvas: Canvas) {
         canvas.save()
-        mCanvas.drawColor(BACKGROUND_COLOR)
+        mCanvas.drawColor(backgroundColor)
         if (setup) {
             setupScaleMatrices()
         }
         drawGrid()
-        if (!hanziCharacter!!.isFinished) {
-            drawHanziCharacterPath()
-            for (fp: FingerPath in paths) {
-                mCanvas.drawPath(fp.path, (fingerPathPaint))
+        if (definitionViewModel?.characterMode != CharacterMode.NOT_FOUND) {
+            if (definitionViewModel?.characterMode == CharacterMode.PRESENTATION) {
+                for (i in 0 until hanziCharacter!!.size) {
+                    mCanvas.drawPath(hanziCharacter!!.paths[i], (sketchPaint))
+                }
             }
-        }
-        if (hanziCharacter!!.isFinished) {
-            for (i in 0 until (hanziCharacter!!.index + 1)) {
-                mCanvas.drawPath(hanziCharacter!!.paths[i], (mainPaint))
+            if (!hanziCharacter!!.isFinished) {
+                drawHanziCharacterPath()
+                for (fp: FingerPath in paths) {
+                    mCanvas.drawPath(fp.path, (fingerPathPaint))
+                }
+            }
+            if (hanziCharacter!!.isFinished) {
+                for (i in 0 until (hanziCharacter!!.index + 1)) {
+                    mCanvas.drawPath(hanziCharacter!!.paths[i], (mainPaint))
+                }
+            } else {
+                for (i in 0 until hanziCharacter!!.index) {
+                    mCanvas.drawPath(hanziCharacter!!.paths[i], (mainPaint))
+                }
             }
         } else {
-            for (i in 0 until hanziCharacter!!.index) {
-                mCanvas.drawPath(hanziCharacter!!.paths[i], (mainPaint))
-            }
+            mCanvas.drawText(context.getString(R.string.character_not_found), BITMAP_DIMENSION/2f, BITMAP_DIMENSION/2f, mainThinPaint)
         }
+
         canvas.drawBitmap((mBitmap), transformMat, mBitmapPaint)
         canvas.restore()
     }
 
     private fun touchStart(x: Float, y: Float) {
-        if (characterMode !== CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.characterMode !== CharacterMode.PRESENTATION) {
             if (valueMistakeAnimator.isRunning) {
                 valueMistakeAnimator.cancel()
-                fingerPathPaint.color = DEFAULT_COLOR
+                fingerPathPaint.color = defaultColor
                 fingerPathPaint.alpha = 0xff
                 paths.clear()
             }
             mPath = Path()
-            val fp = FingerPath(DEFAULT_COLOR, strokeWidth, mPath)
+            val fp = FingerPath(defaultColor, strokeWidth, mPath)
             paths.add(fp)
             mPath.reset()
             mPath.moveTo(x, y)
@@ -284,7 +320,7 @@ class LearnStrokesCanvasView : View {
     }
 
     private fun touchMove(x: Float, y: Float) {
-        if (characterMode !== CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.characterMode !== CharacterMode.PRESENTATION) {
             val dx = abs(x - mX)
             val dy = abs(y - mY)
             if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
@@ -299,7 +335,7 @@ class LearnStrokesCanvasView : View {
     }
 
     private fun touchUp() {
-        if (characterMode !== CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.characterMode !== CharacterMode.PRESENTATION) {
             if (hanziCharacter!!.isMatchedStart && hanziCharacter!!.isMatchedControlPoint) {
                 if (hanziCharacter!!.matchEnd(mX, mY, 60.0f)) {
                     Log.i(LOG_TAG, "MATCHED_END")
@@ -374,8 +410,8 @@ class LearnStrokesCanvasView : View {
     }
 
     private fun initPaints() {
-        fingerPathPaint = getPaint(DEFAULT_COLOR, BRUSH_SIZE.toFloat(), false)
-        mainPaint = getPaint(DEFAULT_COLOR, BRUSH_SIZE.toFloat(), false)
+        fingerPathPaint = getPaint(defaultColor, BRUSH_SIZE.toFloat(), false)
+        mainPaint = getPaint(defaultColor, BRUSH_SIZE.toFloat(), false)
         sketchPaint = getPaint(Color.GRAY, 5.0f, false)
         gridPaint = getPaint(
             ContextCompat.getColor(
@@ -387,6 +423,7 @@ class LearnStrokesCanvasView : View {
                 context, R.color.grid_color
             ), 0.4f, true
         )
+        mainThinPaint = getTextPaint(defaultColor, 30f)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

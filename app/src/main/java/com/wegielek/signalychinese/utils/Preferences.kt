@@ -10,28 +10,44 @@ class Preferences {
             return context.getSharedPreferences(name, Context.MODE_PRIVATE)
         }
 
-        @JvmStatic fun getTtsAlertShow(context: Context, key: String?): Boolean {
+        fun getTtsAlertShow(context: Context, key: String?): Boolean {
             return getPreferences(context, "PREFS").getBoolean(key, false)
         }
 
-        @JvmStatic fun setTtsAlertShow(context: Context, key: String?, value: Boolean) {
+        fun setTtsAlertShow(context: Context, key: String?, value: Boolean) {
             getPreferences(context, "PREFS").edit().putBoolean(key, value).apply()
         }
 
-        @JvmStatic fun setMicLanguage(context: Context, value: String?) {
+        fun setMicLanguage(context: Context, value: String?) {
             getPreferences(context, "PREFS").edit().putString("mic_language", value).apply()
         }
 
-        @JvmStatic fun getMicLanguage(context: Context): String? {
+        fun getMicLanguage(context: Context): String? {
             return getPreferences(context, "PREFS").getString("mic_language", "zh-CN")
         }
 
-        @JvmStatic fun setSearchMode(context: Context, value: String?) {
+        fun setSearchMode(context: Context, value: String?) {
             getPreferences(context, "PREFS").edit().putString("search_mode", value).apply()
         }
 
-        @JvmStatic fun getSearchMode(context: Context): String? {
+        fun getSearchMode(context: Context): String? {
             return getPreferences(context, "PREFS").getString("search_mode", "normal")
+        }
+
+        fun isDefaultFlashCardGroupSetup(context: Context): Boolean {
+            return getPreferences(context, "PREFS").getBoolean("flash_card_setup", false)
+        }
+
+        fun setDefaultFlashCardGroupSetup(context: Context, value: Boolean) {
+            getPreferences(context, "PREFS").edit().putBoolean("flash_card_setup", value).apply()
+        }
+
+        fun setFlashCardsReversed(context: Context, reversed: Boolean) {
+            getPreferences(context, "PREFS").edit().putBoolean("flash_cards_reversed", reversed).apply()
+        }
+
+        fun isFlashCardsReversed(context: Context): Boolean {
+            return getPreferences(context, "PREFS").getBoolean("flash_cards_reversed", false)
         }
     }
 }

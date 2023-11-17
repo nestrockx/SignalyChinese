@@ -57,7 +57,7 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/btn_sound_bg"
+                android:background="@drawable/btn_grey_green_ripple_bg"
                 android:contentDescription="speak"
                 android:padding="10dp"
                 android:scaleType="fitCenter"
@@ -149,7 +149,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:defaultNavHost="true"
-            app:navGraph="@navigation/dictionary_word_nav_graph" />
+            app:navGraph="@navigation/definition_word_nav_graph" />
 
     </FrameLayout>
 

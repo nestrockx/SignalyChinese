@@ -25,4 +25,22 @@
     <string name="menu_search_mode_normal">Search mode: normal</string>
     <string name="menu_search_mode_all">Search mode: all</string>
     <string name="sentences">Sentences</string>
+    <string name="history">History</string>
+    <string name="menu">Menu</string>
+    <string name="flash_cards">Flash Cards</string>
+    <string name="school">Learn</string>
+    <string name="downloading">Downloading chinese recognition data. This may take a while</string>
+    <string name="character_not_found">Character not available</string>
+    <string name="saved">saved</string>
+    <string name="confirm">confirm</string>
+    <string name="are_you_sure_delete_flash_cards">Are you sure you want to delete group %1$s?</string>
+    <string name="flip">flip card</string>
+    <string name="correct">Correct</string>
+    <string name="incorrect">Incorrect</string>
+    <string name="collections">Collections</string>
+    <string name="collection_name">Collection name</string>
+    <string name="new_collection">new collection</string>
+    <string name="collection">"Collection: "</string>
+    <string name="draw">Draw</string>
+    <string name="present">Present</string>
 </resources>

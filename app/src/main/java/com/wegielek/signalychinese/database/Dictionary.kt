@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "dictionary")
 class Dictionary : Parcelable {
     @PrimaryKey(autoGenerate = true)
-    public var uid = 0
+    var uid = 0
 
     @ColumnInfo(name = "traditional_sign")
     var traditionalSign: String

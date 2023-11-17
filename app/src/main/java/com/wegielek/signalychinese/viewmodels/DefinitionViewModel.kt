@@ -1,70 +1,45 @@
 package com.wegielek.signalychinese.viewmodels
 
 import android.app.Application
-import android.speech.tts.TextToSpeech
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.google.common.util.concurrent.ListenableFuture
 import com.wegielek.signalychinese.database.Dictionary
 import com.wegielek.signalychinese.database.FlashCards
+import com.wegielek.signalychinese.enums.CharacterMode
 import com.wegielek.signalychinese.repository.DictionaryRepository
-import java.util.Locale
 
 class DefinitionViewModel(application: Application) : AndroidViewModel(application) {
+    var characterMode = CharacterMode.PRESENTATION
     var word = MutableLiveData<Dictionary>()
+    var wrapContentHeight: Int = 0
+    var index: Int = 0
+    var isAdjusted: Boolean = false
+    var isSetup: Boolean = false
     private val mDictionaryRepository: DictionaryRepository
-    lateinit var ttsCH: TextToSpeech
-    lateinit var ttsPL: TextToSpeech
 
     init {
         word.value = Dictionary()
         mDictionaryRepository = DictionaryRepository(application)
-        ttsCH = TextToSpeech(
-            application.applicationContext
-        ) { status: Int ->
-            if (status == TextToSpeech.SUCCESS) {
-                val langResult = ttsCH.isLanguageAvailable(Locale("zh_CN"))
-                if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Log.e("TextToSpeech", "Language not supported")
-                } else {
-                    ttsCH.language = Locale("zh_CN")
-                }
-            } else {
-                Log.e("TextToSpeech", "Initialization failed")
-            }
-        }
-        ttsPL = TextToSpeech(application.applicationContext) { status: Int ->
-            if (status == TextToSpeech.SUCCESS) {
-                val langResult = ttsPL.isLanguageAvailable(Locale("pl_PL"))
-                if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    Log.e("TextToSpeech", "Language not supported")
-                } else {
-                    ttsPL.language = Locale("pl_PL")
-                }
-            } else {
-                Log.e("TextToSpeech", "Initialization failed")
-            }
-        }
     }
 
     fun setWord(word: Dictionary) {
         this.word.value = word
     }
 
-    fun getFlashCard(
+    fun isFlashCardExists(
         traditional: String,
         simplified: String,
         pronunciation: String
     ): ListenableFuture<Boolean> {
-        return mDictionaryRepository.getFlashCard(
+        return mDictionaryRepository.isFlashCardExists(
             traditional, simplified,
             pronunciation
         )
     }
 
-    fun addFlashCardToSaved(flashCards: FlashCards): ListenableFuture<Void?> {
-        return mDictionaryRepository.addFlashCardToSaved(flashCards)
+    fun addFlashCardToGroup(flashCards: FlashCards): ListenableFuture<Void?> {
+        return mDictionaryRepository.addFlashCardToGroup(flashCards)
     }
 
     fun deleteFlashCard(
@@ -76,5 +51,28 @@ class DefinitionViewModel(application: Application) : AndroidViewModel(applicati
             traditional, simplified,
             pronunciation
         )
+    }
+
+    fun deleteFlashCardFromGroup(
+        group: String,
+        traditional: String,
+        simplified: String,
+        pronunciation: String
+    ): ListenableFuture<Void?> {
+        return mDictionaryRepository.deleteFlashCardFromGroup(
+            group, traditional, simplified, pronunciation
+        )
+    }
+
+    fun getFlashCardsGroupsNonObserve(): ListenableFuture<List<String>> {
+        return mDictionaryRepository.getFlashCardsGroupsNonObserve()
+    }
+
+    fun getFlashCardGroups(
+        traditional: String,
+        simplified: String,
+        pronunciation: String
+    ): ListenableFuture<List<String>> {
+        return mDictionaryRepository.getFlashCardGroups(traditional, simplified, pronunciation)
     }
 }

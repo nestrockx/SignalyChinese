@@ -1,4 +1,4 @@
-package com.wegielek.signalychinese.enums;
+package com.wegielek.signalychinese.enums
 
 enum class StateUI {
     RESULTS, DRAW, PUZZLE

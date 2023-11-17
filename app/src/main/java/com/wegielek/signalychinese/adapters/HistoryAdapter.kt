@@ -11,7 +11,6 @@ import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.database.History
 import com.wegielek.signalychinese.interfaces.HistoryRecyclerViewListener
 import com.wegielek.signalychinese.utils.Utils.Companion.historyToDictionary
-import java.util.Arrays
 
 class HistoryAdapter(
     private val historyRecyclerViewListener: HistoryRecyclerViewListener,
@@ -40,12 +39,12 @@ class HistoryAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val history = dataList[position]
         val list =
-            Arrays.asList(*history.translation.split("/".toRegex()).dropLastWhile { it.isEmpty() }
+            listOf(*history.translation.split("/".toRegex()).dropLastWhile { it.isEmpty() }
                 .toTypedArray())
         val translation = StringBuilder()
         for (i in list.indices) {
             if (i == 0) {
-                translation.append(i + 1).append(".\u00A0").append(list[i].trim { it <= ' ' })
+                translation.append(1).append(".\u00A0").append(list[i].trim { it <= ' ' })
                     .append(" ")
             } else if (i != list.size - 1) {
                 translation.append(i + 1).append(".\u00A0").append(list[i].trim { it <= ' ' })
@@ -81,14 +80,14 @@ class HistoryAdapter(
             charactersTv = itemView.findViewById(R.id.labelTv)
             pronunciationTv = itemView.findViewById(R.id.pronunciationTv)
             translationTv = itemView.findViewById(R.id.translationTv)
-            itemView.setOnClickListener { view: View ->
+            itemView.setOnClickListener {
                 historyRecyclerViewListener.onHistoryClicked(
                     historyToDictionary(
                         dataList[adapterPosition]
                     )
                 )
             }
-            itemView.setOnLongClickListener { view: View ->
+            itemView.setOnLongClickListener {
                 historyRecyclerViewListener.onLongHistoryClicked(dataList[adapterPosition].time)
                 true
             }

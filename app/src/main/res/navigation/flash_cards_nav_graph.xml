@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/flash_cards_nav_graph"
+    app:startDestination="@id/flashCardFragment">
+
+    <fragment
+        android:id="@+id/flashCardFragment"
+        android:name="com.wegielek.signalychinese.views.fragments.FlashCardFragment"
+        android:label="fragment_flash_card"
+        tools:layout="@layout/fragment_flash_card" />
+</navigation>

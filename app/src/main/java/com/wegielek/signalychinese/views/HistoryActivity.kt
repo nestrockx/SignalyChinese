@@ -35,7 +35,7 @@ class HistoryActivity : AppCompatActivity(), HistoryRecyclerViewListener {
         if (supportActionBar != null) {
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowHomeEnabled(true)
-            supportActionBar!!.title = "History"
+            supportActionBar!!.title = getString(R.string.history)
         }
         mBinding.historyRv.layoutManager = LinearLayoutManager(this)
         mHistoryAdapter = HistoryAdapter(this, this)
@@ -67,11 +67,11 @@ class HistoryActivity : AppCompatActivity(), HistoryRecyclerViewListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            finish()
+            onBackPressedDispatcher.onBackPressed()
             return true
         } else if (item.itemId == R.id.trash) {
             mHistoryViewModel.deleteWholeHistory().addListener(
-                { Log.d(Companion.LOG_TAG, "History deleted successfully") },
+                { Log.d(LOG_TAG, "History deleted successfully") },
                 ContextCompat.getMainExecutor(this)
             )
         }

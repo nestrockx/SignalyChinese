@@ -25,4 +25,22 @@
     <string name="menu_search_mode_normal">Tryb wyszukiwania: zwykły</string>
     <string name="menu_search_mode_all">Tryb wyszukiwania: wszystko</string>
     <string name="sentences">Zdania</string>
+    <string name="history">Historia</string>
+    <string name="menu">Menu</string>
+    <string name="flash_cards">Fiszki</string>
+    <string name="school">Nauka</string>
+    <string name="downloading">Pobieranie danych rozpoznawania chińskich znaków. Może to chwilę potrwać</string>
+    <string name="character_not_found">Znak niedostępny</string>
+    <string name="saved">zapisane</string>
+    <string name="confirm">zatwierdź</string>
+    <string name="are_you_sure_delete_flash_cards">Czy jesteś pewien, że chcesz usunąć grupę %1$s?</string>
+    <string name="flip">obróć</string>
+    <string name="correct">Dobrze</string>
+    <string name="incorrect">Źle</string>
+    <string name="collections">Kolekcje</string>
+    <string name="collection_name">Nazwa kolekcji</string>
+    <string name="new_collection">nowa kolekcja</string>
+    <string name="collection">"Kolekcja: "</string>
+    <string name="draw">Rysuj</string>
+    <string name="present">Prezentuj</string>
 </resources>

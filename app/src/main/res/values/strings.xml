@@ -24,6 +24,8 @@
     <string name="result_text_placeholder_1" translatable="false">%1$s (%2$s)</string>
     <string name="definition_list_item_placeholder" translatable="false">%1$d %2$s</string>
     <string name="search_text_box_append_placeholder" translatable="false">%1$s%2$s</string>
+    <string name="characters_number_placeholder" translatable="false">%1$d/%2$d</string>
+    <string name="simplified_placeholder" translatable="false">(%1$s)</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="menu_chinese">chiński</string>
@@ -31,6 +33,24 @@
     <string name="menu_search_mode_normal">Tryb wyszukiwania: zwykły</string>
     <string name="menu_search_mode_all">Tryb wyszukiwania: wszystko</string>
     <string name="sentences">Zdania</string>
+    <string name="history">Historia</string>
+    <string name="menu">Menu</string>
+    <string name="flash_cards">Fiszki</string>
+    <string name="school">Nauka</string>
+    <string name="downloading">Pobieranie danych rozpoznawania chińskich znaków. Może to chwilę potrwać</string>
+    <string name="character_not_found">Znak niedostępny</string>
+    <string name="saved">zapisane</string>
+    <string name="confirm">zatwierdź</string>
+    <string name="are_you_sure_delete_flash_cards">Czy jesteś pewien, że chcesz usunąć grupę %1$s?</string>
+    <string name="flip">obróć</string>
+    <string name="correct">Dobrze</string>
+    <string name="incorrect">Źle</string>
+    <string name="collections">Kolekcje</string>
+    <string name="collection_name">Nazwa kolekcji</string>
+    <string name="new_collection">nowa kolekcja</string>
+    <string name="collection">"Kolekcja: "</string>
+    <string name="draw">Rysuj</string>
+    <string name="present">Prezentuj</string>
 
     <!--Content Descriptions-->
 

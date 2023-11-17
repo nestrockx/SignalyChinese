@@ -14,6 +14,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
@@ -28,9 +29,10 @@ import com.google.common.util.concurrent.Futures
 import com.google.mlkit.vision.digitalink.RecognitionCandidate
 import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.adapters.RadicalsAdapter
-import com.wegielek.signalychinese.adapters.SearchResultListAdapter
-import com.wegielek.signalychinese.adapters.SuggestedCharacterListAdapter
+import com.wegielek.signalychinese.adapters.SearchResultsAdapter
+import com.wegielek.signalychinese.adapters.SuggestedCharactersAdapter
 import com.wegielek.signalychinese.database.Dictionary
+import com.wegielek.signalychinese.database.FlashCards
 import com.wegielek.signalychinese.database.Radicals
 import com.wegielek.signalychinese.databinding.ActivityMainBinding
 import com.wegielek.signalychinese.enums.StateUI
@@ -39,8 +41,10 @@ import com.wegielek.signalychinese.interfaces.CharactersRecyclerViewListener
 import com.wegielek.signalychinese.interfaces.RadicalsRecyclerViewListener
 import com.wegielek.signalychinese.interfaces.ResultsRecyclerViewListener
 import com.wegielek.signalychinese.interfaces.SearchTextBoxListener
+import com.wegielek.signalychinese.utils.Preferences
 import com.wegielek.signalychinese.utils.Preferences.Companion.getMicLanguage
 import com.wegielek.signalychinese.utils.Preferences.Companion.getSearchMode
+import com.wegielek.signalychinese.utils.TextToSpeechManager
 import com.wegielek.signalychinese.utils.Utils.Companion.containsChinese
 import com.wegielek.signalychinese.utils.Utils.Companion.hideKeyboard
 import com.wegielek.signalychinese.utils.Utils.Companion.showMicLanguagePopup
@@ -50,8 +54,8 @@ import com.wegielek.signalychinese.viewmodels.MainViewModel
 class MainActivity : AppCompatActivity(), CanvasViewListener,
     CharactersRecyclerViewListener, ResultsRecyclerViewListener, RadicalsRecyclerViewListener,
     SearchTextBoxListener {
-    private lateinit var mSuggestedCharacterListAdapter: SuggestedCharacterListAdapter
-    private lateinit var mSearchResultsListAdapter: SearchResultListAdapter
+    private lateinit var mSuggestedCharactersAdapter: SuggestedCharactersAdapter
+    private lateinit var mSearchResultsListAdapter: SearchResultsAdapter
     private lateinit var mRadicalsAdapter: RadicalsAdapter
     private lateinit var mBinding: ActivityMainBinding
     private lateinit var mMainViewModel: MainViewModel
@@ -69,7 +73,7 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
                     val handler = Handler(Looper.getMainLooper())
                     handler.postDelayed(
                         { mMainViewModel.setKeepSplashScreen(false) },
-                        2000
+                        1500
                     )
                     return@setKeepOnScreenCondition mMainViewModel.isKeepSplashScreen()
                 } else {
@@ -89,11 +93,12 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
         mMainViewModel.charactersList.observe(
             this
         ) { stringList: List<String> ->
-            mSuggestedCharacterListAdapter.setData(
+            mSuggestedCharactersAdapter.setData(
                 stringList
             )
         }
-        mMainViewModel.radicalsList.observe(this
+        mMainViewModel.radicalsList.observe(
+            this
         ) { radicalsList: List<Array<String>> ->
             mRadicalsAdapter.setData(
                 radicalsList
@@ -170,7 +175,7 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
         })
         mBinding.searchTextBox.setOnSelectionChangedListener(this)
         mBinding.resultsRv.layoutManager = LinearLayoutManager(this)
-        mSearchResultsListAdapter = SearchResultListAdapter(this, this)
+        mSearchResultsListAdapter = SearchResultsAdapter(this, this)
         mBinding.resultsRv.adapter = mSearchResultsListAdapter
         mBinding.radicalsRv.layoutManager = LinearLayoutManager(this)
         mRadicalsAdapter = RadicalsAdapter(this, this)
@@ -179,8 +184,8 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             this, LinearLayoutManager.HORIZONTAL,
             false
         )
-        mSuggestedCharacterListAdapter = SuggestedCharacterListAdapter(this)
-        mBinding.charactersRv.adapter = mSuggestedCharacterListAdapter
+        mSuggestedCharactersAdapter = SuggestedCharactersAdapter(this)
+        mBinding.charactersRv.adapter = mSuggestedCharactersAdapter
         mBinding.characterDrawCanvas.setOnRecognizeListener(this)
         mBinding.characterDrawCanvas.post {
             mBinding.characterDrawCanvas.initialize(
@@ -198,39 +203,29 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
         mBinding.puzzleBtn.setOnClickListener { setStateUI(StateUI.PUZZLE) }
         mBinding.drawBtn.setOnClickListener { setStateUI(StateUI.DRAW) }
         mBinding.learnBtn.setOnClickListener {
-            val intent = Intent(baseContext, FlashCardsActivity::class.java)
+            val intent = Intent(baseContext, SchoolActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             startActivity(intent)
         }
-        mBinding.backspaceBtn.setOnClickListener {
-            if (mBinding.searchTextBox.text != null) {
-                mBinding.searchTextBox.dispatchKeyEvent(
-                    KeyEvent(
-                        KeyEvent.ACTION_DOWN,
-                        KeyEvent.KEYCODE_DEL
-                    )
-                )
-                mMainViewModel.cursorPosition = mBinding.searchTextBox.selectionEnd
-                if (mBinding.searchTextBox.text!!.isEmpty() && mStateUI !== StateUI.PUZZLE) {
-                    setStateUI(StateUI.DRAW)
-                    mSearchHandler.removeCallbacks(delayedSearch())
-                }
-                mBinding.doneBtn.visibility = View.INVISIBLE
-                mBinding.characterDrawCanvas.clear()
-                mBinding.undoBtn.visibility = View.INVISIBLE
-            } else {
-                Log.e(
-                    LOG_TAG,
-                    "Search text box text is null in backspaceBtn.onClick"
-                )
+        mBinding.backspaceBtn.setOnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                mBinding.backspaceBtn.post(backspaceHold)
+            } else if (event.action == MotionEvent.ACTION_UP) {
+                mBinding.backspaceBtn.removeCallbacks(backspaceHold)
+                v.callOnClick()
             }
+            false
         }
+
+        /*
         mBinding.backspaceBtn.setOnLongClickListener {
             mBinding.searchTextBox.setText("")
             mMainViewModel.cursorPosition = 0
+            mBinding.characterDrawCanvas.clear()
             setStateUI(StateUI.DRAW)
             true
         }
+        */
         mBinding.micBtn.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
                     applicationContext,
@@ -252,6 +247,8 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
                 // Specify the prompt message
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak something...")
                 startActivityForResult(intent, RECOGNIZER_RESULT)
+            } else {
+                requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 0)
             }
         }
         mBinding.micBtn.setOnLongClickListener { v ->
@@ -272,7 +269,7 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             }
             mBinding.characterDrawCanvas.clear()
             mBinding.undoBtn.visibility = View.INVISIBLE
-            mSuggestedCharacterListAdapter.notifyDataSetChanged()
+            mSuggestedCharactersAdapter.notifyDataSetChanged()
         }
         mBinding.settingsBtn.setOnClickListener {
             val intent = Intent(baseContext, HamburgerActivity::class.java)
@@ -303,14 +300,57 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             }
         }
         mBinding.searchTextBox.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId === EditorInfo.IME_ACTION_SEARCH) {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 performSearch(true)
                 return@setOnEditorActionListener true
             }
             false
         }
-        mBinding.searchTextBox.setOnFocusChangeListener { v, hasFocus -> }
+        mBinding.searchTextBox.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                v.hasFocus()
+            } else {
+                !v.hasFocus()
+            }
+        }
         loadRadicals()
+
+        TextToSpeechManager.instanceCH
+        TextToSpeechManager.instancePL
+
+        if (!Preferences.isDefaultFlashCardGroupSetup(this)) {
+            val flashCards = FlashCards()
+            flashCards.group = getString(R.string.saved)
+            flashCards.traditionalSign = "字"
+            flashCards.simplifiedSign = "(字)"
+            flashCards.pronunciation = "zì "
+            flashCards.pronunciationPhonetic = "zi "
+            flashCards.translation = "litera / symbol / znak / słowo / CL:個|个 / tytuł lub nazwa stylu tradycyjnie nadawana mężczyznom w wieku 20 lat w dynastycznych Chinach "
+            mMainViewModel.addFlashCardToGroup(flashCards)
+            Preferences.setDefaultFlashCardGroupSetup(this, true)
+        }
+    }
+
+    private val backspaceHold: Runnable = object : Runnable {
+        override fun run() {
+            if (mBinding.searchTextBox.text != null) {
+                mBinding.searchTextBox.dispatchKeyEvent(
+                    KeyEvent(
+                        KeyEvent.ACTION_DOWN,
+                        KeyEvent.KEYCODE_DEL
+                    )
+                )
+                mMainViewModel.cursorPosition = mBinding.searchTextBox.selectionEnd
+                if (mBinding.searchTextBox.text!!.isEmpty() && mStateUI !== StateUI.PUZZLE) {
+                    setStateUI(StateUI.DRAW)
+                    mSearchHandler.removeCallbacks(delayedSearch())
+                }
+                mBinding.doneBtn.visibility = View.INVISIBLE
+                mBinding.characterDrawCanvas.clear()
+                mBinding.undoBtn.visibility = View.INVISIBLE
+            }
+            mBinding.backspaceBtn.postDelayed(this, 100)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -391,21 +431,23 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
                 it
             )
         }
-        Futures.addCallback(future, object : FutureCallback<List<Radicals>> {
-            override fun onSuccess(radicals: List<Radicals>) {
-                val radicalsList: MutableList<Array<String>> = ArrayList()
-                for (i in radicals.indices) {
-                    radicalsList.add(
-                        radicals[i].radicals.split(" ".toRegex()).dropLastWhile { it.isEmpty() }
-                            .toTypedArray())
+        if (future != null) {
+            Futures.addCallback(future, object : FutureCallback<List<Radicals>> {
+                override fun onSuccess(radicals: List<Radicals>) {
+                    val radicalsList: MutableList<Array<String>> = ArrayList()
+                    for (i in radicals.indices) {
+                        radicalsList.add(
+                            radicals[i].radicals.split(" ".toRegex()).dropLastWhile { it.isEmpty() }
+                                .toTypedArray())
+                    }
+                    mMainViewModel.setRadicalsList(radicalsList)
                 }
-                mMainViewModel.setRadicalsList(radicalsList)
-            }
 
-            override fun onFailure(t: Throwable) {
-                t.printStackTrace()
-            }
-        }, ContextCompat.getMainExecutor(this))
+                override fun onFailure(t: Throwable) {
+                    t.printStackTrace()
+                }
+            }, ContextCompat.getMainExecutor(this))
+        }
     }
 
     private fun performSearch(hideKeyboard: Boolean) {
@@ -524,7 +566,12 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
         mBinding.doneBtn.visibility = View.VISIBLE
         mBinding.charactersRv.visibility = View.VISIBLE
         mBinding.undoBtn.visibility = View.VISIBLE
-        mSuggestedCharacterListAdapter.notifyDataSetChanged()
+        mSuggestedCharactersAdapter.notifyDataSetChanged()
+    }
+
+    override fun onModelDownloaded() {
+        mBinding.charactersLoadingPb.visibility = View.INVISIBLE
+        mBinding.downloadingTv.visibility = View.INVISIBLE
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -549,7 +596,7 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
         mBinding.doneBtn.visibility = View.INVISIBLE
         mBinding.undoBtn.visibility = View.INVISIBLE
         mBinding.characterDrawCanvas.clear()
-        mSuggestedCharacterListAdapter.notifyDataSetChanged()
+        mSuggestedCharactersAdapter.notifyDataSetChanged()
     }
 
     override fun onItemPressed(itemView: View) {
@@ -595,15 +642,15 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
                                     object : FutureCallback<List<Radicals>> {
                                         override fun onSuccess(radicals1: List<Radicals>) {
                                             if (radicals1.isNotEmpty()) {
-                                                val radicalsList: MutableList<Array<String>> =
+                                                val radicals1List: MutableList<Array<String>> =
                                                     ArrayList()
                                                 for (i in radicals1.indices) {
-                                                    radicalsList.add(
+                                                    radicals1List.add(
                                                         radicals1[i].radicals.split(" ".toRegex())
                                                             .dropLastWhile { it.isEmpty() }
                                                             .toTypedArray())
                                                 }
-                                                mMainViewModel.setRadicalsList(radicalsList)
+                                                mMainViewModel.setRadicalsList(radicals1List)
                                                 mMainViewModel.setRadicalChosen(false)
                                                 setStateUI(StateUI.PUZZLE)
                                             }

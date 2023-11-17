@@ -16,7 +16,6 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.database.Dictionary
@@ -26,11 +25,11 @@ import java.lang.reflect.InvocationTargetException
 
 class Utils {
     companion object {
-        @JvmStatic fun containsChinese(input: String): Boolean {
+        fun containsChinese(input: String): Boolean {
             return input.matches(".*[\\u4e00-\\u9fff]+.*".toRegex())
         }
 
-        @JvmStatic fun getPaint(color: Int, brushSize: Float, dashed: Boolean): Paint {
+        fun getPaint(color: Int, brushSize: Float, dashed: Boolean): Paint {
             val paint = Paint()
             paint.isAntiAlias = true
             paint.isDither = true
@@ -47,12 +46,21 @@ class Utils {
             return paint
         }
 
-        @JvmStatic fun dpToPixels(context: Context, dpValue: Float): Int {
+        fun getTextPaint(color: Int, textSize: Float): Paint {
+            val paint = Paint()
+            paint.textSize = textSize
+            paint.textAlign = Paint.Align.CENTER
+            paint.style = Paint.Style.FILL
+            paint.color = color
+            return paint
+        }
+
+        fun dpToPixels(context: Context, dpValue: Float): Int {
             val scale = context.resources.displayMetrics.density
             return (dpValue * scale + 0.5f).toInt()
         }
 
-        @JvmStatic fun getScreenWidth(activity: Activity): Int {
+        fun getScreenWidth(activity: Activity): Int {
             val displayMetrics = DisplayMetrics()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 return activity.windowManager.currentWindowMetrics.bounds.width()
@@ -61,7 +69,7 @@ class Utils {
             return displayMetrics.widthPixels
         }
 
-        @JvmStatic fun getScreenHeight(activity: Activity): Int {
+        fun getScreenHeight(activity: Activity): Int {
             val displayMetrics = DisplayMetrics()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 return activity.windowManager.currentWindowMetrics.bounds.height()
@@ -70,18 +78,18 @@ class Utils {
             return displayMetrics.heightPixels
         }
 
-        @JvmStatic fun isScreenRotated(context: Context): Boolean {
+        fun isScreenRotated(context: Context): Boolean {
             return context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         }
 
-        @JvmStatic fun copyToClipboard(context: Context, text: String?): Boolean {
+        fun copyToClipboard(context: Context, text: String?): Boolean {
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("label", text)
             clipboard.setPrimaryClip(clip)
             return true
         }
 
-        @JvmStatic fun showPopup(
+        fun showPopup(
             v: View,
             text: String,
             languageFrom: String,
@@ -99,7 +107,7 @@ class Utils {
                                 text.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
                         }
                         if (copyToClipboard(v.context, tmpText)) {
-                            Toast.makeText(v.context, "Successfully copied", Toast.LENGTH_SHORT).show()
+                            Log.d("Utils", "Successfully copied")
                         }
                         return@setOnMenuItemClickListener true
                     }
@@ -168,7 +176,7 @@ class Utils {
             }
         }
 
-        @JvmStatic fun showMicLanguagePopup(v: View) {
+        fun showMicLanguagePopup(v: View) {
             val popupMenu = PopupMenu(v.context, v)
             popupMenu.setOnMenuItemClickListener { item: MenuItem ->
                 if (item.itemId == R.id.polish) {
@@ -182,7 +190,7 @@ class Utils {
             popupMenu.show()
         }
 
-        @JvmStatic fun showSearchModePopup(v: View) {
+        fun showSearchModePopup(v: View) {
             val popupMenu = PopupMenu(v.context, v)
             popupMenu.setOnMenuItemClickListener { item: MenuItem ->
                 if (item.itemId == R.id.normal_search) {
@@ -196,7 +204,7 @@ class Utils {
             popupMenu.show()
         }
 
-        @JvmStatic fun historyToDictionary(history: History): Dictionary {
+        fun historyToDictionary(history: History): Dictionary {
             val dictionary = Dictionary()
             dictionary.traditionalSign = history.traditionalSign
             dictionary.simplifiedSign = history.simplifiedSign
@@ -206,7 +214,7 @@ class Utils {
             return dictionary
         }
 
-        @JvmStatic fun hideKeyboard(context: Context, v: View) {
+        fun hideKeyboard(context: Context, v: View) {
             val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             if (imm.isActive) {
                 imm.hideSoftInputFromWindow(v.windowToken, 0)

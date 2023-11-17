@@ -1,5 +1,5 @@
 package com.wegielek.signalychinese.enums
 
 enum class CharacterMode {
-    PRESENTATION, LEARN, TEST
+    PRESENTATION, LEARN, TEST, NOT_FOUND
 }
