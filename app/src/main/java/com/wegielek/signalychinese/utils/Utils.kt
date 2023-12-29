@@ -8,19 +8,26 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.speech.tts.TextToSpeech
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import com.wegielek.signalychinese.R
+import com.wegielek.signalychinese.SignalyChineseApplication
 import com.wegielek.signalychinese.database.Dictionary
 import com.wegielek.signalychinese.database.History
 import com.wegielek.signalychinese.views.MainActivity
+import org.w3c.dom.Text
 import java.lang.reflect.InvocationTargetException
 
 class Utils {
@@ -65,6 +72,7 @@ class Utils {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 return activity.windowManager.currentWindowMetrics.bounds.width()
             }
+            @Suppress("DEPRECATION")
             activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
             return displayMetrics.widthPixels
         }
@@ -74,6 +82,7 @@ class Utils {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 return activity.windowManager.currentWindowMetrics.bounds.height()
             }
+            @Suppress("DEPRECATION")
             activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
             return displayMetrics.heightPixels
         }
@@ -91,13 +100,14 @@ class Utils {
 
         fun showPopup(
             v: View,
+            tv: TextView,
             text: String,
             languageFrom: String,
             languageTo: String,
-            tts: TextToSpeech
+            highlightColor: Int
         ) {
             val popupMenu = PopupMenu(v.context, v)
-            popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+            popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.copy -> {
                         var tmpText = "" + text
@@ -145,7 +155,11 @@ class Utils {
                             tmpText =
                                 text.split("/".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
                         }
-                        tts.speak(tmpText, TextToSpeech.QUEUE_FLUSH, null, null)
+                        if (languageFrom == "pl") {
+                            TextToSpeechManager.speakPL(tv, tmpText, highlightColor)
+                        } else {
+                            TextToSpeechManager.speakCH(tv, tmpText, highlightColor)
+                        }
                     }
                 }
                 false
@@ -161,16 +175,16 @@ class Utils {
                 }
             } catch (e: NoSuchFieldException) {
                 e.printStackTrace()
-                Log.e("LOG_TAG", "Error:" + e.message)
+                Log.e("Popup", "Error:" + e.message)
             } catch (e: IllegalAccessException) {
                 e.printStackTrace()
-                Log.e("LOG_TAG", "Error:" + e.message)
+                Log.e("Popup", "Error:" + e.message)
             } catch (e: NoSuchMethodException) {
                 e.printStackTrace()
-                Log.e("LOG_TAG", "Error:" + e.message)
+                Log.e("Popup", "Error:" + e.message)
             } catch (e: InvocationTargetException) {
                 e.printStackTrace()
-                Log.e("LOG_TAG", "Error:" + e.message)
+                Log.e("Popup", "Error:" + e.message)
             } finally {
                 popupMenu.show()
             }
@@ -178,11 +192,11 @@ class Utils {
 
         fun showMicLanguagePopup(v: View) {
             val popupMenu = PopupMenu(v.context, v)
-            popupMenu.setOnMenuItemClickListener { item: MenuItem ->
-                if (item.itemId == R.id.polish) {
-                    Preferences.setMicLanguage(v.context, "pl-PL")
-                } else if (item.itemId == R.id.chinese) {
-                    Preferences.setMicLanguage(v.context, "zh-CN")
+            popupMenu.setOnMenuItemClickListener {
+                if (it.itemId == R.id.polish) {
+                    Preferences.setMicLanguage("pl-PL")
+                } else if (it.itemId == R.id.chinese) {
+                    Preferences.setMicLanguage("zh-CN")
                 }
                 false
             }
@@ -192,16 +206,35 @@ class Utils {
 
         fun showSearchModePopup(v: View) {
             val popupMenu = PopupMenu(v.context, v)
-            popupMenu.setOnMenuItemClickListener { item: MenuItem ->
-                if (item.itemId == R.id.normal_search) {
-                    Preferences.setSearchMode(v.context, "normal")
-                } else if (item.itemId == R.id.all_search) {
-                    Preferences.setSearchMode(v.context, "all")
+            popupMenu.setOnMenuItemClickListener {
+                if (it.itemId == R.id.normal_search) {
+                    Preferences.setSearchMode("normal")
+                } else if (it.itemId == R.id.all_search) {
+                    Preferences.setSearchMode("all")
                 }
                 false
             }
             popupMenu.inflate(R.menu.popup_search_menu)
             popupMenu.show()
+        }
+
+        fun showWritingCharacterTypePopup(v: View, callback:(string: String) -> Unit) {
+            val popupMenu = PopupMenu(v.context, v)
+            popupMenu.setOnMenuItemClickListener {
+                if (it.itemId == R.id.simplified) {
+                    callback.invoke("simplified")
+                } else if (it.itemId == R.id.traditional) {
+                    callback.invoke("traditional")
+                }
+                false
+            }
+            popupMenu.inflate(R.menu.popup_writing_character_type_menu)
+            popupMenu.show()
+        }
+
+        fun showCustomPopup(v: View) {
+            val array = IntArray(2)
+            v.getLocationOnScreen(array)
         }
 
         fun historyToDictionary(history: History): Dictionary {
@@ -219,6 +252,44 @@ class Utils {
             if (imm.isActive) {
                 imm.hideSoftInputFromWindow(v.windowToken, 0)
             }
+        }
+
+        fun hasInternetConnection(): Boolean {
+            val connectivityManager = SignalyChineseApplication.instance.getSystemService(
+                Context.CONNECTIVITY_SERVICE
+            ) as ConnectivityManager
+            val activeNetwork = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+            return when {
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        }
+
+        fun setHighLightedText(tv: TextView, textToHighlight: String, color: Int) {
+            val tvt = tv.text.toString()
+            var ofe = tvt.indexOf(textToHighlight, 0)
+            val wordToSpan: Spannable = SpannableString(tv.text)
+            var ofs = 0
+            while (ofs < tvt.length && ofe != -1) {
+                ofe = tvt.indexOf(textToHighlight, ofs)
+                if (ofe == -1) break else {
+                    wordToSpan.setSpan(
+                        ForegroundColorSpan(color),
+                        ofe,
+                        ofe + textToHighlight.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    tv.setText(wordToSpan, TextView.BufferType.SPANNABLE)
+                }
+                ofs = ofe + 1
+            }
+        }
+
+        fun removeHighlights(tv: TextView) {
+            tv.text = SpannableString(tv.text.toString())
         }
     }
 

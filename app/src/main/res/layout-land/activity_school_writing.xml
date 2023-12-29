@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_mode_black"
+    tools:context=".views.SchoolWritingActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/schoolWritingToolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/dark_mode_black"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/Theme.SignalyChinese"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.wegielek.signalychinese.views.SchoolLearnStrokesCanvasView
+        android:id="@+id/schoolLearnStrokesCv"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/schoolWritingToolbar" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/prevWordBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/selector_search_bg_btn"
+        android:padding="12dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_arrow_back_default"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/nextWordBtn" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/nextWordBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/selector_search_bg_btn"
+        android:padding="12dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_arrow_forward_default"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/schoolLearnStrokesCv" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/nextCharacterBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/btn_simple_black_ripple_border_bg"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="@color/dark_mode_white"
+        android:text="@string/continuee"
+        app:layout_constraintBottom_toBottomOf="@+id/schoolLearnStrokesCv"
+        app:layout_constraintEnd_toEndOf="@+id/schoolLearnStrokesCv"
+        app:layout_constraintStart_toStartOf="@+id/schoolLearnStrokesCv" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/resetCharacterBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:contentDescription="@string/reset_character"
+        android:scaleType="fitXY"
+        android:padding="12dp"
+        android:background="?attr/selectableItemBackground"
+        android:src="@drawable/ic_replay_default"
+        app:layout_constraintEnd_toEndOf="@+id/schoolLearnStrokesCv"
+        app:layout_constraintTop_toTopOf="@+id/schoolLearnStrokesCv" />
+
+    <TextView
+        android:id="@+id/characterCounterTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/placeholder_counter"
+        android:textColor="@color/dark_mode_white"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/schoolLearnStrokesCv"
+        app:layout_constraintTop_toTopOf="@+id/schoolLearnStrokesCv" />
+
+    <TextView
+        android:id="@+id/characterDropdownTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:padding="8dp"
+        android:text="@string/placeholder_text"
+        android:textColor="@color/dark_mode_white"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/characterDropwdownIv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:rotation="180"
+        android:contentDescription="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/characterDropdownTv"
+        app:layout_constraintStart_toEndOf="@+id/characterDropdownTv"
+        app:layout_constraintTop_toTopOf="@+id/characterDropdownTv"
+        app:srcCompat="@drawable/ic_dropdown_default"
+        />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/prevWordBtn"
+        app:layout_constraintEnd_toStartOf="@+id/schoolLearnStrokesCv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/schoolWritingToolbar"
+        app:layout_constraintVertical_bias="0.0">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/hintText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_weight="1"
+                android:text="@string/placeholder_text"
+                android:textAlignment="center"
+                android:textColor="@color/hint_color"
+                android:textSize="24sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/writing_translation_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_weight="1"
+                android:text="@string/placeholder_text"
+                android:textAlignment="center"
+                android:textColor="@color/dark_mode_white"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

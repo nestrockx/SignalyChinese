@@ -21,15 +21,15 @@ import com.wegielek.signalychinese.viewmodels.HistoryViewModel
 
 class HistoryActivity : AppCompatActivity(), HistoryRecyclerViewListener {
 
-    private lateinit var mBinding: ActivityHistoryBinding
+    private lateinit var binding: ActivityHistoryBinding
     private lateinit var mHistoryAdapter: HistoryAdapter
     private lateinit var mHistoryViewModel: HistoryViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mBinding = ActivityHistoryBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
+        binding = ActivityHistoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         mHistoryViewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
-        val historyToolbar: Toolbar = mBinding.historyToolbar
+        val historyToolbar: Toolbar = binding.historyToolbar
         setSupportActionBar(historyToolbar)
         historyToolbar.setTitleTextColor(getColor(R.color.dark_mode_white))
         if (supportActionBar != null) {
@@ -37,9 +37,9 @@ class HistoryActivity : AppCompatActivity(), HistoryRecyclerViewListener {
             supportActionBar!!.setDisplayShowHomeEnabled(true)
             supportActionBar!!.title = getString(R.string.history)
         }
-        mBinding.historyRv.layoutManager = LinearLayoutManager(this)
+        binding.historyRv.layoutManager = LinearLayoutManager(this)
         mHistoryAdapter = HistoryAdapter(this, this)
-        mBinding.historyRv.adapter = mHistoryAdapter
+        binding.historyRv.adapter = mHistoryAdapter
         mHistoryViewModel.wholeHistory.observe(
             this
         ) { histories: List<History> ->

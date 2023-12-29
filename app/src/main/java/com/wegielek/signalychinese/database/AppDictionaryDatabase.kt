@@ -6,7 +6,7 @@ import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [Dictionary::class, Radicals::class, History::class, FlashCards::class],
+    entities = [Dictionary::class, Radicals::class, History::class, FlashCards::class, Sentences::class],
     version = 1
 )
 abstract class AppDictionaryDatabase : RoomDatabase() {
@@ -14,6 +14,7 @@ abstract class AppDictionaryDatabase : RoomDatabase() {
     abstract fun radicalDao(): RadicalsDao
     abstract fun historyDao(): HistoryDao
     abstract fun flashCardsDao(): FlashCardsDao
+    abstract fun sentencesDao(): SentencesDao
 
     companion object {
         private val LOCK = Any()
@@ -26,8 +27,7 @@ abstract class AppDictionaryDatabase : RoomDatabase() {
                         context.applicationContext,
                         AppDictionaryDatabase::class.java,
                         DATABASE_NAME
-                    )
-                        .createFromAsset("dictionarylp.db").build()
+                    ).createFromAsset("dictionarylp.db").build()
                 }
             }
             return mInstance

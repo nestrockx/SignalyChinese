@@ -21,8 +21,10 @@ class CameraActivity : AppCompatActivity() {
             )
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                @Suppress("DEPRECATION")
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right, R.color.dark_mode_black)
             } else {
+                @Suppress("DEPRECATION")
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
             }
         }

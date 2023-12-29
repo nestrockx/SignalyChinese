@@ -12,18 +12,30 @@ import com.wegielek.signalychinese.database.History
 import com.wegielek.signalychinese.database.HistoryDao
 import com.wegielek.signalychinese.database.Radicals
 import com.wegielek.signalychinese.database.RadicalsDao
+import com.wegielek.signalychinese.database.Sentences
+import com.wegielek.signalychinese.database.SentencesDao
 
 class DictionaryRepository(application: Application) {
     private val dictionaryDao: DictionaryDao
     private val radicalsDao: RadicalsDao
     private val historyDao: HistoryDao
     private val flashCardsDao: FlashCardsDao
+    private val sentencesDao: SentencesDao
 
     init {
         dictionaryDao = getInstance(application)?.dictionaryDao() ?: throw NullPointerException("Database instance not available")
         radicalsDao = getInstance(application)?.radicalDao() ?: throw NullPointerException("Database instance not available")
         historyDao = getInstance(application)?.historyDao() ?: throw NullPointerException("Database instance not available")
         flashCardsDao = getInstance(application)?.flashCardsDao() ?: throw NullPointerException("Database instance not available")
+        sentencesDao = getInstance(application)?.sentencesDao() ?: throw NullPointerException("Database instance not available")
+    }
+
+    fun findSimplifiedSentences(word: String): ListenableFuture<List<Sentences>> {
+        return sentencesDao.findSimplifiedSentences(word)
+    }
+
+    fun findTraditionalSentences(word: String): ListenableFuture<List<Sentences>> {
+        return sentencesDao.findTraditionalSentences(word)
     }
 
     fun getFlashCardGroup(group: String): LiveData<List<FlashCards>> {

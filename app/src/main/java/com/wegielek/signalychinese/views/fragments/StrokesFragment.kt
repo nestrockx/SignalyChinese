@@ -1,5 +1,6 @@
 package com.wegielek.signalychinese.views.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
@@ -20,100 +21,112 @@ import com.wegielek.signalychinese.utils.Utils.Companion.getScreenWidth
 import com.wegielek.signalychinese.utils.Utils.Companion.isScreenRotated
 import com.wegielek.signalychinese.viewmodels.DefinitionViewModel
 import com.wegielek.signalychinese.views.DefinitionWordActivity
-import com.wegielek.signalychinese.views.LearnStrokesCanvasView
+import com.wegielek.signalychinese.views.MainActivity
+import com.wegielek.signalychinese.views.MainLearnStrokesCanvasView
 
 
 class StrokesFragment : Fragment(R.layout.fragment_strokes) {
-    lateinit var mBinding: FragmentStrokesBinding
-    private lateinit var charArray: CharArray
-    private lateinit var definitionViewModel: DefinitionViewModel
+    private lateinit var binding: FragmentStrokesBinding
+    private lateinit var mCharArray: CharArray
+    private lateinit var mDefinitionViewModel: DefinitionViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mBinding = FragmentStrokesBinding.inflate(inflater, container, false)
-        return mBinding.root
+        binding = FragmentStrokesBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        definitionViewModel = (activity as DefinitionWordActivity).definitionViewModel
-        val learnStrokesCanvasView =
-            view.findViewById<LearnStrokesCanvasView>(R.id.learnStrokesCanvasView)
-        learnStrokesCanvasView.setViewModel(definitionViewModel)
-        definitionViewModel.word.observe(
+        mDefinitionViewModel = (activity as DefinitionWordActivity).definitionViewModel
+        val mainLearnStrokesCanvasView =
+            view.findViewById<MainLearnStrokesCanvasView>(R.id.learnStrokesCanvasView)
+        mainLearnStrokesCanvasView.setViewModel(mDefinitionViewModel)
+        mDefinitionViewModel.word.observe(
             viewLifecycleOwner
         ) { s: Dictionary ->
-            charArray = s.simplifiedSign.plus(s.traditionalSign).toSet().toCharArray()
-            mBinding.characterIndex.text = getString(R.string.characters_number_placeholder, definitionViewModel.index + 1, charArray.size)
-            learnStrokesCanvasView.setHanziCharacter(
-                charArray[definitionViewModel.index], definitionViewModel.characterMode
+            mCharArray = s.simplifiedSign.plus(s.traditionalSign).toSet().toCharArray()
+            binding.characterIndex.text = getString(R.string.characters_number_placeholder,
+                mDefinitionViewModel.index + 1, mCharArray.size)
+            mainLearnStrokesCanvasView.setHanziCharacter(
+                mCharArray[mDefinitionViewModel.index], true
             )
             setHighlights()
         }
-        if (!isScreenRotated(requireContext())) learnStrokesCanvasView.setDimensions(
+        if (!isScreenRotated(requireContext())) mainLearnStrokesCanvasView.setDimensions(
             getScreenWidth(
                 requireActivity()
             ) - dpToPixels(requireContext(), 64f)
-        ) else learnStrokesCanvasView.setDimensions(
+        ) else mainLearnStrokesCanvasView.setDimensions(
             getScreenHeight(requireActivity()) - dpToPixels(requireContext(), 128f)
         )
 
-        mBinding.restartBtn.visibility = View.INVISIBLE
-        mBinding.restartBtn.setOnClickListener {
-            learnStrokesCanvasView.setMode(CharacterMode.LEARN)
+        binding.restartPresentBtn.visibility = View.INVISIBLE
+        binding.restartPresentBtn.setOnClickListener {
+            mDefinitionViewModel.setCharacterMode(CharacterMode.PRESENTATION)
         }
 
-        if (definitionViewModel.characterMode == CharacterMode.PRESENTATION) {
-            mBinding.learnCBtn.text = getString(R.string.draw)
-            mBinding.restartBtn.visibility = View.INVISIBLE
-        } else if (definitionViewModel.characterMode == CharacterMode.LEARN) {
-            mBinding.restartBtn.visibility = View.VISIBLE
-            mBinding.learnCBtn.text = getString(R.string.present)
+        binding.restartDrawBtn.visibility = View.INVISIBLE
+        binding.restartDrawBtn.setOnClickListener {
+            mDefinitionViewModel.setCharacterMode(CharacterMode.LEARN)
         }
 
-        mBinding.learnCBtn.setOnClickListener {
-            if (definitionViewModel.characterMode == CharacterMode.PRESENTATION) {
-                learnStrokesCanvasView.setMode(CharacterMode.LEARN)
-                mBinding.learnCBtn.text = getString(R.string.present)
-                mBinding.restartBtn.visibility = View.VISIBLE
-            } else if (definitionViewModel.characterMode == CharacterMode.LEARN) {
-                learnStrokesCanvasView.setMode(CharacterMode.PRESENTATION)
-                mBinding.learnCBtn.text = getString(R.string.draw)
-                mBinding.restartBtn.visibility = View.INVISIBLE
+        mDefinitionViewModel.characterMode.observe(viewLifecycleOwner) {
+            if (it === CharacterMode.PRESENTATION) {
+                binding.restartDrawBtn.visibility = View.INVISIBLE
+                binding.restartPresentBtn.visibility = View.VISIBLE
+                binding.learnCBtn.text = getString(R.string.draw)
+            } else if (it === CharacterMode.LEARN) {
+                binding.restartDrawBtn.visibility = View.VISIBLE
+                binding.restartPresentBtn.visibility = View.INVISIBLE
+                binding.learnCBtn.text = getString(R.string.present)
+            } else if (it === CharacterMode.NOT_FOUND) {
+                binding.restartDrawBtn.visibility = View.INVISIBLE
             }
         }
 
-        mBinding.nextCharacter.setOnClickListener {
-            definitionViewModel.index++
-            if (definitionViewModel.index < charArray.size) {
-                learnStrokesCanvasView.setHanziCharacter(
-                    charArray[definitionViewModel.index], definitionViewModel.characterMode
+        binding.learnCBtn.setOnClickListener {
+            if (mDefinitionViewModel.getCharacterMode() === CharacterMode.PRESENTATION) {
+                mDefinitionViewModel.setCharacterMode(CharacterMode.LEARN)
+            } else if (mDefinitionViewModel.getCharacterMode() === CharacterMode.LEARN) {
+                mDefinitionViewModel.setCharacterMode(CharacterMode.PRESENTATION)
+            }
+        }
+
+        binding.nextCharacter.setOnClickListener {
+            mDefinitionViewModel.index++
+            if (mDefinitionViewModel.index < mCharArray.size) {
+                mainLearnStrokesCanvasView.setHanziCharacter(
+                    mCharArray[mDefinitionViewModel.index], true
                 )
                 setHighlights()
             } else {
-                definitionViewModel.index--
+                mDefinitionViewModel.index--
             }
-            mBinding.characterIndex.text = getString(R.string.characters_number_placeholder, definitionViewModel.index + 1, charArray.size)
+            binding.characterIndex.text = getString(R.string.characters_number_placeholder, mDefinitionViewModel.index + 1, mCharArray.size)
         }
 
-        mBinding.prevCharacter.setOnClickListener{
-            definitionViewModel.index--
-            if (definitionViewModel.index >= 0) {
-                learnStrokesCanvasView.setHanziCharacter(
-                    charArray[definitionViewModel.index], definitionViewModel.characterMode
+        binding.prevCharacter.setOnClickListener{
+            mDefinitionViewModel.index--
+            if (mDefinitionViewModel.index >= 0) {
+                mainLearnStrokesCanvasView.setHanziCharacter(
+                    mCharArray[mDefinitionViewModel.index], true
                 )
                 setHighlights()
             } else {
-                definitionViewModel.index++
+                mDefinitionViewModel.index++
             }
-            mBinding.characterIndex.text = getString(R.string.characters_number_placeholder, definitionViewModel.index + 1, charArray.size)
+            binding.characterIndex.text = getString(R.string.characters_number_placeholder, mDefinitionViewModel.index + 1, mCharArray.size)
         }
 
-        //val str = SpannableString((context as DefinitionWordActivity).binding.definitionCharactersTraditonalTv.text)
-        //str.setSpan(BackgroundColorSpan(requireContext().getColor(R.color.grey)), 0, 1, 0)
-        //(context as DefinitionWordActivity).binding.definitionCharactersTraditonalTv.text = str
+        binding.searchCharBtn.setOnClickListener {
+            val intent = Intent(it.context, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("searchWord", mCharArray[mDefinitionViewModel.index].toString())
+            it.context.startActivity(intent)
+        }
     }
 
     override fun onResume() {
@@ -145,12 +158,12 @@ class StrokesFragment : Fragment(R.layout.fragment_strokes) {
         removeHighlights()
         setHighLightedText(
             (context as DefinitionWordActivity).binding.definitionCharactersSimplifiedTv,
-            charArray[definitionViewModel.index].toString(),
+            mCharArray[mDefinitionViewModel.index].toString(),
             requireContext().getColor(R.color.white_highlight)
         )
         setHighLightedText(
             (context as DefinitionWordActivity).binding.definitionCharactersTraditonalTv,
-            charArray[definitionViewModel.index].toString(),
+            mCharArray[mDefinitionViewModel.index].toString(),
             requireContext().getColor(R.color.white_highlight)
         )
     }

@@ -23,10 +23,10 @@ import kotlin.math.abs
 
 class FlashCardFragment : Fragment() {
 
-    private lateinit var frontAnimUp: AnimatorSet
-    private lateinit var backAnimUp: AnimatorSet
-    private lateinit var mBinding: FragmentFlashCardBinding
-    private lateinit var swipeListener: FlashCardFragment.SwipeListener
+    private lateinit var binding: FragmentFlashCardBinding
+    private lateinit var mFrontAnimUp: AnimatorSet
+    private lateinit var mBackAnimUp: AnimatorSet
+    private lateinit var mSwipeListener: FlashCardFragment.SwipeListener
     private lateinit var mFlashCardsViewModel: FlashCardsViewModel
     private var isFront = true
 
@@ -34,8 +34,8 @@ class FlashCardFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mBinding = FragmentFlashCardBinding.inflate(inflater, container, false)
-        return mBinding.root
+        binding = FragmentFlashCardBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,37 +47,41 @@ class FlashCardFragment : Fragment() {
             mFlashCardsViewModel.currentIndex.observe(viewLifecycleOwner) { index ->
                 val handler = Handler(Looper.getMainLooper())
                 handler.postDelayed({
-                    if (!isFlashCardsReversed(requireContext())) {
-                        mBinding.cardFront.text =
-                            it[index].traditionalSign + "\n" + it[index].simplifiedSign
-                        mBinding.cardBack.text =
-                            it[index].pronunciation + "\n\n" + it[index].translation.replace(
-                                " /",
-                                ";"
-                            )
-                    } else {
-                        mBinding.cardFront.text =
-                            it[index].pronunciation + "\n\n" + it[index].translation.replace(
-                                " /",
-                                ";"
-                            )
-                        mBinding.cardBack.text =
-                            it[index].traditionalSign + "\n" + it[index].simplifiedSign
+                    if (it.isNotEmpty()) {
+                        if (!isFlashCardsReversed()) {
+                            binding.cardFront.text =
+                                it[index].traditionalSign + "\n" + it[index].simplifiedSign
+                            binding.cardBack.text =
+                                it[index].pronunciation + "\n\n" + it[index].translation.replace(
+                                    " /",
+                                    ";"
+                                )
+                        } else {
+                            binding.cardFront.text =
+                                it[index].pronunciation + "\n\n" + it[index].translation.replace(
+                                    " /",
+                                    ";"
+                                )
+                            binding.cardBack.text =
+                                it[index].traditionalSign + "\n" + it[index].simplifiedSign
 
+                        }
+                    } else {
+                        (context as FlashCardsActivity).finish()
                     }
                 }, 150)
 
-                if (mFlashCardsViewModel.currentIndex.value == mFlashCardsViewModel.getFlashCardsList()!!.size - 1) {
-                    mBinding.nextBtn.visibility = View.INVISIBLE
+                if (mFlashCardsViewModel.getCurrentIndex() == mFlashCardsViewModel.getFlashCardsList()!!.size - 1) {
+                    binding.nextBtn.visibility = View.INVISIBLE
                 }
-                if (mFlashCardsViewModel.currentIndex.value == 0) {
-                    mBinding.prevBtn.visibility = View.INVISIBLE
+                if (mFlashCardsViewModel.getCurrentIndex() == 0) {
+                    binding.prevBtn.visibility = View.INVISIBLE
                 }
             }
         }
 
-        mBinding.incorrectBtn.visibility = View.INVISIBLE
-        mBinding.correctBtn.visibility = View.INVISIBLE
+        binding.incorrectBtn.visibility = View.INVISIBLE
+        binding.correctBtn.visibility = View.INVISIBLE
 
         requireActivity().onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -85,54 +89,54 @@ class FlashCardFragment : Fragment() {
             }
         })
 
-        swipeListener = SwipeListener(mBinding.gesturePlain)
+        mSwipeListener = SwipeListener(binding.gesturePlain)
         if (!Utils.isScreenRotated(requireContext())) {
-            mBinding.cardFront.width = Utils.getScreenWidth(activity as FlashCardsActivity) -
+            binding.cardFront.width = Utils.getScreenWidth(activity as FlashCardsActivity) -
                     Utils.dpToPixels(requireContext(), 64f)
-            mBinding.cardFront.height = Utils.getScreenWidth(activity as FlashCardsActivity) -
+            binding.cardFront.height = Utils.getScreenWidth(activity as FlashCardsActivity) -
                     Utils.dpToPixels(requireContext(), 64f)
-            mBinding.cardBack.width = Utils.getScreenWidth(activity as FlashCardsActivity) -
+            binding.cardBack.width = Utils.getScreenWidth(activity as FlashCardsActivity) -
                     Utils.dpToPixels(requireContext(), 64f)
-            mBinding.cardBack.height = Utils.getScreenWidth(activity as FlashCardsActivity) -
+            binding.cardBack.height = Utils.getScreenWidth(activity as FlashCardsActivity) -
                     Utils.dpToPixels(requireContext(), 64f)
         } else {
-            mBinding.cardFront.width = Utils.getScreenHeight(activity as FlashCardsActivity) -
+            binding.cardFront.width = Utils.getScreenHeight(activity as FlashCardsActivity) -
                     Utils.dpToPixels(requireContext(), 130f)
-            mBinding.cardFront.height = Utils.getScreenHeight(activity as FlashCardsActivity) -
+            binding.cardFront.height = Utils.getScreenHeight(activity as FlashCardsActivity) -
                     Utils.dpToPixels(requireContext(), 150f)
-            mBinding.cardBack.width = Utils.getScreenHeight(activity as FlashCardsActivity) -
+            binding.cardBack.width = Utils.getScreenHeight(activity as FlashCardsActivity) -
                     Utils.dpToPixels(requireContext(), 130f)
-            mBinding.cardBack.height = Utils.getScreenHeight(activity as FlashCardsActivity) -
+            binding.cardBack.height = Utils.getScreenHeight(activity as FlashCardsActivity) -
                     Utils.dpToPixels(requireContext(), 150f)
         }
         val scale = resources.displayMetrics.density
-        mBinding.cardFront.cameraDistance = 8000 * scale
-        mBinding.cardBack.cameraDistance = 8000 * scale
-        frontAnimUp =
+        binding.cardFront.cameraDistance = 8000 * scale
+        binding.cardBack.cameraDistance = 8000 * scale
+        mFrontAnimUp =
             AnimatorInflater.loadAnimator(requireContext(), R.animator.front_animator_up)
                     as AnimatorSet
-        backAnimUp =
+        mBackAnimUp =
             AnimatorInflater.loadAnimator(requireContext(), R.animator.back_animator_up)
                     as AnimatorSet
 
 
-        mBinding.flipBtn.setOnClickListener {
+        binding.flipBtn.setOnClickListener {
             flip(Direction.UP)
         }
 
-        mBinding.nextBtn.setOnClickListener {
+        binding.nextBtn.setOnClickListener {
             if (mFlashCardsViewModel.increaseIndex()) {
                 (activity as FlashCardsActivity).switchFragment(Direction.RIGHT)
             }
         }
 
-        mBinding.prevBtn.setOnClickListener {
+        binding.prevBtn.setOnClickListener {
             if (mFlashCardsViewModel.decreaseIndex()) {
                 (activity as FlashCardsActivity).switchFragment(Direction.LEFT)
             }
         }
 
-        mBinding.incorrectBtn.setOnClickListener {
+        binding.incorrectBtn.setOnClickListener {
             if (mFlashCardsViewModel.increaseIndex()) {
                 (activity as FlashCardsActivity).switchFragment(
                     Direction.RIGHT
@@ -142,7 +146,7 @@ class FlashCardFragment : Fragment() {
             }
         }
 
-        mBinding.correctBtn.setOnClickListener {
+        binding.correctBtn.setOnClickListener {
             if (mFlashCardsViewModel.increaseIndex()) {
                 (activity as FlashCardsActivity).switchFragment(
                     Direction.RIGHT
@@ -154,26 +158,26 @@ class FlashCardFragment : Fragment() {
     }
 
     private fun flip(direction: Direction) {
-        if (!frontAnimUp.isRunning && !backAnimUp.isRunning) {
-            if (direction == Direction.UP) {
+        if (!mFrontAnimUp.isRunning && !mBackAnimUp.isRunning) {
+            if (direction == Direction.UP || direction == Direction.DOWN) {
                 isFront = if (isFront) {
-                    frontAnimUp.setTarget(mBinding.cardFront)
-                    backAnimUp.setTarget(mBinding.cardBack)
-                    frontAnimUp.start()
-                    backAnimUp.start()
+                    mFrontAnimUp.setTarget(binding.cardFront)
+                    mBackAnimUp.setTarget(binding.cardBack)
+                    mFrontAnimUp.start()
+                    mBackAnimUp.start()
 
-                    mBinding.incorrectBtn.postDelayed({ mBinding.incorrectBtn.visibility = View.VISIBLE }, 500)
-                    mBinding.correctBtn.postDelayed({ mBinding.correctBtn.visibility = View.VISIBLE }, 500)
+                    binding.incorrectBtn.postDelayed({ binding.incorrectBtn.visibility = View.VISIBLE }, 500)
+                    binding.correctBtn.postDelayed({ binding.correctBtn.visibility = View.VISIBLE }, 500)
 
                     false
                 } else {
-                    backAnimUp.setTarget(mBinding.cardFront)
-                    frontAnimUp.setTarget(mBinding.cardBack)
-                    backAnimUp.start()
-                    frontAnimUp.start()
+                    mBackAnimUp.setTarget(binding.cardFront)
+                    mFrontAnimUp.setTarget(binding.cardBack)
+                    mBackAnimUp.start()
+                    mFrontAnimUp.start()
 
-                    mBinding.incorrectBtn.visibility = View.INVISIBLE
-                    mBinding.correctBtn.visibility = View.INVISIBLE
+                    binding.incorrectBtn.visibility = View.INVISIBLE
+                    binding.correctBtn.visibility = View.INVISIBLE
 
                     true
                 }
@@ -229,7 +233,7 @@ class FlashCardFragment : Fragment() {
                                         flip(Direction.UP)
                                     } else {
                                         //up
-                                        flip(Direction.UP)
+                                        flip(Direction.DOWN)
                                     }
                                     return true
                                 }

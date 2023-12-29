@@ -1,6 +1,5 @@
 package com.wegielek.signalychinese.views
 
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -15,13 +14,13 @@ import java.util.ArrayList
 
 class HamburgerActivity : AppCompatActivity() {
 
-    lateinit var mBinding: ActivityHamburgerBinding
-    lateinit var mHamburgerMenuAdapter: HamburgerMenuAdapter
+    private lateinit var binding: ActivityHamburgerBinding
+    private lateinit var mHamburgerMenuAdapter: HamburgerMenuAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mBinding = ActivityHamburgerBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
+        binding = ActivityHamburgerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val definitionToolbar = findViewById<Toolbar>(R.id.definitionToolbar)
         setSupportActionBar(definitionToolbar)
@@ -34,17 +33,10 @@ class HamburgerActivity : AppCompatActivity() {
             Log.e(LOG_TAG, "Support action bar is null in onCreate")
         }
 
-
-        val menuArray = ArrayList<String>()
-        menuArray.add("Tryb wyszukiwania")
-        menuArray.add("Język wyszukiwania głosem")
-        menuArray.add("Historia wyszukiwania")
-        menuArray.add("Nauka")
-        menuArray.add("O aplikacji")
-
-        mBinding.menuItemsRv.layoutManager = LinearLayoutManager(applicationContext)
+        val menuArray = ArrayList(resources.getStringArray(R.array.menu_array).asList())
+        binding.menuItemsRv.layoutManager = LinearLayoutManager(applicationContext)
         mHamburgerMenuAdapter = HamburgerMenuAdapter(menuArray)
-        mBinding.menuItemsRv.adapter = mHamburgerMenuAdapter
+        binding.menuItemsRv.adapter = mHamburgerMenuAdapter
     }
 
     override fun finish() {
@@ -55,7 +47,11 @@ class HamburgerActivity : AppCompatActivity() {
                 R.anim.slide_in_right,
                 R.anim.slide_out_left
             )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left, R.color.dark_mode_black)
         } else {
+            @Suppress("DEPRECATION")
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }

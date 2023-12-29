@@ -29,6 +29,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/speak_chinese"
         android:padding="10dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_sound_default"
@@ -43,6 +44,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/speak_polish"
         android:padding="10dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_sound_default"
@@ -82,6 +84,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/close"
         android:padding="5dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_close_default"
@@ -89,7 +92,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/languageLabelCH"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="-8dp"
@@ -101,7 +104,7 @@
         app:layout_constraintStart_toStartOf="@+id/dialogPronunciationCHBtn" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/languageLabelPL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="-8dp"

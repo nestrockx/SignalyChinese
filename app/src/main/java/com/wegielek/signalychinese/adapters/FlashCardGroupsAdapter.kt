@@ -2,7 +2,6 @@ package com.wegielek.signalychinese.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,12 +11,12 @@ import androidx.appcompat.widget.AppCompatImageButton
 import androidx.recyclerview.widget.RecyclerView
 import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.interfaces.FlashCardsGroupsRecyclerViewListener
-import com.wegielek.signalychinese.views.DefinitionWordActivity
-import com.wegielek.signalychinese.views.FlashCardsActivity
-import com.wegielek.signalychinese.views.SchoolActivity
-import com.wegielek.signalychinese.views.SchoolWritingActivity
 
-class FlashCardGroupsAdapter(private val context: Context, private val flashCardsGroupsRecyclerViewListener: FlashCardsGroupsRecyclerViewListener) : RecyclerView.Adapter<FlashCardGroupsAdapter.ViewHolder>() {
+class FlashCardGroupsAdapter(
+    private val context: Context,
+    private val flashCardsGroupsRecyclerViewListener: FlashCardsGroupsRecyclerViewListener
+) : RecyclerView.Adapter<FlashCardGroupsAdapter.ViewHolder>() {
+
     private val dataList: MutableList<String>
 
     init {

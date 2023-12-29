@@ -4,20 +4,24 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.common.util.concurrent.ListenableFuture
 import com.wegielek.signalychinese.database.FlashCards
 import com.wegielek.signalychinese.repository.DictionaryRepository
 
 class FlashCardsViewModel(application: Application) : AndroidViewModel(application) {
-    private val mDictionaryRepository: DictionaryRepository
-
     val flashCardsList: MutableLiveData<List<FlashCards>>
     val currentIndex: MutableLiveData<Int>
+    private val mDictionaryRepository: DictionaryRepository
 
     init {
         mDictionaryRepository = DictionaryRepository(application)
         flashCardsList = MutableLiveData()
         currentIndex = MutableLiveData()
         currentIndex.value = 0
+    }
+
+    fun getCurrentIndex(): Int {
+        return currentIndex.value!!
     }
 
     fun increaseIndex(): Boolean {
@@ -50,5 +54,14 @@ class FlashCardsViewModel(application: Application) : AndroidViewModel(applicati
         flashCardsList.value = flashCards
     }
 
-
+    fun deleteFlashCard(
+        traditional: String,
+        simplified: String,
+        pronunciation: String
+    ): ListenableFuture<Void?> {
+        return mDictionaryRepository.deleteFlashCard(
+            traditional, simplified,
+            pronunciation
+        )
+    }
 }

@@ -25,6 +25,7 @@ import com.google.mlkit.vision.digitalink.DigitalInkRecognizerOptions
 import com.google.mlkit.vision.digitalink.Ink
 import com.google.mlkit.vision.digitalink.RecognitionResult
 import com.wegielek.signalychinese.interfaces.CanvasViewListener
+import com.wegielek.signalychinese.utils.Utils
 import com.wegielek.signalychinese.viewmodels.MainViewModel
 
 class CharacterRecognizeCanvasView(
@@ -157,14 +158,25 @@ class CharacterRecognizeCanvasView(
             .download(model, DownloadConditions.Builder().build())
             .addOnSuccessListener {
                 Log.i(LOG_TAG, "Model downloaded")
-                canvasViewListener.onModelDownloaded()
+                canvasViewListener.onModelDownloaded(false)
             }
             .addOnFailureListener { e: Exception ->
                 Log.e(
                     LOG_TAG,
                     "Error while downloading a model: $e"
                 )
+                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
             }
+
+        isModelDownloaded.onSuccessTask { result: Boolean ->
+            if (!result) {
+                if (!Utils.hasInternetConnection()) {
+                    canvasViewListener.onModelDownloaded(true)
+                }
+                return@onSuccessTask Tasks.forResult<Any?>(null)
+            }
+            Tasks.forResult(null)
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -179,6 +191,7 @@ class CharacterRecognizeCanvasView(
         val t = System.currentTimeMillis()
         when (action) {
             MotionEvent.ACTION_DOWN -> {
+                canvasViewListener.onInput()
                 mainViewModel?.moveToCurrentVisibleStroke(x, y)
                 mainViewModel?.addStrokeBuilderPoint(Ink.Point.create(x, y, t))
             }

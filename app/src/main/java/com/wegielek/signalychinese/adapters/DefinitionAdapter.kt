@@ -43,7 +43,7 @@ class DefinitionAdapter(
                 dataList[position].trim { it <= ' ' })
         holder.moreBtn.setOnClickListener { v: View ->
             listener.showPopup(
-                v, dataList[position]
+                v, holder.definitionRowTv, dataList[position]
             )
         }
     }

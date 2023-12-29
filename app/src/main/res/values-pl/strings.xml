@@ -43,4 +43,43 @@
     <string name="collection">"Kolekcja: "</string>
     <string name="draw">Rysuj</string>
     <string name="present">Prezentuj</string>
+    <string name="writing">Pisanie</string>
+
+    <string-array name="menu_array">
+        <item>Tryb Wyszukiwania</item>
+        <item>Język wyszukiwania głosem</item>
+        <item>Historia wyszukiwania</item>
+        <item>Nauka</item>
+        <item>O aplikacji</item>
+    </string-array>
+    <string name="draw_here">Rysuj tutaj</string>
+    <string name="refresh">Odśwież</string>
+    <string name="no_internet">Brak internetu</string>
+    <string name="provide_input">Proszę wpisać słowo</string>
+    <string name="about">O aplikacji</string>
+    <string name="licences">Licencje</string>
+    <string name="version">Wersja</string>
+    <string name="hint">Wskazówka</string>
+    <string name="simplified">Uproszczone</string>
+    <string name="traditional">Tradycyjne</string>
+    <string name="continuee">Kontynuuj</string>
+    <string name="say_something">Powiedz coś</string>
+    <string name="delete_flashcard_group">Usuń grupę</string>
+    <string name="word_popup">Opcje słowa</string>
+    <string name="previous_character">Poprzedni znak</string>
+    <string name="next_character">Następny znak</string>
+    <string name="search_character">Wyszkaj znak</string>
+    <string name="reset_character">Zresetuj znak</string>
+    <string name="gesture_plain">Powierzchnia gestu</string>
+    <string name="next_flashcard">Następna fiszka</string>
+    <string name="close">Zamknij</string>
+    <string name="speak_chinese">Powiedz po chińsku</string>
+    <string name="speak_polish">Powiedz po polsku</string>
+    <string name="add_collection">Dodaj kolekcję</string>
+    <string name="new_collection_confirm">Zatwierdź nową kolekcję</string>
+    <string name="mic">Powiedz do mikrofonu</string>
+    <string name="vector_master">Vector Master</string>
+    <string name="add">Dodaj</string>
+    <string name="delete">Usuń</string>
+    <string name="reverse">Odwróć</string>
 </resources>

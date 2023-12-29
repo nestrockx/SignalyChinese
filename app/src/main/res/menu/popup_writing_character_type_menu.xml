@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/simplified"
+        android:title="@string/simplified" />
+    <item
+        android:id="@+id/traditional"
+        android:title="@string/traditional" />
+</menu>

@@ -110,7 +110,7 @@
         android:id="@+id/divider3"
         android:layout_width="0dp"
         android:layout_height="2dp"
-        android:background="?android:attr/listDivider"
+        android:background="@color/grey"
         app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintEnd_toEndOf="@+id/bottomNavigationView"
         app:layout_constraintStart_toStartOf="parent" />
@@ -120,7 +120,7 @@
         android:id="@+id/divider6"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="?android:attr/listDivider"
+        android:background="@color/grey"
         app:layout_constraintBottom_toBottomOf="@+id/definitionToolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -129,7 +129,7 @@
         android:id="@+id/divider5"
         android:layout_width="2dp"
         android:layout_height="0dp"
-        android:background="?android:attr/listDivider"
+        android:background="@color/grey"
         app:layout_constraintBottom_toBottomOf="@+id/bottomNavigationView"
         app:layout_constraintStart_toEndOf="@+id/bottomNavigationView"
         app:layout_constraintTop_toBottomOf="@+id/definitionToolbar" />

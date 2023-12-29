@@ -6,21 +6,48 @@ import androidx.lifecycle.MutableLiveData
 import com.google.common.util.concurrent.ListenableFuture
 import com.wegielek.signalychinese.database.Dictionary
 import com.wegielek.signalychinese.database.FlashCards
+import com.wegielek.signalychinese.database.Sentences
 import com.wegielek.signalychinese.enums.CharacterMode
 import com.wegielek.signalychinese.repository.DictionaryRepository
 
 class DefinitionViewModel(application: Application) : AndroidViewModel(application) {
-    var characterMode = CharacterMode.PRESENTATION
-    var word = MutableLiveData<Dictionary>()
     var wrapContentHeight: Int = 0
     var index: Int = 0
     var isAdjusted: Boolean = false
     var isSetup: Boolean = false
+    val word = MutableLiveData<Dictionary>()
+    val characterMode = MutableLiveData<CharacterMode>()
+    private val lastMode = MutableLiveData<CharacterMode>()
     private val mDictionaryRepository: DictionaryRepository
 
     init {
         word.value = Dictionary()
+        characterMode.value = CharacterMode.PRESENTATION
         mDictionaryRepository = DictionaryRepository(application)
+    }
+
+    fun findSimplifiedSentences(word: String): ListenableFuture<List<Sentences>> {
+        return mDictionaryRepository.findSimplifiedSentences(word)
+    }
+
+    fun findTraditionalSentences(word: String): ListenableFuture<List<Sentences>> {
+        return mDictionaryRepository.findTraditionalSentences(word)
+    }
+
+    fun setLastMode(characterMode: CharacterMode) {
+        lastMode.value = characterMode
+    }
+
+    fun getLastMode(): CharacterMode {
+        return lastMode.value!!
+    }
+
+    fun setCharacterMode(characterMode: CharacterMode) {
+        this.characterMode.value = characterMode
+    }
+
+    fun getCharacterMode(): CharacterMode {
+        return characterMode.value!!
     }
 
     fun setWord(word: Dictionary) {

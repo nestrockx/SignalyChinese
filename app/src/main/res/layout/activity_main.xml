@@ -204,7 +204,7 @@
         android:layout_width="0dp"
         android:layout_height="2dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@color/grey"
         app:layout_constraintEnd_toEndOf="parent"
@@ -218,7 +218,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        android:background="?android:attr/listDivider"
+        android:background="@color/grey"
         app:layout_constraintBottom_toTopOf="@+id/puzzleBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -239,15 +239,16 @@
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/cameraBtn"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="camera button"
         android:padding="10dp"
         android:scaleType="fitCenter"
-        android:contentDescription="camera button"
         android:src="@drawable/ic_camera_default"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -281,6 +282,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/selector_search_bg_btn"
+        android:contentDescription="@string/mic"
         android:padding="8dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_mic_default"
@@ -302,6 +304,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/refreshBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/refresh"
+        android:padding="8dp"
+        android:background="@drawable/btn_grey_green_ripple_bg"
+        android:textColor="@color/dark_mode_white"
+        app:layout_constraintBottom_toBottomOf="@+id/charactersLoadingPb"
+        app:layout_constraintEnd_toEndOf="@+id/charactersLoadingPb"
+        app:layout_constraintStart_toStartOf="@+id/charactersLoadingPb" />
+
     <TextView
         android:id="@+id/downloadingTv"
         android:layout_width="0dp"
@@ -316,5 +330,18 @@
         app:layout_constraintBottom_toTopOf="@+id/charactersLoadingPb"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/drawCharacterText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/draw_here"
+        android:textColor="@color/dark_mode_white"
+        app:layout_constraintBottom_toBottomOf="@+id/characterDrawCanvas"
+        app:layout_constraintEnd_toEndOf="@+id/characterDrawCanvas"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/characterDrawCanvas"
+        app:layout_constraintTop_toTopOf="@+id/characterDrawCanvas"
+        app:layout_constraintVertical_bias="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

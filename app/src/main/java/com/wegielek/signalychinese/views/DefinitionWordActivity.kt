@@ -20,6 +20,7 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
 import android.widget.CompoundButton
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -67,16 +68,19 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
                 Dictionary::class.java
             )
         } else {
+            @Suppress("DEPRECATION")
             intent.extras!!.getParcelable("word")
         }
         val definitionToolbar: Toolbar = binding.definitionToolbar
         setSupportActionBar(definitionToolbar)
         definitionToolbar.setTitleTextColor(getColor(R.color.dark_mode_white))
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportActionBar!!.setDisplayShowHomeEnabled(true)
-        if (dictionary != null) {
-            supportActionBar!!.title = dictionary.simplifiedSign
-            definitionViewModel.setWord(dictionary)
+        if (supportActionBar != null) {
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            supportActionBar!!.setDisplayShowHomeEnabled(true)
+            if (dictionary != null) {
+                supportActionBar!!.title = dictionary.simplifiedSign
+                definitionViewModel.setWord(dictionary)
+            }
         }
 
         binding.speakBtn.setOnClickListener {
@@ -87,7 +91,6 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
             startActivity(intent);
              */
             if (!getTtsAlertShow(
-                applicationContext,
                 "tts_dialog_do_not_show_again"
             )
         ) {
@@ -148,7 +151,6 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
                 dialogTtsView.findViewById<AppCompatButton>(R.id.dialogDontShowAgainBtn)
             dialogDoNotShowAgainBtn.setOnClickListener {
                 setTtsAlertShow(
-                    applicationContext,
                     "tts_dialog_do_not_show_again",
                     true
                 )
@@ -156,7 +158,7 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
             }
         }
             if (definitionViewModel.word.value != null) {
-                speakCH(definitionViewModel.word.value!!.simplifiedSign)
+                speakCH(binding.definitionCharactersSimplifiedTv, definitionViewModel.word.value!!.simplifiedSign, ContextCompat.getColor(applicationContext, R.color.pink))
             } else {
                 Log.e(
                     LOG_TAG,
@@ -189,39 +191,42 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
         binding.definitionCharactersTraditonalTv.setOnClickListener { v ->
             showPopup(
                 v,
+                binding.definitionCharactersTraditonalTv,
                 definitionViewModel.word.value!!.traditionalSign,
                 "zh-TW",
                 "en",
-                TextToSpeechManager.instanceCH
+                ContextCompat.getColor(applicationContext, R.color.pink)
             )
         }
         binding.definitionCharactersSimplifiedTv.setOnClickListener { v ->
             showPopup(
                 v,
+                binding.definitionCharactersSimplifiedTv,
                 definitionViewModel.word.value!!.simplifiedSign,
                 "zh-CN",
                 "en",
-                TextToSpeechManager.instanceCH
+                ContextCompat.getColor(applicationContext, R.color.pink)
             )
         }
         binding.definitionPronunciationTv.setOnClickListener { v ->
             showPopup(
                 v,
+                binding.definitionPronunciationTv,
                 definitionViewModel.word.value!!.pronunciation.trim { it <= ' ' } + "/" + definitionViewModel.word.value!!.pronunciationPhonetic.trim { it <= ' ' },
                 "zh-CN",
                 "en",
-                TextToSpeechManager.instanceCH
+                ContextCompat.getColor(applicationContext, R.color.dark_mode_white)
             )
         }
 
         if (!isScreenRotated(this)) {
             if (dictionaryWordNavHostFragment!!.navController.currentDestination!!.label!! == "fragment_strokes") {
-                adjustToCanvasImmed()
+                adjustToCanvasOnCreate()
             }
         }
     }
 
-    private fun adjustToCanvasImmed() {
+    private fun adjustToCanvasOnCreate() {
         definitionViewModel.isAdjusted = true
         val targetHeight = Utils.getScreenHeight(this@DefinitionWordActivity) -
                 (Utils.getScreenWidth(this@DefinitionWordActivity) +
@@ -284,8 +289,16 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
         TextToSpeechManager.speakCH(text)
     }
 
+    private fun speakCH(textView: TextView, text: String, color: Int) {
+        TextToSpeechManager.speakCH(textView, text, color)
+    }
+
     private fun speakPL(text: String) {
         TextToSpeechManager.speakPL(text)
+    }
+
+    private fun speakPL(textView: TextView, text: String, color: Int) {
+        TextToSpeechManager.speakPL(textView, text, color)
     }
 
     private lateinit var mBottomSheetGroupsAdapter: BottomSheetsGroupsAdapter
@@ -311,7 +324,7 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
         )
         Futures.addCallback<List<String>>(future, object : FutureCallback<List<String>> {
             override fun onSuccess(result: List<String>?) {
-                mBottomSheetGroupsAdapter = BottomSheetsGroupsAdapter(applicationContext, this@DefinitionWordActivity, result as ArrayList<String>)
+                mBottomSheetGroupsAdapter = BottomSheetsGroupsAdapter(this@DefinitionWordActivity, result as ArrayList<String>)
                 bottomSheetGroupsRv.adapter = mBottomSheetGroupsAdapter
                 val future1 = definitionViewModel.getFlashCardsGroupsNonObserve()
                 Futures.addCallback(future1, object : FutureCallback<List<String>> {
@@ -362,10 +375,8 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
                 override fun onSuccess(result: Boolean) {
                     if (result) {
                         mMenu.findItem(R.id.add).setIcon(R.drawable.ic_note_add_active)
-                        true
                     } else {
                         mMenu.findItem(R.id.add).setIcon(R.drawable.ic_note_add_default)
-                        false
                     }
                 }
 
@@ -383,7 +394,7 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
             newCollectionInputLayout.visibility = View.VISIBLE
             newCollectionDoneBtn.visibility = View.VISIBLE
 
-            newCollectionEditText.setText(R.string.new_collection)
+            //newCollectionEditText.setText(R.string.new_collection)
             newCollectionDoneBtn.setOnClickListener {
                 newCollectionInputLayout.visibility = View.GONE
                 newCollectionDoneBtn.visibility = View.GONE
@@ -414,10 +425,8 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
             override fun onSuccess(result: Boolean) {
                 if (result) {
                     menu.findItem(R.id.add).setIcon(R.drawable.ic_note_add_active)
-                    true
                 } else {
                     menu.findItem(R.id.add).setIcon(R.drawable.ic_note_add_default)
-                    false
                 }
             }
 

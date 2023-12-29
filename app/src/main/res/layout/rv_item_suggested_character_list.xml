@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
-        android:text="XDDDDDDDDD"
+        android:text="@string/placeholder_text"
         android:textColor="#FFFFFF"
         android:textSize="34sp" />
 </LinearLayout>

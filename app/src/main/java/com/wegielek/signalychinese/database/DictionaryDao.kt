@@ -15,7 +15,7 @@ interface DictionaryDao {
     @Query("SELECT * FROM dictionary WHERE translation LIKE :searchQuery || ' %' OR translation LIKE '%/ ' || :searchQuery || ' %' OR translation LIKE '%) ' || :searchQuery || ' %' OR translation LIKE '%. ' || :searchQuery || ' %' OR pronunciation_phonetic LIKE :searchQuery || ' %' OR pronunciation LIKE :searchQuery || ' %' ORDER BY LENGTH(traditional_sign) ASC")
     fun searchByWordPL(searchQuery: String): ListenableFuture<List<Dictionary>>
 
-    @Query("SELECT * FROM dictionary WHERE traditional_sign LIKE '%' || :searchQuery || '%' OR simplified_sign LIKE '%' || :searchQuery || '%'")
+    @Query("SELECT * FROM dictionary WHERE traditional_sign LIKE '%' || :searchQuery || '%' OR simplified_sign LIKE '%' || :searchQuery || '%' ORDER BY LENGTH(traditional_sign) ASC")
     fun searchByWordCHAll(searchQuery: String): ListenableFuture<List<Dictionary>>
 
     @Query("SELECT * FROM dictionary WHERE translation LIKE '%' || :searchQuery || '%' OR pronunciation_phonetic LIKE '%' || :searchQuery || '%' OR pronunciation LIKE '%' || :searchQuery || '%' ORDER BY LENGTH(traditional_sign) ASC")

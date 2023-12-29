@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.wegielek.signalychinese.views.LearnStrokesCanvasView
+    <com.wegielek.signalychinese.views.MainLearnStrokesCanvasView
         android:id="@+id/learnStrokesCanvasView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,9 +18,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </com.wegielek.signalychinese.views.LearnStrokesCanvasView>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/learnCBtn"
@@ -32,25 +30,30 @@
         android:paddingTop="5dp"
         android:paddingEnd="32dp"
         android:paddingBottom="5dp"
+        android:textColor="@color/dark_mode_white"
         android:text="@string/draw"
         app:layout_constraintEnd_toStartOf="@+id/nextCharacter"
         app:layout_constraintStart_toEndOf="@+id/prevCharacter"
         app:layout_constraintTop_toBottomOf="@+id/learnStrokesCanvasView" />
 
-    <ImageButton
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/prevCharacter"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
+        android:contentDescription="@string/previous_character"
+        android:background="@drawable/selector_search_bg_btn"
         app:layout_constraintStart_toStartOf="@+id/learnStrokesCanvasView"
         app:layout_constraintTop_toBottomOf="@+id/learnStrokesCanvasView"
         app:srcCompat="@drawable/ic_arrow_back_default" />
 
-    <ImageButton
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/nextCharacter"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
+        android:contentDescription="@string/next_character"
+        android:background="@drawable/selector_search_bg_btn"
         app:layout_constraintEnd_toEndOf="@+id/learnStrokesCanvasView"
         app:layout_constraintTop_toBottomOf="@+id/learnStrokesCanvasView"
         app:srcCompat="@drawable/ic_arrow_forward_default" />
@@ -60,22 +63,47 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:text="1/2"
+        android:layout_marginTop="8dp"
+        android:text="@string/placeholder_counter"
         android:textColor="@color/dark_mode_white"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="@+id/learnStrokesCanvasView"
         app:layout_constraintTop_toTopOf="@+id/learnStrokesCanvasView" />
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/restartBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/restartDrawBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:background="?attr/selectableItemBackground"
-        android:padding="8dp"
+        android:contentDescription="@string/reset_character"
+        android:padding="12dp"
         android:scaleType="fitXY"
         app:layout_constraintEnd_toEndOf="@+id/learnStrokesCanvasView"
         app:layout_constraintTop_toTopOf="@+id/learnStrokesCanvasView"
         app:srcCompat="@drawable/ic_replay_default" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/restartPresentBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/reset_character"
+        android:padding="12dp"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toEndOf="@+id/learnStrokesCanvasView"
+        app:layout_constraintTop_toTopOf="@+id/learnStrokesCanvasView"
+        app:srcCompat="@drawable/ic_replay_default" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/searchCharBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="@string/search_character"
+        android:padding="10dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/learnStrokesCanvasView"
+        app:layout_constraintEnd_toEndOf="@+id/learnStrokesCanvasView"
+        app:srcCompat="@drawable/ic_search_default" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

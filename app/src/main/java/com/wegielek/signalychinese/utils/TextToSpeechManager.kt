@@ -1,9 +1,16 @@
 package com.wegielek.signalychinese.utils
 
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.SignalyChineseApplication
+import com.wegielek.signalychinese.utils.Utils.Companion.removeHighlights
+import com.wegielek.signalychinese.utils.Utils.Companion.setHighLightedText
 import java.util.Locale
+
 
 object TextToSpeechManager {
 
@@ -46,7 +53,60 @@ object TextToSpeechManager {
         instanceCH.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
+    fun speakCH(textView: TextView, text: String, color: Int) {
+        val range = "rangeCH"
+        instanceCH.speak(text, TextToSpeech.QUEUE_FLUSH, null, range)
+        instanceCH.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+
+            }
+            override fun onDone(utteranceId: String?) {
+                removeHighlights(textView)
+            }
+            override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
+                if (utteranceId == range) {
+                    removeHighlights(textView)
+                    setHighLightedText(textView, text.substring(start, end), color)
+                }
+            }
+            override fun onError(utteranceId: String?, errorCode: Int) {
+
+            }
+            @Deprecated("Deprecated in Java")
+            override fun onError(utteranceId: String?) {
+
+            }
+        })
+    }
+
     fun speakPL(text: String) {
         instancePL.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
+
+    fun speakPL(textView: TextView, text: String, color: Int) {
+        val range = "rangePL"
+        instancePL.speak(text, TextToSpeech.QUEUE_FLUSH, null, range)
+        instancePL.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {
+
+            }
+            override fun onDone(utteranceId: String?) {
+                removeHighlights(textView)
+            }
+            override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
+                if (utteranceId == range) {
+                    removeHighlights(textView)
+                    setHighLightedText(textView, text.substring(start, end), color)
+                }
+            }
+            override fun onError(utteranceId: String?, errorCode: Int) {
+
+            }
+            @Deprecated("Deprecated in Java")
+            override fun onError(utteranceId: String?) {
+
+            }
+        })
+    }
+
 }

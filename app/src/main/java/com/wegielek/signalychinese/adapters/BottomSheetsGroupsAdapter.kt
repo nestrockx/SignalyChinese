@@ -1,7 +1,6 @@
 package com.wegielek.signalychinese.adapters
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +8,8 @@ import android.widget.CheckBox
 import androidx.recyclerview.widget.RecyclerView
 import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.interfaces.BottomSheetRecyclerViewListener
-import com.wegielek.signalychinese.viewmodels.DefinitionViewModel
 
 class BottomSheetsGroupsAdapter(
-    private val context: Context,
     private val listener: BottomSheetRecyclerViewListener,
     private val groups: ArrayList<String>
 ) : RecyclerView.Adapter<BottomSheetsGroupsAdapter.ViewHolder>() {

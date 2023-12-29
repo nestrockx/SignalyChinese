@@ -23,17 +23,17 @@ import com.wegielek.signalychinese.viewmodels.SchoolViewModel
 
 class SchoolActivity : AppCompatActivity(), FlashCardsGroupsRecyclerViewListener {
 
-    private lateinit var mBinding: ActivitySchoolBinding
+    private lateinit var binding: ActivitySchoolBinding
     private lateinit var mFlashCardGroupsAdapter: FlashCardGroupsAdapter
     private lateinit var mSchoolViewModel: SchoolViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mBinding = ActivitySchoolBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
+        binding = ActivitySchoolBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val definitionToolbar: Toolbar = mBinding.schoolToolbar
+        val definitionToolbar: Toolbar = binding.schoolToolbar
         setSupportActionBar(definitionToolbar)
         definitionToolbar.setTitleTextColor(getColor(R.color.dark_mode_white))
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -42,9 +42,9 @@ class SchoolActivity : AppCompatActivity(), FlashCardsGroupsRecyclerViewListener
 
         mSchoolViewModel = ViewModelProvider(this)[SchoolViewModel::class.java]
 
-        mBinding.flashCardsGroupsRv.layoutManager = LinearLayoutManager(applicationContext)
+        binding.flashCardsGroupsRv.layoutManager = LinearLayoutManager(applicationContext)
         mFlashCardGroupsAdapter = FlashCardGroupsAdapter(this, this)
-        mBinding.flashCardsGroupsRv.adapter = mFlashCardGroupsAdapter
+        binding.flashCardsGroupsRv.adapter = mFlashCardGroupsAdapter
 
         mSchoolViewModel.getFlashCardsGroups().observe(this) {
             mFlashCardGroupsAdapter.setData(it)
@@ -71,6 +71,7 @@ class SchoolActivity : AppCompatActivity(), FlashCardsGroupsRecyclerViewListener
     override fun onWritingGroupClicked(group: String) {
         val intent = Intent(baseContext, SchoolWritingActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        intent.putExtra("group", group)
         startActivity(intent)
     }
 

@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.wegielek.signalychinese.R
-import com.wegielek.signalychinese.utils.Utils
 import com.wegielek.signalychinese.utils.Utils.Companion.showMicLanguagePopup
 import com.wegielek.signalychinese.utils.Utils.Companion.showSearchModePopup
+import com.wegielek.signalychinese.views.AboutActivity
 import com.wegielek.signalychinese.views.HistoryActivity
 import com.wegielek.signalychinese.views.SchoolActivity
 
@@ -48,6 +48,13 @@ class HamburgerMenuAdapter(private val dataList: List<String>) : RecyclerView.Ad
             3 -> {
                 holder.nameTv.setOnClickListener {
                     val intent = Intent(it.context, SchoolActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    it.context.startActivity(intent)
+                }
+            }
+            4 -> {
+                holder.nameTv.setOnClickListener {
+                    val intent = Intent(it.context, AboutActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     it.context.startActivity(intent)
                 }

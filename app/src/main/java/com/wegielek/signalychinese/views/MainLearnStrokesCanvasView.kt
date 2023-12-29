@@ -17,7 +17,6 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.findFragment
 import com.sdsmdg.harjot.vectormaster.VectorMasterDrawable
 import com.sdsmdg.harjot.vectormaster.models.PathModel
 import com.wegielek.signalychinese.R
@@ -27,10 +26,9 @@ import com.wegielek.signalychinese.classes.HanziCharacter
 import com.wegielek.signalychinese.utils.Utils.Companion.getPaint
 import com.wegielek.signalychinese.utils.Utils.Companion.getTextPaint
 import com.wegielek.signalychinese.viewmodels.DefinitionViewModel
-import com.wegielek.signalychinese.views.fragments.StrokesFragment
 import kotlin.math.abs
 
-class LearnStrokesCanvasView : View {
+class MainLearnStrokesCanvasView : View {
     private lateinit var valueStrokeAnimator: ValueAnimator
     private lateinit var valueSuccessAnimator: ValueAnimator
     private lateinit var valueMistakeAnimator: ValueAnimator
@@ -72,39 +70,30 @@ class LearnStrokesCanvasView : View {
 
     fun setViewModel(definitionViewModel: DefinitionViewModel) {
         this.definitionViewModel = definitionViewModel
-    }
-
-    fun setMode(characterMode: CharacterMode) {
-        this.definitionViewModel?.characterMode = characterMode
-        if (characterMode === CharacterMode.PRESENTATION) {
-            valueStrokeAnimator.duration = 500
-        } else {
-            valueStrokeAnimator.duration = 1500
-        }
-        setHanziCharacter(hanziChar, characterMode)
-    }
-
-    fun setHanziCharacter(hanziChar: Char, characterMode: CharacterMode) {
-        if (characterMode == CharacterMode.NOT_FOUND) {
-            if (findFragment<StrokesFragment>().mBinding.restartBtn.visibility == INVISIBLE) {
-                setHanziCharacter(hanziChar, CharacterMode.PRESENTATION)
-            } else {
-                setHanziCharacter(hanziChar, CharacterMode.LEARN)
+        definitionViewModel.characterMode.observe((context as DefinitionWordActivity)) {
+            if (it === CharacterMode.PRESENTATION) {
+                valueStrokeAnimator.duration = 500
+                definitionViewModel.setLastMode(it)
+            } else if (it === CharacterMode.LEARN) {
+                valueStrokeAnimator.duration = 1500
+                definitionViewModel.setLastMode(it)
+            } else if (it === CharacterMode.NOT_FOUND) {
+                return@observe
             }
+            setHanziCharacter(hanziChar, false)
+        }
+    }
+
+    fun setHanziCharacter(hanziChar: Char, isChanged: Boolean) {
+        this.hanziChar = hanziChar
+        if (isChanged) {
+            definitionViewModel?.getLastMode()?.let { definitionViewModel?.setCharacterMode(it) }
             return
         }
-        if (characterMode == CharacterMode.PRESENTATION) {
-            definitionViewModel?.characterMode = CharacterMode.PRESENTATION
-            valueStrokeAnimator.duration = 500
-        } else if (characterMode == CharacterMode.LEARN) {
-            definitionViewModel?.characterMode = CharacterMode.LEARN
-            valueMistakeAnimator.duration = 1000
-        }
-        this.hanziChar = hanziChar
         clear()
         valueStrokeAnimator.cancel()
         hanziCharacter = initHanziStrokes(hanziChar)
-        if (characterMode == CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.getCharacterMode() == CharacterMode.PRESENTATION) {
             valueStrokeAnimator.start()
         }
     }
@@ -149,7 +138,7 @@ class LearnStrokesCanvasView : View {
             invalidate()
         }
         valueStrokeAnimator = ValueAnimator.ofFloat(0.0f, 1.0f)
-        if (definitionViewModel?.characterMode === CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.getCharacterMode() === CharacterMode.PRESENTATION) {
             valueStrokeAnimator.duration = 500
         } else {
             valueStrokeAnimator.duration = 1500
@@ -165,7 +154,7 @@ class LearnStrokesCanvasView : View {
         initAnimators()
         initPaints()
         hanziChar = '一'
-        definitionViewModel?.characterMode?.let { setHanziCharacter('一', it) }
+        setHanziCharacter('一', true)
         width = DEFAULT_DIMENSIONS
         height = DEFAULT_DIMENSIONS
         mBitmap = Bitmap.createBitmap(BITMAP_DIMENSION, BITMAP_DIMENSION, Bitmap.Config.ARGB_8888)
@@ -190,7 +179,11 @@ class LearnStrokesCanvasView : View {
             )
         } catch (e: NotFoundException) {
             Log.e(LOG_TAG, "Error message: " + e.message)
-            definitionViewModel?.characterMode = CharacterMode.NOT_FOUND
+            if (definitionViewModel?.getCharacterMode() != CharacterMode.NOT_FOUND) {
+                definitionViewModel?.getCharacterMode()
+                    ?.let { definitionViewModel?.setLastMode(it) }
+            }
+            definitionViewModel?.setCharacterMode(CharacterMode.NOT_FOUND)
             return initHanziStrokes('一')
         }
         val outline = vectorMasterDrawable.getGroupModelByName("Hanzi")
@@ -226,7 +219,7 @@ class LearnStrokesCanvasView : View {
     }
 
     private fun drawHanziCharacterPath() {
-        if (definitionViewModel?.characterMode == CharacterMode.LEARN) {
+        if (definitionViewModel?.getCharacterMode() === CharacterMode.LEARN) {
             mCanvas.drawPath(hanziCharacter!!.currPath, sketchPaint)
             pathMeasure.setPath(hanziCharacter!!.currPath, false)
             pathMeasure.getPosTan(
@@ -239,7 +232,7 @@ class LearnStrokesCanvasView : View {
                 valueStrokeAnimator.start()
             }
         }
-        if (definitionViewModel?.characterMode == CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.getCharacterMode() === CharacterMode.PRESENTATION) {
             mCanvas.drawPath(hanziCharacter!!.currPath, sketchPaint)
             pathMeasure.setPath(hanziCharacter!!.currPath, false)
             pathMeasure.getPosTan(
@@ -269,8 +262,8 @@ class LearnStrokesCanvasView : View {
             setupScaleMatrices()
         }
         drawGrid()
-        if (definitionViewModel?.characterMode != CharacterMode.NOT_FOUND) {
-            if (definitionViewModel?.characterMode == CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.getCharacterMode() !== CharacterMode.NOT_FOUND) {
+            if (definitionViewModel?.getCharacterMode() === CharacterMode.PRESENTATION) {
                 for (i in 0 until hanziCharacter!!.size) {
                     mCanvas.drawPath(hanziCharacter!!.paths[i], (sketchPaint))
                 }
@@ -299,7 +292,7 @@ class LearnStrokesCanvasView : View {
     }
 
     private fun touchStart(x: Float, y: Float) {
-        if (definitionViewModel?.characterMode !== CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.getCharacterMode() !== CharacterMode.PRESENTATION) {
             if (valueMistakeAnimator.isRunning) {
                 valueMistakeAnimator.cancel()
                 fingerPathPaint.color = defaultColor
@@ -313,14 +306,16 @@ class LearnStrokesCanvasView : View {
             mPath.moveTo(x, y)
             mX = x
             mY = y
-            if (hanziCharacter!!.matchStart(mX, mY, 60.0f)) {
-                Log.i(LOG_TAG, "MATCHED_START")
+            if (hanziCharacter != null) {
+                if (hanziCharacter!!.matchStart(mX, mY, 60.0f)) {
+                    Log.i(LOG_TAG, "MATCHED_START")
+                }
             }
         }
     }
 
     private fun touchMove(x: Float, y: Float) {
-        if (definitionViewModel?.characterMode !== CharacterMode.PRESENTATION) {
+        if (definitionViewModel?.getCharacterMode() !== CharacterMode.PRESENTATION) {
             val dx = abs(x - mX)
             val dy = abs(y - mY)
             if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
@@ -328,26 +323,30 @@ class LearnStrokesCanvasView : View {
                 mX = x
                 mY = y
             }
-            if (hanziCharacter!!.matchControlPoint(mX, mY, 50.0f)) {
-                Log.i(LOG_TAG, "MATCHED_CONTROL_POINT")
+            if (hanziCharacter != null) {
+                if (hanziCharacter!!.matchControlPoint(mX, mY, 50.0f)) {
+                    Log.i(LOG_TAG, "MATCHED_CONTROL_POINT")
+                }
             }
         }
     }
 
     private fun touchUp() {
-        if (definitionViewModel?.characterMode !== CharacterMode.PRESENTATION) {
-            if (hanziCharacter!!.isMatchedStart && hanziCharacter!!.isMatchedControlPoint) {
-                if (hanziCharacter!!.matchEnd(mX, mY, 60.0f)) {
-                    Log.i(LOG_TAG, "MATCHED_END")
-                } else {
-                    hanziCharacter!!.matchReset()
+        if (definitionViewModel?.getCharacterMode() !== CharacterMode.PRESENTATION) {
+            if (hanziCharacter != null) {
+                if (hanziCharacter!!.isMatchedStart && hanziCharacter!!.isMatchedControlPoint) {
+                    if (hanziCharacter!!.matchEnd(mX, mY, 60.0f)) {
+                        Log.i(LOG_TAG, "MATCHED_END")
+                    } else {
+                        hanziCharacter!!.matchReset()
+                    }
                 }
-            }
-            mPath.lineTo(mX, mY)
-            if (hanziCharacter!!.isMatched) {
-                paths.clear()
-            } else {
-                valueMistakeAnimator.start()
+                mPath.lineTo(mX, mY)
+                if (hanziCharacter!!.isMatched) {
+                    paths.clear()
+                } else {
+                    valueMistakeAnimator.start()
+                }
             }
         }
     }
