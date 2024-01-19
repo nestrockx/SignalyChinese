@@ -5,17 +5,21 @@
   Dictionary database excluded from repo.
 </p>
 
-<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/3ddf8bba-24ae-4e8c-bda7-0b48f951559a" width="400">
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/2cba0061-3e69-44f6-be6a-f4c5def94456" width="400">
 <br>
-<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/4c4656cd-78b8-48fa-aaf7-a65b5f99cbb4" width="400">
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/bdb732ce-c16a-4ff1-9d18-c6f1bd9fbfc7" width="400">
 <br>
-<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/58c0d8dd-4f62-426a-908b-4c1e0c30b43e" width="400">
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/bb854e2f-5977-483d-ba70-68d593e398c4" width="400">
 <br>
-<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/79596e23-f9c3-4748-ab14-4a9370b853ae" width="400">
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/32368b3c-dff8-4aba-8a2e-0352bd154658" width="400">
 <br>
-<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/2bacf9f8-3d41-4d20-a6f4-cb340056b113" width="400">
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/76e62bcc-ad46-470c-ba82-d8b7dfdb2669" width="400">
 <br>
-<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/b5049e6d-e69c-4db4-9865-c2d5da83d186" width="400">
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/fed217d3-1ea9-4517-af2b-adb4b8657e35" width="400">
 <br>
-<img src="https://github.com/nestrockx/SignalyChinese-code/assets/72703958/d99c6735-98bb-476d-b336-eadac8c432f3" width="400">
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/621ed681-2d4e-43c2-bfa5-479d418418c1" width="400">
+<br>
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/7f058993-53e5-48ce-8d4d-58ec59756a71" width="400">
+<br>
+<img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/e15547c8-6059-496b-a927-0168ad7b29be" width="400">
 <br>
