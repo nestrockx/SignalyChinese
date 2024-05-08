@@ -59,7 +59,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@android:color/transparent"
-        android:contentDescription="@string/gesture_plain"
+        android:contentDescription="@string/gesture_plane"
         app:layout_constraintBottom_toBottomOf="@+id/cardBack"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -115,15 +115,18 @@
         android:scaleType="fitXY"
         android:padding="11dp"
         android:src="@drawable/ic_arrow_back_default"
+        android:contentDescription="@string/prev_flashcard"
         android:background="@drawable/btn_simple_black_ripple_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/flipBtn"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/btn_simple_black_ripple_bg"
+        android:paddingStart="128dp"
+        android:paddingEnd="128dp"
         android:text="@string/flip"
         android:textColor="@color/dark_mode_white"
         app:layout_constraintBottom_toBottomOf="parent"

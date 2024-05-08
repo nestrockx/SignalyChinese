@@ -74,6 +74,7 @@
                     android:text="@string/placeholder_text"
                     android:textColor="@color/greenish"
                     android:textSize="28sp"
+                    android:contentDescription="@string/simplified"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/definitionToolbar" />
 
@@ -87,6 +88,7 @@
                     android:text="@string/placeholder_text"
                     android:textColor="@color/greenish"
                     android:textSize="28sp"
+                    android:contentDescription="@string/traditional"
                     app:layout_constraintStart_toEndOf="@+id/definition_characters_traditonal_tv"
                     app:layout_constraintTop_toBottomOf="@+id/definitionToolbar" />
 
@@ -111,11 +113,12 @@
                 android:id="@+id/definitionPronunciationTv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 android:clickable="true"
+                android:padding="8dp"
                 android:text="@string/placeholder_text"
                 android:textColor="@color/pink"
                 android:textSize="24sp"

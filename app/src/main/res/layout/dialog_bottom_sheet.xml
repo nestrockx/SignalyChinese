@@ -94,12 +94,14 @@
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/collectionConfirmBtn"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
                 android:text="@string/confirm"
                 android:textColor="@color/dark_mode_white"
-                android:background="?attr/selectableItemBackground"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

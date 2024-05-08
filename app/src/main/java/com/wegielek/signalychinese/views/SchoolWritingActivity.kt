@@ -11,7 +11,11 @@ import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.databinding.ActivitySchoolWritingBinding
 import com.wegielek.signalychinese.enums.CharacterMode
 import com.wegielek.signalychinese.utils.Preferences
-import com.wegielek.signalychinese.utils.Utils
+import com.wegielek.signalychinese.utils.Utils.Companion.dpToPixels
+import com.wegielek.signalychinese.utils.Utils.Companion.getScreenHeight
+import com.wegielek.signalychinese.utils.Utils.Companion.getScreenWidth
+import com.wegielek.signalychinese.utils.Utils.Companion.isScreenRotated
+import com.wegielek.signalychinese.utils.Utils.Companion.showWritingCharacterTypePopup
 import com.wegielek.signalychinese.viewmodels.SchoolWritingViewModel
 
 class SchoolWritingActivity : AppCompatActivity() {
@@ -67,7 +71,12 @@ class SchoolWritingActivity : AppCompatActivity() {
                 }
                 schoolWritingViewModel.setCharacterMode(CharacterMode.TEST)
 
-                binding.writingTranslationTv.text = schoolWritingViewModel.getFlashCardsList()?.get(index)?.translation
+
+                binding.writingTranslationTv.text =
+                    schoolWritingViewModel.getFlashCardsList()?.get(index)?.translation
+                        ?.replace('/', '\n', false)
+
+
                 binding.hintText.visibility = View.GONE
                 menu?.findItem(R.id.hint)?.setIcon(R.drawable.ic_hint_default)
                 binding.characterCounterTv.text = 1.toString() + "/" + mCharArraySimplified.size.toString()
@@ -91,12 +100,12 @@ class SchoolWritingActivity : AppCompatActivity() {
 
         schoolLearnStrokesCv = findViewById(R.id.schoolLearnStrokesCv)
         schoolLearnStrokesCv.setViewModel(schoolWritingViewModel)
-        if (!Utils.isScreenRotated(applicationContext)) {
-            schoolLearnStrokesCv.setDimensions(Utils.getScreenWidth(this)
-                    - Utils.dpToPixels(applicationContext,32f))
+        if (!isScreenRotated(applicationContext)) {
+            schoolLearnStrokesCv.setDimensions(getScreenWidth(this)
+                    - dpToPixels(applicationContext,32f))
         } else {
-            schoolLearnStrokesCv.setDimensions(Utils.getScreenHeight(this)
-                    - Utils.dpToPixels(applicationContext,128f))
+            schoolLearnStrokesCv.setDimensions(getScreenHeight(this)
+                    - dpToPixels(applicationContext,128f))
         }
 
         binding.nextWordBtn.setOnClickListener {
@@ -121,7 +130,7 @@ class SchoolWritingActivity : AppCompatActivity() {
         }
 
         binding.characterDropdownTv.setOnClickListener {
-            Utils.showWritingCharacterTypePopup(it) { type ->
+            showWritingCharacterTypePopup(it) { type ->
                 if (type == "simplified") {
                     binding.characterDropdownTv.setText(R.string.simplified)
                     Preferences.setWritingCharacterType("simplified")
@@ -140,7 +149,7 @@ class SchoolWritingActivity : AppCompatActivity() {
             }
         }
         binding.characterDropwdownIv.setOnClickListener {
-            Utils.showWritingCharacterTypePopup(it) { type ->
+            showWritingCharacterTypePopup(it) { type ->
                 if (type == "simplified") {
                     binding.characterDropdownTv.setText(R.string.simplified)
                     Preferences.setWritingCharacterType("simplified")

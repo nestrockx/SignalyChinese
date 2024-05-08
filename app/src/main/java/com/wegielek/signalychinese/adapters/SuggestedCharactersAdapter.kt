@@ -12,11 +12,7 @@ import com.wegielek.signalychinese.interfaces.CharactersRecyclerViewListener
 
 class SuggestedCharactersAdapter(private val charactersRecyclerViewListener: CharactersRecyclerViewListener?) :
     RecyclerView.Adapter<SuggestedCharactersAdapter.ViewHolder>() {
-    private val dataList: MutableList<String>
-
-    init {
-        dataList = ArrayList()
-    }
+    private val dataList: MutableList<String> = ArrayList()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(dataList: List<String>?) {
@@ -26,10 +22,9 @@ class SuggestedCharactersAdapter(private val charactersRecyclerViewListener: Cha
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val character: TextView
+        val character: TextView = itemView.findViewById(R.id.textViewItem)
 
         init {
-            character = itemView.findViewById(R.id.textViewItem)
             itemView.setOnTouchListener { view: View, motionEvent: MotionEvent ->
                 if (motionEvent.action == MotionEvent.ACTION_DOWN) {
                     charactersRecyclerViewListener?.onItemPressed(itemView)

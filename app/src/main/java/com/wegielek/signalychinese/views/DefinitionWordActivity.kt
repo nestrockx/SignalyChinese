@@ -46,10 +46,12 @@ import com.wegielek.signalychinese.interfaces.BottomSheetRecyclerViewListener
 import com.wegielek.signalychinese.utils.Preferences.Companion.getTtsAlertShow
 import com.wegielek.signalychinese.utils.Preferences.Companion.setTtsAlertShow
 import com.wegielek.signalychinese.utils.TextToSpeechManager
-import com.wegielek.signalychinese.utils.Utils
 import com.wegielek.signalychinese.utils.Utils.Companion.copyToClipboard
+import com.wegielek.signalychinese.utils.Utils.Companion.dpToPixels
+import com.wegielek.signalychinese.utils.Utils.Companion.getScreenHeight
+import com.wegielek.signalychinese.utils.Utils.Companion.getScreenWidth
 import com.wegielek.signalychinese.utils.Utils.Companion.isScreenRotated
-import com.wegielek.signalychinese.utils.Utils.Companion.showPopup
+import com.wegielek.signalychinese.utils.Utils.Companion.showDefinitionPopup
 import com.wegielek.signalychinese.viewmodels.DefinitionViewModel
 
 class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListener {
@@ -189,7 +191,7 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
             Log.e(LOG_TAG, "Word definition is null in onCreate")
         }
         binding.definitionCharactersTraditonalTv.setOnClickListener { v ->
-            showPopup(
+            showDefinitionPopup(
                 v,
                 binding.definitionCharactersTraditonalTv,
                 definitionViewModel.word.value!!.traditionalSign,
@@ -199,7 +201,7 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
             )
         }
         binding.definitionCharactersSimplifiedTv.setOnClickListener { v ->
-            showPopup(
+            showDefinitionPopup(
                 v,
                 binding.definitionCharactersSimplifiedTv,
                 definitionViewModel.word.value!!.simplifiedSign,
@@ -209,7 +211,7 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
             )
         }
         binding.definitionPronunciationTv.setOnClickListener { v ->
-            showPopup(
+            showDefinitionPopup(
                 v,
                 binding.definitionPronunciationTv,
                 definitionViewModel.word.value!!.pronunciation.trim { it <= ' ' } + "/" + definitionViewModel.word.value!!.pronunciationPhonetic.trim { it <= ' ' },
@@ -228,9 +230,9 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
 
     private fun adjustToCanvasOnCreate() {
         definitionViewModel.isAdjusted = true
-        val targetHeight = Utils.getScreenHeight(this@DefinitionWordActivity) -
-                (Utils.getScreenWidth(this@DefinitionWordActivity) +
-                        Utils.dpToPixels(applicationContext, 250f))
+        val targetHeight = getScreenHeight(this@DefinitionWordActivity) -
+                (getScreenWidth(this@DefinitionWordActivity) +
+                        dpToPixels(applicationContext, 250f))
 
         binding.scroll?.updateLayoutParams {
             height = targetHeight
@@ -245,9 +247,9 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
                 definitionViewModel.wrapContentHeight = initialHeight
                 definitionViewModel.isSetup = true
             }
-            val targetHeight = Utils.getScreenHeight(this@DefinitionWordActivity) -
-                    (Utils.getScreenWidth(this@DefinitionWordActivity) +
-                            Utils.dpToPixels(applicationContext, 250f))
+            val targetHeight = getScreenHeight(this@DefinitionWordActivity) -
+                    (getScreenWidth(this@DefinitionWordActivity) +
+                            dpToPixels(applicationContext, 250f))
 
             val animator = ValueAnimator.ofInt(initialHeight, targetHeight)
             animator.duration = 300 // Set the duration of the animation in milliseconds
@@ -266,9 +268,9 @@ class DefinitionWordActivity : AppCompatActivity(), BottomSheetRecyclerViewListe
     private fun defaultView() {
         if (definitionViewModel.isAdjusted) {
             definitionViewModel.isAdjusted = false
-            val initialHeight = Utils.getScreenHeight(this@DefinitionWordActivity) -
-                    (Utils.getScreenWidth(this@DefinitionWordActivity) +
-                            Utils.dpToPixels(applicationContext, 250f))
+            val initialHeight = getScreenHeight(this@DefinitionWordActivity) -
+                    (getScreenWidth(this@DefinitionWordActivity) +
+                            dpToPixels(applicationContext, 250f))
             val targetHeight = definitionViewModel.wrapContentHeight
 
             val animator = ValueAnimator.ofInt(initialHeight, targetHeight)

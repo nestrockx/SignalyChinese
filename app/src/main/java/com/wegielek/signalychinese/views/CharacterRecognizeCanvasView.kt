@@ -25,7 +25,7 @@ import com.google.mlkit.vision.digitalink.DigitalInkRecognizerOptions
 import com.google.mlkit.vision.digitalink.Ink
 import com.google.mlkit.vision.digitalink.RecognitionResult
 import com.wegielek.signalychinese.interfaces.CanvasViewListener
-import com.wegielek.signalychinese.utils.Utils
+import com.wegielek.signalychinese.utils.Utils.Companion.hasInternetConnection
 import com.wegielek.signalychinese.viewmodels.MainViewModel
 
 class CharacterRecognizeCanvasView(
@@ -170,7 +170,7 @@ class CharacterRecognizeCanvasView(
 
         isModelDownloaded.onSuccessTask { result: Boolean ->
             if (!result) {
-                if (!Utils.hasInternetConnection()) {
+                if (!hasInternetConnection()) {
                     canvasViewListener.onModelDownloaded(true)
                 }
                 return@onSuccessTask Tasks.forResult<Any?>(null)

@@ -8,6 +8,7 @@
 
     <color name="dark_mode_black">#FF000000</color>
     <color name="grey">#333333</color>
+    <color name="light_grey">#888888</color>
     <color name="dark_mode_white">#FFFFFFFF</color>
     <color name="canvas_background">#131313</color>
 

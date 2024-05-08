@@ -13,4 +13,7 @@ interface SentencesDao {
     @Query("SELECT * FROM sentences WHERE traditional_sign LIKE '%' || :word || '%' ORDER BY LENGTH(traditional_sign) ASC")
     fun findTraditionalSentences(word: String): ListenableFuture<List<Sentences>>
 
+    @Query("SELECT * FROM sentences WHERE traditional_sign LIKE '%' || :traditionalWord || '%' OR simplified_sign LIKE '%' || :simplifiedWord || '%' ORDER BY LENGTH(traditional_sign) ASC")
+    fun findAllSentences(simplifiedWord: String, traditionalWord: String): ListenableFuture<List<Sentences>>
+
 }

@@ -18,11 +18,7 @@ class RadicalsAdapter(
     private val radicalsRecyclerViewListener: RadicalsRecyclerViewListener
 ) :
     RecyclerView.Adapter<RadicalsAdapter.ViewHolder>() {
-    private val dataList: MutableList<Array<String>>
-
-    init {
-        dataList = ArrayList()
-    }
+    private val dataList: MutableList<Array<String>> = ArrayList()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(dataList: List<Array<String>>?) {
@@ -37,6 +33,7 @@ class RadicalsAdapter(
         return ViewHolder(view)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.flexboxLayout.removeAllViews()
         for (i in dataList[position].indices) {
@@ -47,10 +44,14 @@ class RadicalsAdapter(
             textView.setPadding(16, 8, 16, 8)
             textView.setOnTouchListener { v: View, event: MotionEvent ->
                 when (event.action) {
-                    MotionEvent.ACTION_DOWN -> v.setBackgroundColor(
-                        context.getColor(R.color.selection_color)
-                    )
-
+                    MotionEvent.ACTION_DOWN -> {
+//                        v.setBackgroundColor(
+//                            context.getColor(R.color.selection_color)
+//                        )
+                        v.setBackgroundResource(
+                            R.drawable.btn_result_bg_default
+                        )
+                    }
                     MotionEvent.ACTION_UP -> {
                         v.performClick()
                         v.setBackgroundColor(Color.TRANSPARENT)
@@ -72,10 +73,9 @@ class RadicalsAdapter(
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val flexboxLayout: FlexboxLayout
+        val flexboxLayout: FlexboxLayout = itemView.findViewById(R.id.radicalsLayoutItem)
 
         init {
-            flexboxLayout = itemView.findViewById(R.id.radicalsLayoutItem)
             flexboxLayout.removeAllViews()
         }
     }

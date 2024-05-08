@@ -19,6 +19,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -45,11 +46,13 @@ import com.wegielek.signalychinese.utils.Preferences
 import com.wegielek.signalychinese.utils.Preferences.Companion.getMicLanguage
 import com.wegielek.signalychinese.utils.Preferences.Companion.getSearchMode
 import com.wegielek.signalychinese.utils.TextToSpeechManager
+import com.wegielek.signalychinese.utils.Utils.Companion.addStringAtIndex
 import com.wegielek.signalychinese.utils.Utils.Companion.containsChinese
 import com.wegielek.signalychinese.utils.Utils.Companion.hideKeyboard
 import com.wegielek.signalychinese.utils.Utils.Companion.showMicLanguagePopup
 import com.wegielek.signalychinese.utils.Utils.Companion.showSearchModePopup
 import com.wegielek.signalychinese.viewmodels.MainViewModel
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity(), CanvasViewListener,
     CharactersRecyclerViewListener, ResultsRecyclerViewListener, RadicalsRecyclerViewListener,
@@ -62,7 +65,7 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
     private val mSearchHandler = Handler(Looper.getMainLooper())
     private var mStateUI: StateUI? = StateUI.DRAW
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val searchWord = intent.getStringExtra("searchWord")
@@ -217,15 +220,6 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             }
             false
         }
-        /*
-        mBinding.backspaceBtn.setOnLongClickListener {
-            mBinding.searchTextBox.setText("")
-            mMainViewModel.cursorPosition = 0
-            mBinding.characterDrawCanvas.clear()
-            setStateUI(StateUI.DRAW)
-            true
-        }
-        */
 
         binding.refreshBtn.visibility = View.INVISIBLE
         binding.refreshBtn.setOnClickListener {
@@ -239,6 +233,14 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             binding.refreshBtn.visibility = View.INVISIBLE
             binding.charactersLoadingPb.visibility = View.VISIBLE
             binding.downloadingTv.text = getString(R.string.downloading)
+        }
+
+        binding.eraseBtn.setOnClickListener {
+            binding.searchTextBox.setText("")
+            binding.doneBtn.visibility = View.INVISIBLE
+            binding.characterDrawCanvas.clear()
+            binding.undoBtn.visibility = View.INVISIBLE
+            binding.charactersRv.visibility = View.INVISIBLE
         }
 
         binding.micBtn.setOnClickListener {
@@ -256,9 +258,8 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
                     RecognizerIntent.EXTRA_LANGUAGE,
                     getMicLanguage()
                 )
-                // Specify the prompt message
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.say_something))
-                startActivityForResult(intent, RECOGNIZER_RESULT)
+                resultLauncher.launch(intent)
             } else {
                 requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 0)
             }
@@ -268,20 +269,7 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             true
         }
         binding.doneBtn.setOnClickListener {
-            mMainViewModel.clearCharacterList()
-            binding.doneBtn.visibility = View.INVISIBLE
-            if (binding.searchTextBox.text != null) {
-                binding.searchTextBox.text?.let { binding.searchTextBox.setSelection(it.length) }
-                mMainViewModel.cursorPosition = binding.searchTextBox.text!!.length
-            } else {
-                Log.e(
-                    LOG_TAG,
-                    "Search text box text is null in doneBtn.onClick"
-                )
-            }
-            binding.characterDrawCanvas.clear()
-            binding.undoBtn.visibility = View.INVISIBLE
-            mSuggestedCharactersAdapter.notifyDataSetChanged()
+            onItemReleased(0)
         }
         binding.settingsBtn.setOnClickListener {
             val intent = Intent(baseContext, HamburgerActivity::class.java)
@@ -345,10 +333,12 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             flashCards.simplifiedSign = "(字)"
             flashCards.pronunciation = "zì "
             flashCards.pronunciationPhonetic = "zi "
-            flashCards.translation = "litera / symbol / znak / słowo / CL:個|个 / tytuł lub nazwa stylu tradycyjnie nadawana mężczyznom w wieku 20 lat w dynastycznych Chinach "
+            flashCards.translation = "letter / symbol / character / word / CL:個|个 / courtesy or style name traditionally given to males aged 20 in dynastic China "
             mMainViewModel.addFlashCardToGroup(flashCards)
             Preferences.setDefaultFlashCardGroupSetup(true)
         }
+        binding.characterDrawCanvas.visibility = View.INVISIBLE
+        binding.drawCharacterText.visibility = View.INVISIBLE
     }
 
     private val backspaceHold: Runnable = object : Runnable {
@@ -360,27 +350,27 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
                         KeyEvent.KEYCODE_DEL
                     )
                 )
-                mMainViewModel.cursorPosition = binding.searchTextBox.selectionEnd
                 if (binding.searchTextBox.text!!.isEmpty() && mStateUI !== StateUI.PUZZLE) {
                     setStateUI(StateUI.DRAW)
                     mSearchHandler.removeCallbacks(delayedSearch())
                 }
-                binding.doneBtn.visibility = View.INVISIBLE
-                binding.characterDrawCanvas.clear()
-                binding.undoBtn.visibility = View.INVISIBLE
+                //binding.doneBtn.visibility = View.INVISIBLE
+                //binding.characterDrawCanvas.clear()
+                //binding.undoBtn.visibility = View.INVISIBLE
+                //binding.charactersRv.visibility = View.INVISIBLE
             }
             binding.backspaceBtn.postDelayed(this, 100)
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == RECOGNIZER_RESULT && resultCode == RESULT_OK) {
-            val result = data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            binding.searchTextBox.setText(result!![0])
-            binding.searchTextBox.text?.let { binding.searchTextBox.setSelection(it.length) }
-            mMainViewModel.cursorPosition = binding.searchTextBox.text!!.length
+    private var resultLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == RESULT_OK) {
+            val result = it.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            binding.searchTextBox.setText(result?.get(0) ?: "")
+            binding.searchTextBox.setSelection(binding.searchTextBox.text?.length?: 0)
         }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun setStateUI(stateUI: StateUI?) {
@@ -481,7 +471,7 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
         }
         if (getSearchMode() == "normal") {
             if (inputTextString.isNotEmpty()) {
-                if (!containsChinese(inputTextString) && inputTextString.length > 1) {
+                if (!containsChinese(inputTextString)) {
                     val future = mMainViewModel.searchByWordPL(inputTextString)
                     Futures.addCallback(future, object : FutureCallback<List<Dictionary>> {
                         override fun onSuccess(dictionaries: List<Dictionary>) {
@@ -558,7 +548,6 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             if (hideKeyboard) {
                 hideKeyboard(this, binding.searchTextBox)
             }
-            binding.searchTextBox.setSelection(binding.searchTextBox.length())
         } else if (mStateUI !== StateUI.RESULTS) {
             Toast.makeText(this, getString(R.string.no_results), Toast.LENGTH_SHORT).show()
         }
@@ -571,34 +560,56 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
             mMainViewModel.addToCharacterList(rc.text)
         }
         if (binding.searchTextBox.text != null) {
+            val tmpCursorPosition = mMainViewModel.getCursorPosition()
+
+            if (!mMainViewModel.isCursorChanged()) {
+                try {
+                    binding.searchTextBox.setSelection(tmpCursorPosition + mMainViewModel.getLastWordSize())
+                    for (i in 1..mMainViewModel.getLastWordSize()) {
+                        binding.searchTextBox.dispatchKeyEvent(
+                            KeyEvent(
+                                KeyEvent.ACTION_DOWN,
+                                KeyEvent.KEYCODE_DEL
+                            )
+                        )
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
             binding.searchTextBox.setText(
-                getString(
-                    R.string.search_text_box_append_placeholder,
-                    mMainViewModel.cursorPosition.let {
-                        binding.searchTextBox.text!!
-                            .subSequence(0, it)
-                    },
-                    recognitionCandidatesList[0].text
-                )
+                binding.searchTextBox.text.toString()
+                    .addStringAtIndex(recognitionCandidatesList[0].text, mMainViewModel.getCursorPosition())
             )
+            binding.searchTextBox.setSelection(tmpCursorPosition)
+
+            val handler = Handler(Looper.getMainLooper())
+            handler.postDelayed({
+                mMainViewModel.setCursorUnchanged()
+            }, 20)
         } else {
             Log.e(LOG_TAG, "Search text box is null in onResults")
         }
-        binding.searchTextBox.text?.let { binding.searchTextBox.setSelection(it.length) }
         binding.doneBtn.visibility = View.VISIBLE
         binding.charactersRv.visibility = View.VISIBLE
         binding.undoBtn.visibility = View.VISIBLE
         mSuggestedCharactersAdapter.notifyDataSetChanged()
+
+        mMainViewModel.setLastWordSize(recognitionCandidatesList[0].text.length)
     }
 
     override fun onModelDownloaded(noInternet: Boolean) {
+        binding.characterDrawCanvas.visibility = View.VISIBLE
+        if (mStateUI == StateUI.DRAW) {
+            binding.drawCharacterText.visibility = View.VISIBLE
+        }
         binding.charactersLoadingPb.visibility = View.INVISIBLE
         binding.downloadingTv.visibility = View.INVISIBLE
         if (noInternet) {
             binding.downloadingTv.visibility = View.VISIBLE
             binding.downloadingTv.text = getString(R.string.no_internet)
             binding.refreshBtn.visibility = View.VISIBLE
-            //Toast.makeText(this, "no internet", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -609,21 +620,32 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
     @SuppressLint("NotifyDataSetChanged")
     override fun onItemReleased(position: Int) {
         if (binding.searchTextBox.text != null && mMainViewModel.charactersList.value != null) {
+            val tmpCursorPosition = mMainViewModel.getCursorPosition()
+
+            try {
+                binding.searchTextBox.setSelection(tmpCursorPosition + mMainViewModel.getLastWordSize())
+                for (i in 1..mMainViewModel.getLastWordSize()) {
+                    binding.searchTextBox.dispatchKeyEvent(
+                        KeyEvent(
+                            KeyEvent.ACTION_DOWN,
+                            KeyEvent.KEYCODE_DEL
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
             binding.searchTextBox.setText(
-                getString(
-                    R.string.search_text_box_append_placeholder,
-                    mMainViewModel.cursorPosition.let {
-                        binding.searchTextBox.text!!
-                            .subSequence(0, it)
-                    },
-                    mMainViewModel.charactersList.value!![position]
-                )
+                binding.searchTextBox.text.toString()
+                    .addStringAtIndex(mMainViewModel.charactersList.value!![position], mMainViewModel.getCursorPosition())
             )
-            binding.searchTextBox.setSelection(binding.searchTextBox.text!!.length)
+            binding.searchTextBox.setSelection(tmpCursorPosition + mMainViewModel.charactersList.value!![position].length)
+
         } else {
             Log.e(LOG_TAG, "Search text box or characters list is null in onItemReleased")
         }
-        mMainViewModel.cursorPosition = binding.searchTextBox.text!!.length
+        mMainViewModel.setLastWordSize(mMainViewModel.charactersList.value!![position].length)
         mMainViewModel.clearCharacterList()
         binding.doneBtn.visibility = View.INVISIBLE
         binding.undoBtn.visibility = View.INVISIBLE
@@ -632,7 +654,7 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
     }
 
     override fun onItemPressed(itemView: View) {
-        itemView.setBackgroundColor(getColor(R.color.selection_color))
+        itemView.setBackgroundResource(R.drawable.btn_result_bg_default)
         itemView.postDelayed({ itemView.setBackgroundColor(Color.TRANSPARENT) }, 500)
     }
 
@@ -649,7 +671,13 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
 
     override fun onRadicalClicked(radical: String) {
         if (mMainViewModel.radicalChosen!!) {
-            binding.searchTextBox.append(radical)
+            val tmpCursorPosition = mMainViewModel.getCursorPosition()
+            binding.searchTextBox.setText(
+                binding.searchTextBox.text.toString().addStringAtIndex(radical, mMainViewModel.getCursorPosition())
+            )
+            binding.searchTextBox.setSelection(
+                tmpCursorPosition + 1
+            )
         } else {
             val future = mMainViewModel.getRadicalsSection(radical)
             Futures.addCallback<List<Radicals>>(future, object : FutureCallback<List<Radicals>> {
@@ -703,7 +731,13 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
                             }
                         })
                     } else {
-                        binding.searchTextBox.append(radical)
+                        val tmpCursorPosition = mMainViewModel.getCursorPosition()
+                        binding.searchTextBox.setText(
+                            binding.searchTextBox.text.toString().addStringAtIndex(radical, mMainViewModel.getCursorPosition())
+                        )
+                        binding.searchTextBox.setSelection(
+                            tmpCursorPosition + 1
+                        )
                     }
                 }
 
@@ -719,7 +753,19 @@ class MainActivity : AppCompatActivity(), CanvasViewListener,
         super.onSaveInstanceState(outState)
     }
 
-    override fun onSelectionChanged(selStart: Int, selEnd: Int) {}
+    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+        mMainViewModel.setCursorChanged()
+        mMainViewModel.setCursorPosition(selEnd)
+        if (binding.searchTextBox.text!!.isEmpty()) {
+            binding.micBtn.visibility = View.VISIBLE
+            binding.eraseBtn.visibility = View.INVISIBLE
+        } else {
+            binding.micBtn.visibility = View.INVISIBLE
+            binding.eraseBtn.visibility = View.VISIBLE
+        }
+        Log.i(LOG_TAG, "Cursor changed: " + mMainViewModel.getCursorPosition())
+    }
+
     private fun delayedSearch(): Runnable {
         return Runnable { performSearch(false) }
     }

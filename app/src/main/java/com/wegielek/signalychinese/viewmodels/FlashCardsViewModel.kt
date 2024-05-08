@@ -9,14 +9,11 @@ import com.wegielek.signalychinese.database.FlashCards
 import com.wegielek.signalychinese.repository.DictionaryRepository
 
 class FlashCardsViewModel(application: Application) : AndroidViewModel(application) {
-    val flashCardsList: MutableLiveData<List<FlashCards>>
-    val currentIndex: MutableLiveData<Int>
-    private val mDictionaryRepository: DictionaryRepository
+    val flashCardsList: MutableLiveData<List<FlashCards>> = MutableLiveData()
+    val currentIndex: MutableLiveData<Int> = MutableLiveData()
+    private val mDictionaryRepository: DictionaryRepository = DictionaryRepository(application)
 
     init {
-        mDictionaryRepository = DictionaryRepository(application)
-        flashCardsList = MutableLiveData()
-        currentIndex = MutableLiveData()
         currentIndex.value = 0
     }
 

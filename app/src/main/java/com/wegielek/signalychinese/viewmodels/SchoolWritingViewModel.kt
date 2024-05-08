@@ -15,10 +15,9 @@ class SchoolWritingViewModel(application: Application) : AndroidViewModel(applic
     val characterMode = MutableLiveData<CharacterMode>()
     val isContinue: MutableLiveData<Boolean>
     private val lastMode = MutableLiveData<CharacterMode>()
-    private val mDictionaryRepository: DictionaryRepository
+    private val mDictionaryRepository: DictionaryRepository = DictionaryRepository(application)
 
     init {
-        mDictionaryRepository = DictionaryRepository(application)
         characterMode.value = CharacterMode.TEST
         lastMode.value = CharacterMode.TEST
         flashCardsList = MutableLiveData()

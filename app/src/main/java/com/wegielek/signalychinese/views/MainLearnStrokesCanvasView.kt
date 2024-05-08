@@ -377,6 +377,11 @@ class MainLearnStrokesCanvasView : View {
         return true
     }
 
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
+
     private fun setupScaleMatrices() {
         // View size.
         val width = width.toFloat()

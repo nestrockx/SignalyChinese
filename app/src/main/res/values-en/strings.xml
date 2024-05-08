@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Signaly Chinese</string>
-
     <string name="clear">Clear</string>
-    <string name="searching_mode">搜寻</string>
-    <string name="drawing_mode">汉字</string>
-    <string name="puzzle_mode">部首</string>
-    <string name="puzzle_chosen_mode">汉字</string>
+    <string name="searching_mode">Searching</string>
+    <string name="drawing_mode">Draw chinese sign</string>
+    <string name="puzzle_mode">Choose radical</string>
+    <string name="puzzle_chosen_mode">Choose sign</string>
     <string name="no_results">No results</string>
     <string name="dictionary_files_not_loaded">Dictionary files not loaded. Try again.</string>
     <string name="word_search_hint">汉字 pinyin polish</string>
@@ -44,6 +43,7 @@
     <string name="collection">"Collection: "</string>
     <string name="draw">Draw</string>
     <string name="present">Present</string>
+    <string name="draw_here">Draw here</string>
     <string name="writing">Writing</string>
 
     <string-array name="menu_array">
@@ -54,7 +54,6 @@
         <item>Voice data download</item>
         <item>About app</item>
     </string-array>
-    <string name="draw_here">Draw here</string>
     <string name="refresh">Refresh</string>
     <string name="no_internet">No internet</string>
     <string name="provide_input">Provide input</string>
@@ -76,6 +75,7 @@
     <string name="close">Close</string>
     <string name="speak_chinese">Speak Chinese</string>
     <string name="speak_polish">Speak Chinese</string>
+
     <string name="add_collection">Add collection</string>
     <string name="new_collection_confirm">Confirm new collection</string>
     <string name="mic">Speak with microphone</string>
@@ -93,4 +93,5 @@
     <string name="yes">yes</string>
     <string name="no">no</string>
     <string name="prev_flashcard">Previous flashcard</string>
+
 </resources>

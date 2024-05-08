@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="?attr/selectableItemBackground"
-        android:text="Nie"
+        android:text="@string/no"
         android:textColor="@color/dark_mode_white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/areYouSureDialogTv" />
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="?attr/selectableItemBackground"
-        android:text="Tak"
+        android:text="@string/yes"
         android:textColor="@color/dark_mode_white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/areYouSureDialogTv" />

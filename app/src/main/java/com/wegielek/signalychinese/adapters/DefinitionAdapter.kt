@@ -16,11 +16,7 @@ class DefinitionAdapter(
     private val listener: DefinitionListRecyclerViewListener
 ) : RecyclerView.Adapter<DefinitionAdapter.ViewHolder>() {
 
-    private val dataList: MutableList<String>
-
-    init {
-        dataList = ArrayList()
-    }
+    private val dataList: MutableList<String> = ArrayList()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(dataList: List<String>) {
@@ -53,12 +49,7 @@ class DefinitionAdapter(
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val definitionRowTv: TextView
-        val moreBtn: AppCompatImageButton
-
-        init {
-            moreBtn = itemView.findViewById(R.id.moreBtn)
-            definitionRowTv = itemView.findViewById(R.id.definitionRowTv)
-        }
+        val definitionRowTv: TextView = itemView.findViewById(R.id.definitionRowTv)
+        val moreBtn: AppCompatImageButton = itemView.findViewById(R.id.moreBtn)
     }
 }

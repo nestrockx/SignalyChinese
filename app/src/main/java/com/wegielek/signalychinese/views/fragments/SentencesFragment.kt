@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
@@ -48,8 +47,10 @@ class SentencesFragment : Fragment() {
                 if (result.isNotEmpty()) {
                     mSentencesAdapter.setData(result)
                     binding.sentencesPb.visibility = View.INVISIBLE
+                    binding.noSentencesTv.visibility = View.INVISIBLE
                 } else {
-                    Toast.makeText(context, "No sentences", Toast.LENGTH_SHORT).show()
+                    binding.sentencesPb.visibility = View.INVISIBLE
+                    binding.noSentencesTv.visibility = View.VISIBLE
                 }
             }
             override fun onFailure(t: Throwable) {

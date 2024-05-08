@@ -12,7 +12,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
-import android.speech.tts.TextToSpeech
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
@@ -27,8 +26,8 @@ import com.wegielek.signalychinese.SignalyChineseApplication
 import com.wegielek.signalychinese.database.Dictionary
 import com.wegielek.signalychinese.database.History
 import com.wegielek.signalychinese.views.MainActivity
-import org.w3c.dom.Text
 import java.lang.reflect.InvocationTargetException
+
 
 class Utils {
     companion object {
@@ -98,7 +97,7 @@ class Utils {
             return true
         }
 
-        fun showPopup(
+        fun showDefinitionPopup(
             v: View,
             tv: TextView,
             text: String,
@@ -164,7 +163,49 @@ class Utils {
                 }
                 false
             }
-            popupMenu.inflate(R.menu.popup_menu)
+            popupMenu.inflate(R.menu.popup_definition_menu)
+            try {
+                val popup = PopupMenu::class.java.getDeclaredField("mPopup")
+                popup.isAccessible = true
+                val menu = popup[popupMenu]
+                menu?.let {
+                    it.javaClass.getDeclaredMethod("setForceShowIcon", Boolean::class.javaPrimitiveType)
+                        .invoke(it, true)
+                }
+            } catch (e: NoSuchFieldException) {
+                e.printStackTrace()
+                Log.e("Popup", "Error:" + e.message)
+            } catch (e: IllegalAccessException) {
+                e.printStackTrace()
+                Log.e("Popup", "Error:" + e.message)
+            } catch (e: NoSuchMethodException) {
+                e.printStackTrace()
+                Log.e("Popup", "Error:" + e.message)
+            } catch (e: InvocationTargetException) {
+                e.printStackTrace()
+                Log.e("Popup", "Error:" + e.message)
+            } finally {
+                popupMenu.show()
+            }
+        }
+
+        fun showSentencePopup(
+            v: View,
+            tv: TextView,
+            text: String,
+            highlightColor: Int
+        ) {
+            val popupMenu = PopupMenu(v.context, v)
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.speak_polish -> {
+                        TextToSpeechManager.speakPL(tv, text, highlightColor)
+                        return@setOnMenuItemClickListener true
+                    }
+                }
+                false
+            }
+            popupMenu.inflate(R.menu.popup_sentence_menu)
             try {
                 val popup = PopupMenu::class.java.getDeclaredField("mPopup")
                 popup.isAccessible = true
@@ -291,6 +332,9 @@ class Utils {
         fun removeHighlights(tv: TextView) {
             tv.text = SpannableString(tv.text.toString())
         }
+
+        fun String.addStringAtIndex(string: String, index: Int) =
+            StringBuilder(this).apply { insert(index, string) }.toString()
     }
 
 }

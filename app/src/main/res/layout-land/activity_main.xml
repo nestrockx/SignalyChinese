@@ -153,6 +153,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
         android:layout_weight="1"
+        android:background="@drawable/btn_characters_holder"
         app:layout_constraintBottom_toTopOf="@+id/divider2"
         app:layout_constraintEnd_toStartOf="@+id/doneBtn"
         app:layout_constraintStart_toEndOf="@+id/learnBtn" />
@@ -162,7 +163,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Narysuj znak"
+        android:text="@string/drawing_mode"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -285,14 +286,29 @@
         app:layout_constraintBottom_toTopOf="@+id/doneBtn"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <ImageButton
+    <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/micBtn"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/selector_search_bg_btn"
+        android:contentDescription="@string/mic"
         android:padding="8dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_mic_default"
+        app:layout_constraintBottom_toBottomOf="@+id/textInputLayout"
+        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+        app:layout_constraintTop_toTopOf="@+id/textInputLayout" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/eraseBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/selector_search_bg_btn"
+        android:contentDescription=""
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_close_white"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/textInputLayout"
         app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
         app:layout_constraintTop_toTopOf="@+id/textInputLayout" />

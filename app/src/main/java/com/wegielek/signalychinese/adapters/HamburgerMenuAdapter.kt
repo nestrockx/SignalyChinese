@@ -1,6 +1,7 @@
 package com.wegielek.signalychinese.adapters
 
 import android.content.Intent
+import android.speech.tts.TextToSpeech
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,6 +55,13 @@ class HamburgerMenuAdapter(private val dataList: List<String>) : RecyclerView.Ad
             }
             4 -> {
                 holder.nameTv.setOnClickListener {
+                    val installIntent = Intent()
+                    installIntent.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
+                    it.context.startActivity(installIntent)
+                }
+            }
+            5 -> {
+                holder.nameTv.setOnClickListener {
                     val intent = Intent(it.context, AboutActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     it.context.startActivity(intent)
@@ -63,10 +71,6 @@ class HamburgerMenuAdapter(private val dataList: List<String>) : RecyclerView.Ad
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTv: TextView
-
-        init {
-            nameTv = itemView.findViewById(R.id.menuItem)
-        }
+        val nameTv: TextView = itemView.findViewById(R.id.menuItem)
     }
 }

@@ -17,11 +17,7 @@ class HistoryAdapter(
     private val context: Context
 ) :
     RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
-    private val dataList: MutableList<History>
-
-    init {
-        dataList = ArrayList()
-    }
+    private val dataList: MutableList<History> = ArrayList()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(dataList: List<History>?) {
@@ -72,14 +68,11 @@ class HistoryAdapter(
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val charactersTv: TextView
-        val pronunciationTv: TextView
-        val translationTv: TextView
+        val charactersTv: TextView = itemView.findViewById(R.id.labelTv)
+        val pronunciationTv: TextView = itemView.findViewById(R.id.pronunciationTv)
+        val translationTv: TextView = itemView.findViewById(R.id.translationTv)
 
         init {
-            charactersTv = itemView.findViewById(R.id.labelTv)
-            pronunciationTv = itemView.findViewById(R.id.pronunciationTv)
-            translationTv = itemView.findViewById(R.id.translationTv)
             itemView.setOnClickListener {
                 historyRecyclerViewListener.onHistoryClicked(
                     historyToDictionary(

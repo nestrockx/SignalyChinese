@@ -8,22 +8,17 @@ import kotlin.math.pow
 
 class HanziCharacter(characterPaths: List<Path>) {
     var index = 0
-    val paths: List<Path>
+    val paths: List<Path> = ArrayList(characterPaths)
     var isFinished = false
-    val size: Int
+    val size: Int = characterPaths.size
     private val pathMeasure = PathMeasure()
     private val pos = FloatArray(2)
     private val tan = FloatArray(2)
-    private val matchStart: BooleanArray
-    private val matchControlPoint: BooleanArray
-    private val matchEnd: BooleanArray
+    private val matchStart: BooleanArray = BooleanArray(size)
+    private val matchControlPoint: BooleanArray = BooleanArray(size)
+    private val matchEnd: BooleanArray = BooleanArray(size)
 
     init {
-        paths = ArrayList(characterPaths)
-        size = characterPaths.size
-        matchStart = BooleanArray(size)
-        matchControlPoint = BooleanArray(size)
-        matchEnd = BooleanArray(size)
         Arrays.fill(matchStart, false)
         Arrays.fill(matchControlPoint, false)
         Arrays.fill(matchEnd, false)

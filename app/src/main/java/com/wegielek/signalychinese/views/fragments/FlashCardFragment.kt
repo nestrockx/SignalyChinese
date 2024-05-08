@@ -16,7 +16,10 @@ import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.databinding.FragmentFlashCardBinding
 import com.wegielek.signalychinese.enums.Direction
 import com.wegielek.signalychinese.utils.Preferences.Companion.isFlashCardsReversed
-import com.wegielek.signalychinese.utils.Utils
+import com.wegielek.signalychinese.utils.Utils.Companion.dpToPixels
+import com.wegielek.signalychinese.utils.Utils.Companion.getScreenHeight
+import com.wegielek.signalychinese.utils.Utils.Companion.getScreenWidth
+import com.wegielek.signalychinese.utils.Utils.Companion.isScreenRotated
 import com.wegielek.signalychinese.viewmodels.FlashCardsViewModel
 import com.wegielek.signalychinese.views.FlashCardsActivity
 import kotlin.math.abs
@@ -90,24 +93,24 @@ class FlashCardFragment : Fragment() {
         })
 
         mSwipeListener = SwipeListener(binding.gesturePlain)
-        if (!Utils.isScreenRotated(requireContext())) {
-            binding.cardFront.width = Utils.getScreenWidth(activity as FlashCardsActivity) -
-                    Utils.dpToPixels(requireContext(), 64f)
-            binding.cardFront.height = Utils.getScreenWidth(activity as FlashCardsActivity) -
-                    Utils.dpToPixels(requireContext(), 64f)
-            binding.cardBack.width = Utils.getScreenWidth(activity as FlashCardsActivity) -
-                    Utils.dpToPixels(requireContext(), 64f)
-            binding.cardBack.height = Utils.getScreenWidth(activity as FlashCardsActivity) -
-                    Utils.dpToPixels(requireContext(), 64f)
+        if (!isScreenRotated(requireContext())) {
+            binding.cardFront.width = getScreenWidth(activity as FlashCardsActivity) -
+                    dpToPixels(requireContext(), 64f)
+            binding.cardFront.height = getScreenWidth(activity as FlashCardsActivity) -
+                    dpToPixels(requireContext(), 64f)
+            binding.cardBack.width = getScreenWidth(activity as FlashCardsActivity) -
+                    dpToPixels(requireContext(), 64f)
+            binding.cardBack.height = getScreenWidth(activity as FlashCardsActivity) -
+                    dpToPixels(requireContext(), 64f)
         } else {
-            binding.cardFront.width = Utils.getScreenHeight(activity as FlashCardsActivity) -
-                    Utils.dpToPixels(requireContext(), 130f)
-            binding.cardFront.height = Utils.getScreenHeight(activity as FlashCardsActivity) -
-                    Utils.dpToPixels(requireContext(), 150f)
-            binding.cardBack.width = Utils.getScreenHeight(activity as FlashCardsActivity) -
-                    Utils.dpToPixels(requireContext(), 130f)
-            binding.cardBack.height = Utils.getScreenHeight(activity as FlashCardsActivity) -
-                    Utils.dpToPixels(requireContext(), 150f)
+            binding.cardFront.width = getScreenHeight(activity as FlashCardsActivity) -
+                    dpToPixels(requireContext(), 130f)
+            binding.cardFront.height = getScreenHeight(activity as FlashCardsActivity) -
+                    dpToPixels(requireContext(), 150f)
+            binding.cardBack.width = getScreenHeight(activity as FlashCardsActivity) -
+                    dpToPixels(requireContext(), 130f)
+            binding.cardBack.height = getScreenHeight(activity as FlashCardsActivity) -
+                    dpToPixels(requireContext(), 150f)
         }
         val scale = resources.displayMetrics.density
         binding.cardFront.cameraDistance = 8000 * scale
@@ -166,7 +169,7 @@ class FlashCardFragment : Fragment() {
                     mFrontAnimUp.start()
                     mBackAnimUp.start()
 
-                    binding.incorrectBtn.postDelayed({ binding.incorrectBtn.visibility = View.VISIBLE }, 500)
+                    //binding.incorrectBtn.postDelayed({ binding.incorrectBtn.visibility = View.VISIBLE }, 500)
                     binding.correctBtn.postDelayed({ binding.correctBtn.visibility = View.VISIBLE }, 500)
 
                     false

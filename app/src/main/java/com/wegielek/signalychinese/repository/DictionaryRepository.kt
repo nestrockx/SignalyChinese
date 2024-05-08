@@ -16,18 +16,14 @@ import com.wegielek.signalychinese.database.Sentences
 import com.wegielek.signalychinese.database.SentencesDao
 
 class DictionaryRepository(application: Application) {
-    private val dictionaryDao: DictionaryDao
-    private val radicalsDao: RadicalsDao
-    private val historyDao: HistoryDao
-    private val flashCardsDao: FlashCardsDao
-    private val sentencesDao: SentencesDao
+    private val dictionaryDao: DictionaryDao = getInstance(application)?.dictionaryDao() ?: throw NullPointerException("Database instance not available")
+    private val radicalsDao: RadicalsDao = getInstance(application)?.radicalDao() ?: throw NullPointerException("Database instance not available")
+    private val historyDao: HistoryDao = getInstance(application)?.historyDao() ?: throw NullPointerException("Database instance not available")
+    private val flashCardsDao: FlashCardsDao = getInstance(application)?.flashCardsDao() ?: throw NullPointerException("Database instance not available")
+    private val sentencesDao: SentencesDao = getInstance(application)?.sentencesDao() ?: throw NullPointerException("Database instance not available")
 
-    init {
-        dictionaryDao = getInstance(application)?.dictionaryDao() ?: throw NullPointerException("Database instance not available")
-        radicalsDao = getInstance(application)?.radicalDao() ?: throw NullPointerException("Database instance not available")
-        historyDao = getInstance(application)?.historyDao() ?: throw NullPointerException("Database instance not available")
-        flashCardsDao = getInstance(application)?.flashCardsDao() ?: throw NullPointerException("Database instance not available")
-        sentencesDao = getInstance(application)?.sentencesDao() ?: throw NullPointerException("Database instance not available")
+    fun findAllSentences(simplifiedWord: String, traditionalWord: String): ListenableFuture<List<Sentences>> {
+        return sentencesDao.findAllSentences(simplifiedWord, traditionalWord)
     }
 
     fun findSimplifiedSentences(word: String): ListenableFuture<List<Sentences>> {

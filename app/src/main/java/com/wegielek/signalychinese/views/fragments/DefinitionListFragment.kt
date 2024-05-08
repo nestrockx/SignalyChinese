@@ -14,7 +14,7 @@ import com.wegielek.signalychinese.adapters.DefinitionAdapter
 import com.wegielek.signalychinese.database.Dictionary
 import com.wegielek.signalychinese.databinding.FragmentDefinitionListBinding
 import com.wegielek.signalychinese.interfaces.DefinitionListRecyclerViewListener
-import com.wegielek.signalychinese.utils.Utils.Companion.showPopup
+import com.wegielek.signalychinese.utils.Utils.Companion.showDefinitionPopup
 import com.wegielek.signalychinese.views.DefinitionWordActivity
 
 class DefinitionListFragment : Fragment(R.layout.fragment_definition_list),
@@ -63,7 +63,7 @@ class DefinitionListFragment : Fragment(R.layout.fragment_definition_list),
     }
 
     override fun showPopup(v: View, tv: TextView, text: String) {
-        showPopup(
+        showDefinitionPopup(
             v,
             tv,
             text.trim { it <= ' ' },

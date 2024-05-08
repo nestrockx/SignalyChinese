@@ -1,11 +1,11 @@
 package com.wegielek.signalychinese.utils
 
+import android.os.Handler
+import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.widget.TextView
-import androidx.core.content.ContextCompat
-import com.wegielek.signalychinese.R
 import com.wegielek.signalychinese.SignalyChineseApplication
 import com.wegielek.signalychinese.utils.Utils.Companion.removeHighlights
 import com.wegielek.signalychinese.utils.Utils.Companion.setHighLightedText
@@ -16,6 +16,8 @@ object TextToSpeechManager {
 
     private lateinit var ttsCH: TextToSpeech
     private lateinit var ttsPL: TextToSpeech
+    private var slowCH = false
+    private var slowPL = false
 
     val instanceCH: TextToSpeech by lazy {
         ttsCH = TextToSpeech(SignalyChineseApplication.instance.applicationContext) { status ->
@@ -54,6 +56,13 @@ object TextToSpeechManager {
     }
 
     fun speakCH(textView: TextView, text: String, color: Int) {
+        slowCH = !slowCH
+        if (slowCH) {
+            instanceCH.setSpeechRate(0.5f)
+        } else {
+            instanceCH.setSpeechRate(1.0f)
+        }
+
         val range = "rangeCH"
         instanceCH.speak(text, TextToSpeech.QUEUE_FLUSH, null, range)
         instanceCH.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -61,12 +70,18 @@ object TextToSpeechManager {
 
             }
             override fun onDone(utteranceId: String?) {
-                removeHighlights(textView)
+                if (utteranceId == range) {
+                    Handler(Looper.getMainLooper()).post {
+                        removeHighlights(textView)
+                    }
+                }
             }
             override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
                 if (utteranceId == range) {
-                    removeHighlights(textView)
-                    setHighLightedText(textView, text.substring(start, end), color)
+                    Handler(Looper.getMainLooper()).post {
+                        removeHighlights(textView)
+                        setHighLightedText(textView, text.substring(start, end), color)
+                    }
                 }
             }
             override fun onError(utteranceId: String?, errorCode: Int) {
@@ -84,6 +99,13 @@ object TextToSpeechManager {
     }
 
     fun speakPL(textView: TextView, text: String, color: Int) {
+        slowPL = !slowPL
+        if (slowPL) {
+            instancePL.setSpeechRate(0.5f)
+        } else {
+            instancePL.setSpeechRate(1.0f)
+        }
+
         val range = "rangePL"
         instancePL.speak(text, TextToSpeech.QUEUE_FLUSH, null, range)
         instancePL.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -91,12 +113,18 @@ object TextToSpeechManager {
 
             }
             override fun onDone(utteranceId: String?) {
-                removeHighlights(textView)
+                if (utteranceId == range) {
+                    Handler(Looper.getMainLooper()).post {
+                        removeHighlights(textView)
+                    }
+                }
             }
             override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
                 if (utteranceId == range) {
-                    removeHighlights(textView)
-                    setHighLightedText(textView, text.substring(start, end), color)
+                    Handler(Looper.getMainLooper()).post {
+                        removeHighlights(textView)
+                        setHighLightedText(textView, text.substring(start, end), color)
+                    }
                 }
             }
             override fun onError(utteranceId: String?, errorCode: Int) {

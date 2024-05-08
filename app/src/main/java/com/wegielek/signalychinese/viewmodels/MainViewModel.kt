@@ -26,14 +26,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val mInkBuilder = MutableLiveData<Ink.Builder>()
     private val mCurrentVisibleStroke = MutableLiveData<Path>()
     private val mVisibleStrokesHistory = MutableLiveData<ArrayList<Path>>()
-    private val mCursorPosition = MutableLiveData<Int>()
     private val isRadicalChosen = MutableLiveData<Boolean>()
     private val mRadicalChosenCharacter = MutableLiveData<String>()
     private val mKeepSplashScreen = MutableLiveData<Boolean>()
-    private val mDictionaryRepository: DictionaryRepository
+    private val mCursorChanged = MutableLiveData<Boolean>()
+    private val mCursorPosition = MutableLiveData<Int>()
+    private val mLastWordSize = MutableLiveData<Int>()
+    private val mDictionaryRepository: DictionaryRepository = DictionaryRepository(application)
 
     init {
-        mDictionaryRepository = DictionaryRepository(application)
         mStrokeBuilder.value = Ink.Stroke.builder()
         mInkBuilder.value = Ink.builder()
         mStrokesHistory.value = ArrayList()
@@ -41,11 +42,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         charactersList.value = ArrayList()
         mVisibleStrokesHistory.value = ArrayList()
         mCurrentVisibleStroke.value = Path()
-        mCursorPosition.value = 0
         mRadicalChosenCharacter.value = "0"
         radicalsList.value = ArrayList()
         isRadicalChosen.value = false
         mKeepSplashScreen.value = true
+        mCursorChanged.value = false
+        mCursorPosition.value = 0
+        mLastWordSize.value = 0
+    }
+
+    fun setCursorPosition(index: Int) {
+        mCursorPosition.value = index
+    }
+
+    fun getCursorPosition() : Int {
+        return mCursorPosition.value!!
+    }
+
+    fun getLastWordSize() : Int {
+        return mLastWordSize.value!!
+    }
+
+    fun setLastWordSize(size: Int) {
+        mLastWordSize.value = size
+    }
+
+    fun isCursorChanged() : Boolean {
+        return mCursorChanged.value!!
+    }
+
+    fun setCursorChanged() {
+        mCursorChanged.value = true
+    }
+
+    fun setCursorUnchanged() {
+        mCursorChanged.value = false
     }
 
     fun addFlashCardToGroup(flashCards: FlashCards) {
@@ -139,16 +170,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearCharacterList() {
         charactersList.value = emptyList()
     }
-
-    var cursorPosition: Int
-        get() = if (mCursorPosition.value != null) {
-            mCursorPosition.value!!
-        } else {
-            -1
-        }
-        set(x) {
-            mCursorPosition.value = x
-        }
 
     fun addVisibleStroke(path: Path) {
         if (mVisibleStrokesHistory.value != null) {

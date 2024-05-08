@@ -14,11 +14,7 @@ class BottomSheetsGroupsAdapter(
     private val groups: ArrayList<String>
 ) : RecyclerView.Adapter<BottomSheetsGroupsAdapter.ViewHolder>() {
 
-    private val dataList: MutableList<String>
-
-    init {
-        dataList = ArrayList()
-    }
+    private val dataList: MutableList<String> = ArrayList()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(dataList: List<String>) {
@@ -60,10 +56,6 @@ class BottomSheetsGroupsAdapter(
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val checkBox: CheckBox
-
-        init {
-            checkBox = itemView.findViewById(R.id.collectionCb)
-        }
+        val checkBox: CheckBox = itemView.findViewById(R.id.collectionCb)
     }
 }

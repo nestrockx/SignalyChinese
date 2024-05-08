@@ -17,11 +17,7 @@ class FlashCardGroupsAdapter(
     private val flashCardsGroupsRecyclerViewListener: FlashCardsGroupsRecyclerViewListener
 ) : RecyclerView.Adapter<FlashCardGroupsAdapter.ViewHolder>() {
 
-    private val dataList: MutableList<String>
-
-    init {
-        dataList = ArrayList()
-    }
+    private val dataList: MutableList<String> = ArrayList()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(dataList: List<String>?) {
@@ -37,7 +33,11 @@ class FlashCardGroupsAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.groupNameTv.text = context.getString(R.string.collection) + dataList[position]
+        holder.groupNameTv.text = context.getString(
+            R.string.search_text_box_append_placeholder,
+            context.getString(R.string.collection),
+            dataList[position]
+        )
         holder.flashCardsBtn.setOnClickListener {
             flashCardsGroupsRecyclerViewListener.onFlashCardsGroupClicked(dataList[position])
         }
@@ -54,16 +54,9 @@ class FlashCardGroupsAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val groupNameTv: TextView
-        val deleteBtn: AppCompatImageButton
-        val writingBtn: AppCompatButton
-        val flashCardsBtn: AppCompatButton
-
-        init {
-            groupNameTv = itemView.findViewById(R.id.groupName)
-            deleteBtn = itemView.findViewById(R.id.deleteFlashCardGroup)
-            writingBtn = itemView.findViewById(R.id.writingBtn)
-            flashCardsBtn = itemView.findViewById(R.id.flashCardsBtn)
-        }
+        val groupNameTv: TextView = itemView.findViewById(R.id.groupName)
+        val deleteBtn: AppCompatImageButton = itemView.findViewById(R.id.deleteFlashCardGroup)
+        val writingBtn: AppCompatButton = itemView.findViewById(R.id.writingBtn)
+        val flashCardsBtn: AppCompatButton = itemView.findViewById(R.id.flashCardsBtn)
     }
 }

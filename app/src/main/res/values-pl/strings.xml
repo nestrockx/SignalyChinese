@@ -29,13 +29,13 @@
     <string name="menu">Menu</string>
     <string name="flash_cards">Fiszki</string>
     <string name="school">Nauka</string>
-    <string name="downloading">Pobieranie danych rozpoznawania chińskich znaków. Może to chwilę potrwać</string>
+    <string name="downloading">Poczekaj, aż dane rozpoznawania chińskich znaków zostaną pobrane. Może to chwilę potrwać</string>
     <string name="character_not_found">Znak niedostępny</string>
     <string name="saved">zapisane</string>
     <string name="confirm">zatwierdź</string>
     <string name="are_you_sure_delete_flash_cards">Czy jesteś pewien, że chcesz usunąć grupę %1$s?</string>
     <string name="flip">obróć</string>
-    <string name="correct">Dobrze</string>
+    <string name="correct">Dalej</string>
     <string name="incorrect">Źle</string>
     <string name="collections">Kolekcje</string>
     <string name="collection_name">Nazwa kolekcji</string>
@@ -50,6 +50,7 @@
         <item>Język wyszukiwania głosem</item>
         <item>Historia wyszukiwania</item>
         <item>Nauka</item>
+        <item>Pobieranie danych głosowych</item>
         <item>O aplikacji</item>
     </string-array>
     <string name="draw_here">Rysuj tutaj</string>
@@ -70,7 +71,6 @@
     <string name="next_character">Następny znak</string>
     <string name="search_character">Wyszkaj znak</string>
     <string name="reset_character">Zresetuj znak</string>
-    <string name="gesture_plain">Powierzchnia gestu</string>
     <string name="next_flashcard">Następna fiszka</string>
     <string name="close">Zamknij</string>
     <string name="speak_chinese">Powiedz po chińsku</string>
@@ -82,4 +82,14 @@
     <string name="add">Dodaj</string>
     <string name="delete">Usuń</string>
     <string name="reverse">Odwróć</string>
+    <string name="no_sentences">Brak przykładowych zdań</string>
+    <string name="speak_polish_sentence">Powiedz po polsku</string>
+    <string name="sentences_options">Opcje zdania</string>
+    <string name="gesture_plane">Powierzchnia wyłapująca gesty</string>
+    <string name="dropdown_simplified_traditional">Wybierz uproszczone tradycyjne</string>
+    <string name="next_word">Następne słowo</string>
+    <string name="prev_word">Poprzednie słowo</string>
+    <string name="yes">tak</string>
+    <string name="no">nie</string>
+    <string name="prev_flashcard">Poprzednia fiszka</string>
 </resources>

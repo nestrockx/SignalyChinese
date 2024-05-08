@@ -9,11 +9,11 @@ class Sentences {
     @PrimaryKey(autoGenerate = true)
     var uid = 0
 
-    @ColumnInfo(name = "traditional_sign")
-    var traditionalSign = ""
-
     @ColumnInfo(name = "simplified_sign")
     var simplifiedSign = ""
+
+    @ColumnInfo(name = "traditional_sign")
+    var traditionalSign = ""
 
     @ColumnInfo(name = "pronunciation")
     var pronunciation = ""

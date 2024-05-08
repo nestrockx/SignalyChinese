@@ -8,11 +8,7 @@ import com.wegielek.signalychinese.database.History
 import com.wegielek.signalychinese.repository.DictionaryRepository
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
-    private val mDictionaryRepository: DictionaryRepository
-
-    init {
-        mDictionaryRepository = DictionaryRepository(application)
-    }
+    private val mDictionaryRepository: DictionaryRepository = DictionaryRepository(application)
 
     val wholeHistory: LiveData<List<History>>
         get() = mDictionaryRepository.wholeHistory

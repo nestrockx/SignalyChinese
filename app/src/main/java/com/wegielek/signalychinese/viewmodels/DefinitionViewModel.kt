@@ -26,6 +26,10 @@ class DefinitionViewModel(application: Application) : AndroidViewModel(applicati
         mDictionaryRepository = DictionaryRepository(application)
     }
 
+    fun findAllSentences(simplifiedWord: String, traditionalWord: String): ListenableFuture<List<Sentences>> {
+        return mDictionaryRepository.findAllSentences(simplifiedWord, traditionalWord)
+    }
+
     fun findSimplifiedSentences(word: String): ListenableFuture<List<Sentences>> {
         return mDictionaryRepository.findSimplifiedSentences(word)
     }

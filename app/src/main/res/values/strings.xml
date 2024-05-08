@@ -1,81 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Signaly Chinese</string>
-    <string name="clear">Clear</string>
-    <string name="searching_mode">Searching</string>
-    <string name="drawing_mode">Draw chinese sign</string>
-    <string name="puzzle_mode">Choose radical</string>
-    <string name="puzzle_chosen_mode">Choose sign</string>
-    <string name="no_results">No results</string>
-    <string name="dictionary_files_not_loaded">Dictionary files not loaded. Try again.</string>
-    <string name="word_search_hint">汉字 pinyin polish</string>
+    <string name="app_name">Signaly Chiński</string>
+    <string name="clear">Wyczyść</string>
+    <string name="searching_mode">Wyszukiwanie</string>
+    <string name="drawing_mode">Narysuj znak</string>
+    <string name="puzzle_mode">Wybierz klucz</string>
+    <string name="puzzle_chosen_mode">Wybierz znak</string>
+    <string name="no_results">Brak wyników wyszukiwania</string>
+    <string name="dictionary_files_not_loaded">Pliki słownika niezaładowane. Spróbuj ponownie.</string>
+    <string name="word_search_hint">汉字 pinyin polski</string>
 
-    <string name="settings">Settings</string>
-    <string name="do_not_show_again">Don\'t show again</string>
-    <string name="definition">Definition</string>
-    <string name="strokes">Chars</string>
-    <string name="copy">Copy</string>
-    <string name="speak">Speak</string>
-    <string name="word_search">Search</string>
-    <string name="translate_to_eng">Translate to eng</string>
-
-    <string name="tts_dialog_message">Please press the speakers. If you don\'t hear one or both of them open settings and download data for Chinese(Mandarin) or/and Polish language</string>
-    <string name="menu_chinese">Chinese</string>
-    <string name="menu_polish">Polish</string>
-    <string name="menu_search_mode_normal">Search mode: normal</string>
-    <string name="menu_search_mode_all">Search mode: all</string>
-    <string name="sentences">Sentences</string>
-    <string name="history">History</string>
-    <string name="menu">Menu</string>
-    <string name="flash_cards">Flash Cards</string>
-    <string name="school">Learn</string>
-    <string name="downloading">Downloading chinese recognition data. This may take a while</string>
-    <string name="character_not_found">Character not available</string>
-    <string name="saved">saved</string>
-    <string name="confirm">confirm</string>
-    <string name="are_you_sure_delete_flash_cards">Are you sure you want to delete group %1$s?</string>
-    <string name="flip">flip card</string>
-    <string name="correct">Correct</string>
-    <string name="incorrect">Incorrect</string>
-    <string name="collections">Collections</string>
-    <string name="collection_name">Collection name</string>
-    <string name="new_collection">new collection</string>
-    <string name="collection">"Collection: "</string>
-    <string name="draw">Draw</string>
-    <string name="present">Present</string>
-    <string name="draw_here">Draw here</string>
-    <string name="writing">Writing</string>
-
-    <string-array name="menu_array">
-        <item>Search mode</item>
-        <item>Voice recognition language</item>
-        <item>Search history</item>
-        <item>Learn</item>
-        <item>About app</item>
-    </string-array>
-    <string name="refresh">Refresh</string>
-    <string name="no_internet">No internet</string>
-    <string name="provide_input">Provide input</string>
-    <string name="about">About</string>
-    <string name="licences">Licenses</string>
-    <string name="version">Version</string>
-    <string name="hint">Hint</string>
-    <string name="simplified">Simplified</string>
-    <string name="traditional">Traditional</string>
-    <string name="continuee">Continue</string>
-    <string name="say_something">Say something</string>
-    <string name="delete_flashcard_group">Delete flashcard group</string>
-    <string name="word_popup">Word\'s options popup</string>
-    <string name="previous_character">Previous character</string>
-    <string name="next_character">Next character</string>
-    <string name="search_character">Search character</string>
-    <string name="reset_character">Reset character</string>
-    <string name="gesture_plain">Gesture plain</string>
-    <string name="next_flashcard">Next flashcard</string>
-    <string name="close">Close</string>
-    <string name="speak_chinese">Speak Chinese</string>
-    <string name="speak_polish">Speak Chinese</string>
-
+    <string name="settings">Ustawienia</string>
+    <string name="do_not_show_again">Nie pokazuj ponownie</string>
+    <string name="definition">Definicja</string>
+    <string name="strokes">Znaki</string>
+    <string name="copy">Skopiuj</string>
+    <string name="speak">Powiedz</string>
+    <string name="word_search">Wyszukaj</string>
+    <string name="translate_to_eng">Przetłumacz na ang.</string>
 
     <string name="placeholder_text" translatable="false">XDDDDDDDDDD</string>
     <string name="placeholder_counter" translatable="false">1/2</string>
@@ -86,13 +28,79 @@
     <string name="simplified_placeholder" translatable="false">(%1$s)</string>
     <string name="vector_master_license" translatable="false">Copyright 2016-17 Harjot Singh Oberai\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</string>
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-    <string name="add_collection">Add collection</string>
-    <string name="new_collection_confirm">Confirm new collection</string>
-    <string name="mic">Speak with microphone</string>
-    <string name="vector_master">Vector Master</string>
-    <string name="version_number" translatable="false">1.0</string>
-    <string name="add">Add</string>
-    <string name="delete">Delete</string>
-    <string name="reverse">Reverse</string>
+    <string name="version_number" translatable="false">1.02</string>
 
+    <string name="tts_dialog_message">Naciśnij głośniki. Jeśli nie słyszysz któregoś z nich, wejdź w ustawienia i pobierz dane języka chińskiego(mandaryńskiego) i/lub polskiego</string>
+    <string name="menu_chinese">chiński</string>
+    <string name="menu_polish">polski</string>
+    <string name="menu_search_mode_normal">Tryb wyszukiwania: zwykły</string>
+    <string name="menu_search_mode_all">Tryb wyszukiwania: wszystko</string>
+    <string name="sentences">Zdania</string>
+    <string name="history">Historia</string>
+    <string name="menu">Menu</string>
+    <string name="flash_cards">Fiszki</string>
+    <string name="school">Nauka</string>
+    <string name="downloading">Poczekaj, aż dane rozpoznawania chińskich znaków zostaną pobrane. Może to chwilę potrwać</string>
+    <string name="character_not_found">Znak niedostępny</string>
+    <string name="saved">zapisane</string>
+    <string name="confirm">zatwierdź</string>
+    <string name="are_you_sure_delete_flash_cards">Czy jesteś pewien, że chcesz usunąć grupę %1$s?</string>
+    <string name="flip">obróć</string>
+    <string name="correct">Dalej</string>
+    <string name="incorrect">Źle</string>
+    <string name="collections">Kolekcje</string>
+    <string name="collection_name">Nazwa kolekcji</string>
+    <string name="new_collection">nowa kolekcja</string>
+    <string name="collection">"Kolekcja: "</string>
+    <string name="draw">Rysuj</string>
+    <string name="present">Prezentuj</string>
+    <string name="writing">Pisanie</string>
+
+    <string-array name="menu_array">
+        <item>Tryb Wyszukiwania</item>
+        <item>Język wyszukiwania głosem</item>
+        <item>Historia wyszukiwania</item>
+        <item>Nauka</item>
+        <item>Pobieranie danych głosowych</item>
+        <item>O aplikacji</item>
+    </string-array>
+    <string name="draw_here">Rysuj tutaj</string>
+    <string name="refresh">Odśwież</string>
+    <string name="no_internet">Brak internetu</string>
+    <string name="provide_input">Proszę wpisać słowo</string>
+    <string name="about">O aplikacji</string>
+    <string name="licences">Licencje</string>
+    <string name="version">Wersja</string>
+    <string name="hint">Wskazówka</string>
+    <string name="simplified">Uproszczone</string>
+    <string name="traditional">Tradycyjne</string>
+    <string name="continuee">Kontynuuj</string>
+    <string name="say_something">Powiedz coś</string>
+    <string name="delete_flashcard_group">Usuń grupę</string>
+    <string name="word_popup">Opcje słowa</string>
+    <string name="previous_character">Poprzedni znak</string>
+    <string name="next_character">Następny znak</string>
+    <string name="search_character">Wyszkaj znak</string>
+    <string name="reset_character">Zresetuj znak</string>
+    <string name="next_flashcard">Następna fiszka</string>
+    <string name="close">Zamknij</string>
+    <string name="speak_chinese">Powiedz po chińsku</string>
+    <string name="speak_polish">Powiedz po polsku</string>
+    <string name="add_collection">Dodaj kolekcję</string>
+    <string name="new_collection_confirm">Zatwierdź nową kolekcję</string>
+    <string name="mic">Powiedz do mikrofonu</string>
+    <string name="vector_master">Vector Master</string>
+    <string name="add">Dodaj</string>
+    <string name="delete">Usuń</string>
+    <string name="reverse">Odwróć</string>
+    <string name="no_sentences">Brak przykładowych zdań</string>
+    <string name="speak_polish_sentence">Powiedz po polsku</string>
+    <string name="sentences_options">Opcje zdania</string>
+    <string name="gesture_plane">Powierzchnia wyłapująca gesty</string>
+    <string name="dropdown_simplified_traditional">Wybierz uproszczone tradycyjne</string>
+    <string name="next_word">Następne słowo</string>
+    <string name="prev_word">Poprzednie słowo</string>
+    <string name="yes">tak</string>
+    <string name="no">nie</string>
+    <string name="prev_flashcard">Poprzednia fiszka</string>
 </resources>

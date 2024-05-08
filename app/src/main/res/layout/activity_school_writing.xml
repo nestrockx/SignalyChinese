@@ -39,6 +39,7 @@
         android:src="@drawable/ic_arrow_back_default"
         android:scaleType="fitXY"
         android:padding="12dp"
+        android:contentDescription="@string/prev_word"
         android:background="@drawable/selector_search_bg_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -51,6 +52,7 @@
         android:layout_marginBottom="16dp"
         android:scaleType="fitXY"
         android:padding="12dp"
+        android:contentDescription="@string/next_word"
         android:background="@drawable/selector_search_bg_btn"
         android:src="@drawable/ic_arrow_forward_default"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -60,15 +62,15 @@
         android:id="@+id/nextCharacterBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/btn_simple_black_ripple_border_bg"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:textColor="@color/dark_mode_white"
         android:text="@string/continuee"
-        app:layout_constraintBottom_toBottomOf="@+id/schoolLearnStrokesCv"
+        android:textColor="@color/dark_mode_white"
         app:layout_constraintEnd_toEndOf="@+id/schoolLearnStrokesCv"
-        app:layout_constraintStart_toStartOf="@+id/schoolLearnStrokesCv" />
+        app:layout_constraintStart_toStartOf="@+id/schoolLearnStrokesCv"
+        app:layout_constraintTop_toBottomOf="@+id/schoolLearnStrokesCv" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/resetCharacterBtn"
@@ -113,7 +115,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:contentDescription="dropdown"
+        android:contentDescription="@string/dropdown_simplified_traditional"
         app:layout_constraintBottom_toBottomOf="@+id/characterDropdownTv"
         app:layout_constraintStart_toEndOf="@+id/characterDropdownTv"
         app:layout_constraintTop_toTopOf="@+id/characterDropdownTv"
