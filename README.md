@@ -2,7 +2,8 @@
 
 <p>
   Chinese-Polish dictionaryModel app with easy character search. <br>
-  Dictionary database excluded from repo.
+  Dictionary database excluded from repo.<br>
+  https://play.google.com/store/apps/details?id=com.wegielek.signalychinese
 </p>
 
 <img src="https://github.com/nestrockx/Signaly_Chinese_android/assets/72703958/2cba0061-3e69-44f6-be6a-f4c5def94456" width="400">
